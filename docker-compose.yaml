@@ -5,12 +5,23 @@ services:
     ports:
       - 8080:8080                                        # expose backend
     environment:
-      POSTGRES_DB: ${POSTGRES_DB}                        
+      POSTGRES_DB: ${POSTGRES_DB}
     networks:
       - spring-postgres
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
 
   db:
     image: postgres                                      # run Postgres container
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
     restart: always
     environment:
       POSTGRES_DB: ${POSTGRES_DB}                      
@@ -22,7 +33,7 @@ services:
     networks:
       - spring-postgres
     ports:
-      - "${POSTGRES_PORT}:5432"
+      - 5432:5432
 
 volumes:
   db-data:                                               # persistent storage
