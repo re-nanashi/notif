@@ -1,6 +1,6 @@
 services:
   backend:
-    build: ./                                            # build Spring Boot app from ./backend folder
+    build: ./backend                                     # build Spring Boot app from ./backend
     container_name: notif-backend
     ports:
       - 8080:8080                                        # expose backend
