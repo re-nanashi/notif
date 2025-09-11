@@ -1,0 +1,31 @@
+services:
+  backend:
+    build: ./                                            # build Spring Boot app from ./backend folder
+    container_name: notif-backend
+    ports:
+      - 8080:8080                                        # expose backend
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}                        
+    networks:
+      - spring-postgres
+
+  db:
+    image: postgres                                      # run Postgres container
+    restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}                      
+      POSTGRES_USER: ${POSTGRES_USER}                 
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}        
+      POSTGRES_INITDB_ARGS: "--data-checksums --auth-host=scram-sha-256"
+    volumes:
+      - db-data:/var/lib/postgresql/data                 # persist DB
+    networks:
+      - spring-postgres
+    ports:
+      - "${POSTGRES_PORT}:5432"
+
+volumes:
+  db-data:                                               # persistent storage
+
+networks:
+  spring-postgres:                                       # shared network between backend + db
