@@ -1,13 +1,15 @@
-package com.notif.notif_api.controller;
+package com.notif.api;
 
-import com.notif.notif_api.user.User;
-import com.notif.notif_api.user.service.UserService;
+import com.notif.api.user.dto.CreateUserRequest;
+import com.notif.api.user.entity.User;
+import com.notif.api.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequestMapping("${api.prefix}")
 public class TestController {
     @Autowired
     private UserService userService;
@@ -27,7 +29,7 @@ public class TestController {
     }
 
     @PostMapping
-    public ResponseEntity<String> createUser(@RequestBody User user) {
+    public ResponseEntity<String> createUser(@RequestBody CreateUserRequest user) {
         try {
             User newUser = userService.createUser(user);
             return ResponseEntity.ok("Created a new user with id: " + newUser.getId());

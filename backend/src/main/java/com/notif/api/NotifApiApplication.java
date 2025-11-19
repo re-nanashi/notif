@@ -1,13 +1,11 @@
-package com.notif.notif_api;
+package com.notif.api;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 public class NotifApiApplication {
-
 	public static void main(String[] args) {
 		SpringApplication.run(NotifApiApplication.class, args);
 	}
-
 }
