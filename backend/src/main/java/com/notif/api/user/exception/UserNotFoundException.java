@@ -1,10 +1,9 @@
-package com.notif.api.user.exceptions;
+package com.notif.api.user.exception;
 
 import com.notif.api.common.exception.ResourceNotFoundException;
 
 /**
- * Exception thrown when a requested resource cannot be found.
- * Will be mapped to an HTTP 404 (Not Found) response.
+ * Exception thrown when a requested user cannot be found.
  */
 public class UserNotFoundException extends ResourceNotFoundException {
     public UserNotFoundException(String message) {

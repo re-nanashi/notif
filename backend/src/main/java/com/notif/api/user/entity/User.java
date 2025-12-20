@@ -2,15 +2,21 @@ package com.notif.api.user.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.NaturalId;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
+/**
+ * JPA entity representing a user in the system.
+ *
+ * Implements {@link UserDetails} for Spring Security authentication.
+ * Contains login credentials, personal information, and unique email.
+ */
 @Entity
-@Table(name = "_user")
+@Table(name = "_user", uniqueConstraints = {@UniqueConstraint(name = "uk_users_email", columnNames = "email")})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -19,12 +25,11 @@ import java.util.List;
 public class User implements UserDetails {
     // ID
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     // Account + login
-    @NaturalId
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false, columnDefinition = "citext")
     private String email;
 
     private String password; // null allowed for OAuth
@@ -36,13 +41,13 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String lastName;
 
-    // TODO (Authentication): Implement timestamps
-
-    // TODO (Authorization): Implement roles
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of();
     }
+
+    // TODO (Authentication): Implement timestamps
+    // TODO (Authorization): Implement roles
 
     @Override
     public String getPassword() {

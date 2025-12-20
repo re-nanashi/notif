@@ -1,17 +1,70 @@
 package com.notif.api.user.service;
 
-import com.notif.api.user.dto.UserDTO;
-import com.notif.api.user.dto.CreateUserRequest;
-import com.notif.api.user.dto.UpdateUserRequest;
-import com.notif.api.user.dto.ChangePasswordRequest;
+import com.notif.api.user.dto.*;
 
 import java.util.List;
+import java.util.UUID;
 
+/**
+ * Service interface for managing users.
+ *
+ * Provides methods for creating, updating, retrieving, and deleting users, as well as changing email and password.
+ */
 public interface IUserService {
-    UserDTO createUser(CreateUserRequest user);
+    /**
+     * Creates a new user.
+     *
+     * @param request the user creation request containing email, password, and profile information
+     * @return the created {@link UserDTO}
+     */
+    UserDTO createUser(CreateUserRequest request);
+
+    /**
+     * Retrieves all users.
+     *
+     * @return list of {@link UserDTO} representing all users
+     */
     List<UserDTO> getAllUsers();
-    UserDTO getUserById(Long userId);
-    UserDTO updateUser(UpdateUserRequest request, Long userId);
-    UserDTO changePassword(ChangePasswordRequest request, Long userId);
-    void deleteUser(Long userId);
+
+    /**
+     * Retrieves a user by their ID.
+     *
+     * @param id the UUID of the user
+     * @return the {@link UserDTO} of the user
+     */
+    UserDTO getUserById(UUID id);
+
+    /**
+     * Updates a user's profile information.
+     *
+     * @param request the fields to update
+     * @param id      the UUID of the user
+     * @return the updated {@link UserDTO}
+     */
+    UserDTO updateUser(UpdateUserRequest request, UUID id);
+
+    /**
+     * Changes a user's email address.
+     *
+     * @param request the new email and current password for verification
+     * @param id      the UUID of the user
+     * @return the updated {@link UserDTO}
+     */
+    UserDTO changeEmail(ChangeEmailRequest request, UUID id);
+
+    /**
+     * Changes a user's password.
+     *
+     * @param request contains current password, new password, and confirmation
+     * @param id      the UUID of the user
+     * @return the updated {@link UserDTO}
+     */
+    UserDTO changePassword(ChangePasswordRequest request, UUID id);
+
+    /**
+     * Deletes a user by their ID.
+     *
+     * @param id the UUID of the user to delete
+     */
+    void deleteUser(UUID id);
 }

@@ -2,13 +2,18 @@ package com.notif.api.user.dto;
 
 import lombok.Data;
 
+import java.util.UUID;
+
 /**
- * DTO for transferring user profile data without sensitive fields like password.
+ * Data Transfer Object (DTO) for transferring user profile data.
+ *
+ * Excludes sensitive fields such as passwords.
+ * Used for responses to clients or other services.
  */
 @Data
 public class UserDTO {
-    private Long id;
+    private UUID id;
+    private String email;
     private String firstName;
     private String lastName;
-    private String email;
 }
