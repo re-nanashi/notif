@@ -1,0 +1,24 @@
+package com.notif.api.common.constants;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@AllArgsConstructor
+@Getter
+public enum ErrorCodes {
+    // Common
+    INTERNAL_SERVER_ERROR("INTERNAL_SERVER_ERROR"),
+    VALIDATION_FAILED("VALIDATION_FAILED"),
+    AUTHENTICATION_FAILED("AUTHENTICATION_FAILED"),
+    RESOURCE_NOT_FOUND("RESOURCE_NOT_FOUND"),
+    RESOURCE_ALREADY_EXISTS("RESOURCE_ALREADY_EXISTS"),
+    RESOURCE_CONFLICT("RESOURCE_CONFLICT"),
+    ILLEGAL_STATE("ILLEGAL_STATE"),
+
+    // User
+    PASSWORD_MISMATCH("PASSWORD_MISMATCH"),
+    USER_NOT_FOUND("USER_NOT_FOUND"),
+    USER_ALREADY_EXISTS("USER_ALREADY_EXISTS");
+
+    private final String value;
+}
