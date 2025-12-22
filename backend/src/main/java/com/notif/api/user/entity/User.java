@@ -2,6 +2,7 @@ package com.notif.api.user.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.security.core.CredentialsContainer;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -22,7 +23,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class User implements UserDetails {
+public class User implements UserDetails, CredentialsContainer {
     // ID
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -77,5 +78,11 @@ public class User implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    @Override
+    public void eraseCredentials() {
+        this.password = null;
+
     }
 }
