@@ -11,15 +11,9 @@ import org.springframework.beans.factory.annotation.Value;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+// TODO (auth): refresh tokens
 public class AuthenticationResponse {
-    @JsonProperty("access_token")
     private String accessToken;
-    // TODO (auth): refresh tokens
-    // JsonProperty("refresh_token")
-    // private String refreshToken;
-    @JsonProperty("token_type")
     private String tokenType = "Bearer";
-
-    @JsonProperty("expires_in")
-    private long expiresIn;
+    private long expiresIn; // seconds
 }
