@@ -80,8 +80,8 @@ public class UserService implements IUserService {
             throw new IllegalArgumentException("No update values provided. At least one field must be changed.");
         }
 
-        if (Util.hasValue(firstName)) existingUser.setFirstName(firstName);
-        if (Util.hasValue(lastName)) existingUser.setLastName(lastName);
+        if (!Util.isNullOrBlank(firstName)) existingUser.setFirstName(firstName);
+        if (!Util.isNullOrBlank(lastName)) existingUser.setLastName(lastName);
 
         userRepository.save(existingUser);
 
