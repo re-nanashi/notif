@@ -35,6 +35,14 @@ public interface IUserService {
     UserDTO getUserById(UUID id);
 
     /**
+     * Retrieves a user by their email.
+     *
+     * @param email the email of the user
+     * @return the {@link UserDTO} of the user
+     */
+    UserDTO getUserByEmail(String email);
+
+    /**
      * Updates a user's profile information.
      *
      * @param request the fields to update

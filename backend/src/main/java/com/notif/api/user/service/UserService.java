@@ -1,13 +1,13 @@
 package com.notif.api.user.service;
 
-import com.notif.api.common.util.Util;
 import com.notif.api.user.dto.*;
 import com.notif.api.user.entity.User;
 import com.notif.api.user.exception.PasswordMismatchException;
-import com.notif.api.common.exception.ResourceConflictException;
 import com.notif.api.user.exception.UserAlreadyExistsException;
 import com.notif.api.user.exception.UserNotFoundException;
 import com.notif.api.user.repository.UserRepository;
+import com.notif.api.common.util.Util;
+import com.notif.api.common.exception.ResourceConflictException;
 import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,6 +63,14 @@ public class UserService implements IUserService {
     public UserDTO getUserById(UUID id) {
         User existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("User with ID " + id + " not found"));
+
+        return this.convertUserToDto(existingUser);
+    }
+
+    @Override
+    public UserDTO getUserByEmail(String email) {
+        User existingUser = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User with email '" + email + "' not found"));
 
         return this.convertUserToDto(existingUser);
     }
