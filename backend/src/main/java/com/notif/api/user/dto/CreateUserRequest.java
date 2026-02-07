@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 /**
- * Request DTO used for creating a new user account.
+ * Request DTO used for creating a new user account (admin-only).
  *
  * Contains all required fields for registration, including account credentials
  * and basic user profile information.
