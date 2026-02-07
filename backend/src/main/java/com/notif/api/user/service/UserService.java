@@ -110,7 +110,7 @@ public class UserService implements IUserService {
         existingUser.setEmail(request.getNewEmail());
         userRepository.save(existingUser);
 
-        return convertUserToDto(existingUser);
+        return this.convertUserToDto(existingUser);
     }
 
     @Override
