@@ -1,12 +1,12 @@
 package com.notif.api.common.mapper;
 
 import com.notif.api.common.constants.ErrorCodes;
-import com.notif.api.common.exception.AlreadyExistsException;
 import com.notif.api.common.exception.ResourceConflictException;
 import com.notif.api.common.exception.ResourceNotFoundException;
 import com.notif.api.common.response.ApiError;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 

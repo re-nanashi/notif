@@ -1,11 +1,13 @@
 package com.notif.api.common.exception;
 
-/**
- * Exception thrown when a requested resource cannot be found.
- * Will be mapped to an HTTP 404 (Not Found) response.
- */
+import lombok.Getter;
+
+@Getter
 public class ResourceNotFoundException extends RuntimeException {
-    public ResourceNotFoundException(String message) {
+    private final String errorCode;
+
+    public ResourceNotFoundException(String errorCode, String message) {
         super(message);
+        this.errorCode = errorCode;
     }
 }

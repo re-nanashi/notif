@@ -55,7 +55,6 @@ public class JwtUtils {
     }
 
     private String buildToken(Map<String, Object> extraClaims, UserDetails userDetails, long expiration) {
-
         return Jwts.builder()
                 // TODO (Authorization): Add claims for security; multi-tenancy, roles, etc
                 .setClaims(extraClaims)

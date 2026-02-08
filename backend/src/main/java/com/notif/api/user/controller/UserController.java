@@ -52,7 +52,7 @@ public class UserController {
     }
 
     /**
-     * Retrieves a user by their UUID.
+     * Retrieves a user by their UUID (admin-only).
      *
      * @param id the UUID of the user
      * @return {@link ApiResponse} containing the {@link UserDTO}

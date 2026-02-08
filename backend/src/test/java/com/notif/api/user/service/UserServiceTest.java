@@ -1,8 +1,6 @@
 package com.notif.api.user.service;
 
 import com.notif.api.user.dto.UserDTO;
-import com.notif.api.user.entity.User;
-import com.notif.api.user.exception.UserNotFoundException;
 import com.notif.api.user.repository.UserRepository;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
@@ -20,7 +18,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;

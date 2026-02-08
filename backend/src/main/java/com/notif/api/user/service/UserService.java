@@ -3,8 +3,6 @@ package com.notif.api.user.service;
 import com.notif.api.user.dto.*;
 import com.notif.api.user.entity.User;
 import com.notif.api.user.exception.PasswordMismatchException;
-import com.notif.api.user.exception.UserAlreadyExistsException;
-import com.notif.api.user.exception.UserNotFoundException;
 import com.notif.api.user.repository.UserRepository;
 import com.notif.api.common.util.Util;
 import com.notif.api.common.exception.ResourceConflictException;
@@ -110,7 +108,7 @@ public class UserService implements IUserService {
         if (existingUser.getEmail().equals(email)) {
             throw new IllegalStateException("Email is already set to this value");
         }
-        // Check if email is already in use
+        // Check if email is already in use; what this means another user already uses this
         if (userRepository.existsByEmail(email)) {
             throw new ResourceConflictException("Email '" + email + "' already in use");
         }

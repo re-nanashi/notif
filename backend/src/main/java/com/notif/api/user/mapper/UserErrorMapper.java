@@ -3,8 +3,6 @@ package com.notif.api.user.mapper;
 import com.notif.api.common.constants.ErrorCodes;
 import com.notif.api.common.response.ApiError;
 import com.notif.api.user.exception.PasswordMismatchException;
-import com.notif.api.user.exception.UserAlreadyExistsException;
-import com.notif.api.user.exception.UserNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 

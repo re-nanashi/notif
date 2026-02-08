@@ -4,7 +4,10 @@ import lombok.Getter;
 
 @Getter
 public class ResourceConflictException extends RuntimeException {
-    public ResourceConflictException(String message) {
+    private final String errorCode;
+
+    public ResourceConflictException(String errorCode, String message) {
         super(message);
+        this.errorCode = errorCode;
     }
 }
