@@ -1,12 +1,13 @@
 package com.notif.api.common.exception;
 
+import com.notif.api.common.constants.ErrorCodes;
 import lombok.Getter;
 
 @Getter
 public class ResourceNotFoundException extends RuntimeException {
-    private final String errorCode;
+    private final ErrorCodes errorCode;
 
-    public ResourceNotFoundException(String errorCode, String message) {
+    public ResourceNotFoundException(String message, ErrorCodes errorCode) {
         super(message);
         this.errorCode = errorCode;
     }
