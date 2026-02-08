@@ -64,7 +64,7 @@ public class UserController {
     }
 
     /**
-     * Updates a user's profile (user themselves or admin).
+     * Updates a user's profile (user and admin).
      *
      * @param request the update payload
      * @param id      the UUID of the user to update
@@ -80,7 +80,7 @@ public class UserController {
     }
 
     /**
-     * Changes a user's email (user themselves).
+     * Changes a user's email (user and admin).
      *
      * Business rules:
      * - TODO (Future): Requires validation of current email/password internally.
@@ -97,7 +97,7 @@ public class UserController {
     }
 
     /**
-     * Changes a user's password (user themselves).
+     * Changes a user's password (user and admin).
      *
      * Business rules:
      * - Requires current password for verification.
