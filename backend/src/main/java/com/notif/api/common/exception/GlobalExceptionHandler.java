@@ -1,40 +1,60 @@
 package com.notif.api.common.exception;
 
-import com.notif.api.common.mapper.ErrorMapper;
+import com.notif.api.common.constants.ErrorCodes;
 import com.notif.api.common.response.ApiError;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-    @Autowired
-    private ErrorMapper errorMapper;
+    @ExceptionHandler(ResourceConflictException.class)
+    public ResponseEntity<ApiError> handleResourceConflict(ResourceConflictException ex) {
+        ApiError error = ApiError.builder()
+                .status(HttpStatus.CONFLICT.value())
+                .error(ex.getErrorCode().getValue())
+                .messages(Collections.singletonList(ex.getMessage()))
+                .timestamp(LocalDateTime.now())
+                .build();
 
-    // Handles custom exceptions
-    @ExceptionHandler({ResourceNotFoundException.class, AlreadyExistsException.class, ResourceConflictException.class})
-    public ResponseEntity<ApiError> handleCustomExceptions(RuntimeException ex) {
-        ApiError apiError = errorMapper.mapException(ex);
-        return ResponseEntity.status(apiError.getStatus()).body(apiError);
+        return ResponseEntity.status(error.getStatus()).body(error);
     }
 
-    // Handles common exceptions
-    @ExceptionHandler({IllegalStateException.class, BadCredentialsException.class})
-    public ResponseEntity<ApiError> handleCommonExceptions(RuntimeException ex) {
-        ApiError apiError = errorMapper.mapException(ex);
-        return ResponseEntity.status(apiError.getStatus()).body(apiError);
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ApiError> handleResourceNotFound(ResourceNotFoundException ex) {
+        ApiError error = ApiError.builder()
+                .status(HttpStatus.NOT_FOUND.value())
+                .error(ex.getErrorCode().getValue())
+                .messages(Collections.singletonList(ex.getMessage()))
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        return ResponseEntity.status(error.getStatus()).body(error);
     }
 
-    // Handles validation errors
+    @ExceptionHandler(ValidationException.class)
+    public ResponseEntity<ApiError> handleValidation(ValidationException ex) {
+        ApiError error = ApiError.builder()
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error(ex.getErrorCode().getValue())
+                .messages(Collections.singletonList(ex.getMessage()))
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        return ResponseEntity.status(error.getStatus()).body(error);
+    }
+
+    // Handles @Valid errors
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiError> handleValidationExceptions(MethodArgumentNotValidException ex) {
+    public ResponseEntity<ApiError> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
         List<String> validationErrors = ex.getBindingResult()
                 .getAllErrors()
                 .stream()
@@ -47,15 +67,26 @@ public class GlobalExceptionHandler {
                 })
                 .collect(Collectors.toList());
 
-        ApiError apiError = errorMapper.mapException(ex, validationErrors);
+        ApiError error = ApiError.builder()
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error(ErrorCodes.VALIDATION_FAILED.getValue())
+                .messages(validationErrors)
+                .timestamp(LocalDateTime.now())
+                .build();
 
-        return ResponseEntity.status(apiError.getStatus()).body(apiError);
+        return ResponseEntity.status(error.getStatus()).body(error);
     }
 
     // Fallback for uncaught exceptions
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError> handleAllExceptions(Exception ex) {
-        ApiError apiError = errorMapper.mapException(ex);
-        return ResponseEntity.status(apiError.getStatus()).body(apiError);
+        ApiError error = ApiError.builder()
+                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .error(ErrorCodes.INTERNAL_SERVER_ERROR.getValue())
+                .messages(Collections.singletonList(ex.getMessage()))
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        return ResponseEntity.status(error.getStatus()).body(error);
     }
 }

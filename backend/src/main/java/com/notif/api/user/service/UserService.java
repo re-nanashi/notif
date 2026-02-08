@@ -1,7 +1,11 @@
 package com.notif.api.user.service;
 
+import com.notif.api.common.constants.ErrorCodes;
+import com.notif.api.common.exception.ResourceNotFoundException;
+import com.notif.api.common.exception.ValidationException;
 import com.notif.api.user.dto.*;
 import com.notif.api.user.entity.User;
+import com.notif.api.user.exception.InvalidPasswordException;
 import com.notif.api.user.exception.PasswordMismatchException;
 import com.notif.api.user.repository.UserRepository;
 import com.notif.api.common.util.Util;
@@ -9,7 +13,6 @@ import com.notif.api.common.exception.ResourceConflictException;
 import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -30,7 +33,10 @@ public class UserService implements IUserService {
     public UserDTO createUser(CreateUserRequest request) {
         // Check if user already exists
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new UserAlreadyExistsException("User with email '" + request.getEmail() + "' already exists");
+            throw new ResourceConflictException(
+                    "User with email '" + request.getEmail() + "' already exists",
+                    ErrorCodes.USER_ALREADY_EXISTS
+            );
         }
 
         User newUser = User.builder()
@@ -60,7 +66,10 @@ public class UserService implements IUserService {
     @Override
     public UserDTO getUserById(UUID id) {
         User existingUser = userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("User with ID " + id + " not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "User with ID " + id + " not found",
+                        ErrorCodes.USER_NOT_FOUND
+                ));
 
         return this.convertUserToDto(existingUser);
     }
@@ -68,7 +77,10 @@ public class UserService implements IUserService {
     @Override
     public UserDTO getUserByEmail(String email) {
         User existingUser = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("User with email '" + email + "' not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "User with email '" + email + "' not found",
+                        ErrorCodes.USER_NOT_FOUND
+                ));
 
         return this.convertUserToDto(existingUser);
     }
@@ -76,14 +88,20 @@ public class UserService implements IUserService {
     @Override
     public UserDTO updateUser(UpdateUserRequest request, UUID id) {
         User existingUser = userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("User with ID " + id + " not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "User with ID " + id + " not found",
+                        ErrorCodes.USER_NOT_FOUND
+                ));
 
         String firstName = request.getFirstName();
         String lastName = request.getLastName();
 
         // Require at least one field to update
         if (Util.isNullOrBlank(firstName) && Util.isNullOrBlank(lastName)) {
-            throw new IllegalArgumentException("No update values provided. At least one field must be changed.");
+            throw new ValidationException(
+                    "At least one field must be provided for update",
+                    ErrorCodes.NO_FIELDS_TO_UPDATE
+            );
         }
 
         if (!Util.isNullOrBlank(firstName)) existingUser.setFirstName(firstName);
@@ -97,23 +115,29 @@ public class UserService implements IUserService {
     @Override
     public UserDTO changeEmail(ChangeEmailRequest request, UUID id) {
         User existingUser = userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("User with ID " + id + " not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "User with ID " + id + " not found",
+                        ErrorCodes.USER_NOT_FOUND
+                ));
 
-        // Validate current password
+        // Check if password is incorrect
         if (!bCryptPasswordEncoder.matches(request.getCurrentPassword(), existingUser.getPassword())) {
-            throw new BadCredentialsException("Invalid password");
+            throw new InvalidPasswordException(
+                    "The password provided is incorrect",
+                    ErrorCodes.INVALID_CREDENTIALS
+            );
         }
-        // Check if new email is the same as current
+        // Check if email is already in use
         String email = request.getNewEmail();
-        if (existingUser.getEmail().equals(email)) {
-            throw new IllegalStateException("Email is already set to this value");
-        }
-        // Check if email is already in use; what this means another user already uses this
         if (userRepository.existsByEmail(email)) {
-            throw new ResourceConflictException("Email '" + email + "' already in use");
+            throw new ResourceConflictException(
+                    "Email '" + email + "' already in use",
+                    ErrorCodes.EMAIL_ALREADY_EXISTS
+            );
         }
 
         existingUser.setEmail(request.getNewEmail());
+
         userRepository.save(existingUser);
 
         return this.convertUserToDto(existingUser);
@@ -122,18 +146,28 @@ public class UserService implements IUserService {
     @Override
     public UserDTO changePassword(ChangePasswordRequest request, UUID id) {
         User existingUser = userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("User with ID " + id + " not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "User with ID " + id + " not found",
+                        ErrorCodes.USER_NOT_FOUND
+                ));
 
-        // Validate current password
+        // Check if password is incorrect
         if (!bCryptPasswordEncoder.matches(request.getCurrentPassword(), existingUser.getPassword())) {
-            throw new BadCredentialsException("Invalid password");
+            throw new InvalidPasswordException(
+                    "The password provided is incorrect",
+                    ErrorCodes.INVALID_CREDENTIALS
+            );
         }
-        // Check new password matches confirmation
+        // Check if new password does not match confirmation password
         if (!request.getNewPassword().equals(request.getConfirmationPassword())) {
-            throw new PasswordMismatchException("The provided passwords must be identical");
+            throw new PasswordMismatchException(
+                    "The provided passwords must be identical",
+                    ErrorCodes.PASSWORD_MISMATCH
+            );
         }
 
         existingUser.setPassword(bCryptPasswordEncoder.encode(request.getNewPassword()));
+
         userRepository.save(existingUser);
 
         return this.convertUserToDto(existingUser);
@@ -142,7 +176,10 @@ public class UserService implements IUserService {
     @Override
     public void deleteUser(UUID id) {
         userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException("User with ID " + id + " not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "User with ID " + id + " not found",
+                        ErrorCodes.USER_NOT_FOUND
+                ));
 
         userRepository.deleteById(id);
     }
