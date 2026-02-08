@@ -18,7 +18,7 @@ import java.util.function.Function;
 
 // TODO: Refresh tokens
 @Service
-public class JwtUtils {
+public class JwtService {
     @Value("${jwt.secret}")
     private String secretKey;
     @Value("${jwt.expiration}")
