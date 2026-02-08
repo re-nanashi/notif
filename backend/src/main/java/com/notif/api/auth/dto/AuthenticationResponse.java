@@ -15,5 +15,5 @@ import org.springframework.beans.factory.annotation.Value;
 public class AuthenticationResponse {
     private String accessToken;
     private String tokenType = "Bearer";
-    private long expiresIn; // seconds
+    private long expiresIn; // in seconds
 }
