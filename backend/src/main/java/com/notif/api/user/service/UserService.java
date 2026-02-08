@@ -48,7 +48,7 @@ public class UserService implements IUserService {
 
         userRepository.save(newUser);
 
-        return this.convertUserToDto(newUser);
+        return convertUserToDto(newUser);
     }
 
     // TODO (Future):
@@ -71,7 +71,7 @@ public class UserService implements IUserService {
                         ErrorCodes.USER_NOT_FOUND
                 ));
 
-        return this.convertUserToDto(existingUser);
+        return convertUserToDto(existingUser);
     }
 
     @Override
@@ -82,7 +82,7 @@ public class UserService implements IUserService {
                         ErrorCodes.USER_NOT_FOUND
                 ));
 
-        return this.convertUserToDto(existingUser);
+        return convertUserToDto(existingUser);
     }
 
     @Override
@@ -109,7 +109,7 @@ public class UserService implements IUserService {
 
         userRepository.save(existingUser);
 
-        return this.convertUserToDto(existingUser);
+        return convertUserToDto(existingUser);
     }
 
     @Override
@@ -140,7 +140,7 @@ public class UserService implements IUserService {
 
         userRepository.save(existingUser);
 
-        return this.convertUserToDto(existingUser);
+        return convertUserToDto(existingUser);
     }
 
     @Override
@@ -170,7 +170,7 @@ public class UserService implements IUserService {
 
         userRepository.save(existingUser);
 
-        return this.convertUserToDto(existingUser);
+        return convertUserToDto(existingUser);
     }
 
     @Override
