@@ -4,9 +4,9 @@ import com.notif.api.auth.dto.AuthenticatedUserDTO;
 import com.notif.api.auth.dto.AuthenticationRequest;
 import com.notif.api.auth.dto.AuthenticationResponse;
 import com.notif.api.auth.dto.RegisterRequest;
+import com.notif.api.common.constants.AppConstants;
 import com.notif.api.common.constants.ErrorCodes;
 import com.notif.api.common.exception.ResourceConflictException;
-import com.notif.api.common.util.Util;
 import com.notif.api.common.exception.ResourceNotFoundException;
 import com.notif.api.config.security.JwtService;
 import com.notif.api.user.entity.User;
@@ -112,7 +112,7 @@ public class AuthenticationService {
 
         String jwtToken = jwtService.generateToken(savedUser);
         Date expiration = jwtService.extractExpiration(jwtToken);
-        long expiresIn = (expiration.getTime() - System.currentTimeMillis()) / Util.MILLISECONDS_PER_SECOND;
+        long expiresIn = (expiration.getTime() - System.currentTimeMillis()) / AppConstants.MILLISECONDS_PER_SECOND;
 
         return AuthenticationResponse.builder()
                 .accessToken(jwtToken)

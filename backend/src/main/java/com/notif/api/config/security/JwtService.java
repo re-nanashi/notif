@@ -1,6 +1,6 @@
 package com.notif.api.config.security;
 
-import com.notif.api.common.util.Util;
+import com.notif.api.common.constants.AppConstants;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -60,7 +60,7 @@ public class JwtService {
                 .setClaims(extraClaims)
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + expiration * Util.MILLISECONDS_PER_SECOND))
+                .setExpiration(new Date(System.currentTimeMillis() + expiration * AppConstants.MILLISECONDS_PER_SECOND))
                 .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
