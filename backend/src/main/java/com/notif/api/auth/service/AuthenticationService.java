@@ -1,21 +1,30 @@
 package com.notif.api.auth.service;
 
+import com.notif.api.auth.dto.AuthenticatedUserDTO;
 import com.notif.api.auth.dto.AuthenticationRequest;
 import com.notif.api.auth.dto.AuthenticationResponse;
 import com.notif.api.auth.dto.RegisterRequest;
 import com.notif.api.common.constants.ErrorCodes;
 import com.notif.api.common.exception.ResourceConflictException;
 import com.notif.api.common.util.Util;
+import com.notif.api.common.exception.ResourceNotFoundException;
 import com.notif.api.config.security.JwtService;
 import com.notif.api.user.entity.User;
 import com.notif.api.user.repository.UserRepository;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import javax.security.sasl.AuthenticationException;
+import java.io.IOException;
 import java.util.Date;
 
 @Service
@@ -25,6 +34,40 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+
+    public AuthenticatedUserDTO getCurrentlyLoggedUser(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            UserDetails user
+    ) throws IOException {
+        final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        final String jwtToken;
+        final User userInfo;
+
+        if (authHeader == null || !authHeader.startsWith("Bearer")) {
+            throw new AuthenticationException("Missing or invalid Authorization header.");
+        }
+
+        jwtToken = authHeader.substring(7);
+        userInfo = userRepository.findByEmail(user.getUsername())
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "User with email " + user.getUsername() + " does not exists.",
+                        ErrorCodes.USER_NOT_FOUND
+                ));
+
+        if (!jwtService.isTokenValid(jwtToken, user)) {
+            throw new AuthenticationException("Expired or invalid token.");
+        }
+
+        Date expiration = jwtService.extractExpiration(jwtToken);
+        long expiresIn = (expiration.getTime() - System.currentTimeMillis()) / AppConstants.MILLISECONDS_PER_SECOND;
+
+        return AuthenticatedUserDTO.builder()
+                .id(userInfo.getId())
+                .email(userInfo.getEmail())
+                .expiresIn(expiresIn)
+                .build();
+    }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
         Authentication authentication = authenticationManager.authenticate(
