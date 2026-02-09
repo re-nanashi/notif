@@ -1,5 +1,6 @@
 package com.notif.api.auth.dto;
 
+import lombok.Builder;
 import lombok.Data;
 
 import java.util.UUID;
@@ -11,6 +12,7 @@ import java.util.UUID;
  * Used for responses to clients or other services.
  */
 @Data
+@Builder
 public class AuthenticatedUserDTO {
     private UUID id;
     private String email;
