@@ -77,14 +77,20 @@ public class AuthenticationService {
                 )
         );
 
-        String jwtToken = jwtService.generateToken((User)authentication.getPrincipal());
-        Date expiration = jwtService.extractExpiration(jwtToken);
-        long expiresIn = (expiration.getTime() - System.currentTimeMillis()) / Util.MILLISECONDS_PER_SECOND;
+        if (authentication.isAuthenticated()) {
+            String jwtToken = jwtService.generateToken((User)authentication.getPrincipal());
+            Date expiration = jwtService.extractExpiration(jwtToken);
+            long expiresIn = (expiration.getTime() - System.currentTimeMillis()) / AppConstants.MILLISECONDS_PER_SECOND;
 
-        return AuthenticationResponse.builder()
-                .accessToken(jwtToken)
-                .expiresIn(expiresIn)
-                .build();
+
+            return AuthenticationResponse.builder()
+                    .accessToken(jwtToken)
+                    .tokenType("Bearer")
+                    .expiresIn(expiresIn)
+                    .build();
+        } else {
+            throw new UsernameNotFoundException("Invalid user request");
+        }
     }
 
     public AuthenticationResponse register(RegisterRequest request) {
@@ -110,6 +116,7 @@ public class AuthenticationService {
 
         return AuthenticationResponse.builder()
                 .accessToken(jwtToken)
+                .tokenType("Bearer")
                 .expiresIn(expiresIn)
                 .build();
     }
