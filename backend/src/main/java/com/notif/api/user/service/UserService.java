@@ -13,7 +13,7 @@ import com.notif.api.common.exception.ResourceConflictException;
 import jakarta.transaction.Transactional;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -25,7 +25,7 @@ public class UserService implements IUserService {
     @Autowired
     private UserRepository userRepository;
     @Autowired
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
+    private PasswordEncoder passwordEncoder;
     @Autowired
     private ModelMapper modelMapper;
 
@@ -43,7 +43,7 @@ public class UserService implements IUserService {
                 .firstName(request.getFirstName().strip()) // remove leading/trailing spaces
                 .lastName(request.getLastName().strip())
                 .email(request.getEmail()) // @Email annotation fails whitespaces
-                .password(bCryptPasswordEncoder.encode(request.getPassword()))
+                .password(passwordEncoder.encode(request.getPassword()))
                 .build();
 
         userRepository.save(newUser);
@@ -121,7 +121,7 @@ public class UserService implements IUserService {
                 ));
 
         // Check if password is incorrect
-        if (!bCryptPasswordEncoder.matches(request.getCurrentPassword(), existingUser.getPassword())) {
+        if (!passwordEncoder.matches(request.getCurrentPassword(), existingUser.getPassword())) {
             throw new InvalidPasswordException(
                     "The password provided is incorrect",
                     ErrorCodes.INVALID_CREDENTIALS
@@ -152,7 +152,7 @@ public class UserService implements IUserService {
                 ));
 
         // Check if password is incorrect
-        if (!bCryptPasswordEncoder.matches(request.getCurrentPassword(), existingUser.getPassword())) {
+        if (!passwordEncoder.matches(request.getCurrentPassword(), existingUser.getPassword())) {
             throw new InvalidPasswordException(
                     "The password provided is incorrect",
                     ErrorCodes.INVALID_CREDENTIALS
@@ -166,7 +166,7 @@ public class UserService implements IUserService {
             );
         }
 
-        existingUser.setPassword(bCryptPasswordEncoder.encode(request.getNewPassword()));
+        existingUser.setPassword(passwordEncoder.encode(request.getNewPassword()));
 
         userRepository.save(existingUser);
 
