@@ -31,6 +31,8 @@ public class SecurityConfig {
                 // Disable CSRF (not needed for stateless JWT)
                 .csrf(csrf -> csrf.disable())
                 .anonymous(AbstractHttpConfigurer::disable) // Disables anonymous authentication
+                // Configure unauthorized handling
+                .exceptionHandling(ex -> ex.authenticationEntryPoint(unauthorizedHandler))
                 // Configure endpoint authorization
                 .authorizeHttpRequests(auth -> auth
                         // Public endpoints
@@ -46,9 +48,6 @@ public class SecurityConfig {
                 .authenticationProvider(authenticationProvider)
                 // Add JWT filter before Spring Security's default filter
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-
-        // Configure unauthorized handling
-        // .exceptionHandling(ex -> ex.authenticationEntryPoint(unauthorizedHandler))
 
         return http.build();
     }
