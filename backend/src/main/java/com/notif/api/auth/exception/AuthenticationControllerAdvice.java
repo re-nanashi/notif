@@ -27,9 +27,10 @@ public class AuthenticationControllerAdvice {
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ApiError> handleBadCredentials(BadCredentialsException ex) {
         ApiError error = ApiError.builder()
+                .title(HttpStatus.UNAUTHORIZED.getReasonPhrase())
                 .status(HttpStatus.UNAUTHORIZED.value())
                 .error(ErrorCodes.INVALID_CREDENTIALS.getValue())
-                .messages(Collections.singletonList("Invalid username or password."))
+                .detail("Invalid username or password.")
                 .timestamp(LocalDateTime.now())
                 .build();
 
@@ -40,9 +41,10 @@ public class AuthenticationControllerAdvice {
     @ExceptionHandler(DisabledException.class)
     public ResponseEntity<ApiError> handleDisabled(DisabledException ex) {
         ApiError error = ApiError.builder()
+                .title(HttpStatus.FORBIDDEN.getReasonPhrase())
                 .status(HttpStatus.FORBIDDEN.value())
                 .error(ErrorCodes.ACCOUNT_DISABLED.getValue())
-                .messages(Collections.singletonList("Account is disabled. Please verify your email."))
+                .detail("Account is disabled. Please verify your email.")
                 .timestamp(LocalDateTime.now())
                 .build();
 
@@ -53,9 +55,10 @@ public class AuthenticationControllerAdvice {
     @ExceptionHandler(LockedException.class)
     public ResponseEntity<ApiError> handleLocked(LockedException ex) {
         ApiError error = ApiError.builder()
+                .title(HttpStatus.FORBIDDEN.getReasonPhrase())
                 .status(HttpStatus.FORBIDDEN.value())
                 .error(ErrorCodes.ACCOUNT_LOCKED.getValue())
-                .messages(Collections.singletonList("Account is locked due to multiple failed attempts."))
+                .detail("Account is locked due to multiple failed attempts.")
                 .timestamp(LocalDateTime.now())
                 .build();
 
@@ -66,9 +69,10 @@ public class AuthenticationControllerAdvice {
     @ExceptionHandler(CredentialsExpiredException.class)
     public ResponseEntity<ApiError> handleCredentialsExpired(CredentialsExpiredException ex) {
         ApiError error = ApiError.builder()
+                .title(HttpStatus.UNAUTHORIZED.getReasonPhrase())
                 .status(HttpStatus.UNAUTHORIZED.value())
                 .error(ErrorCodes.PASSWORD_EXPIRED.getValue())
-                .messages(Collections.singletonList("Your password has expired. Please reset it."))
+                .detail("Your password has expired. Please reset it.")
                 .timestamp(LocalDateTime.now())
                 .build();
 
@@ -79,9 +83,10 @@ public class AuthenticationControllerAdvice {
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<ApiError> handleAllOtherAuthFailures(AuthenticationException ex) {
         ApiError error = ApiError.builder()
+                .title(HttpStatus.UNAUTHORIZED.getReasonPhrase())
                 .status(HttpStatus.UNAUTHORIZED.value())
                 .error(ErrorCodes.AUTHENTICATION_FAILED.getValue())
-                .messages(Collections.singletonList("Authentication failed."))
+                .detail("Authentication failed.")
                 .timestamp(LocalDateTime.now())
                 .build();
 

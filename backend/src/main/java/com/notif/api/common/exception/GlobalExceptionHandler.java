@@ -2,6 +2,7 @@ package com.notif.api.common.exception;
 
 import com.notif.api.common.constants.ErrorCodes;
 import com.notif.api.common.response.ApiError;
+import com.notif.api.common.response.ApiValidationError;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -10,7 +11,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,9 +19,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ResourceConflictException.class)
     public ResponseEntity<ApiError> handleResourceConflict(ResourceConflictException ex) {
         ApiError error = ApiError.builder()
+                .title(HttpStatus.CONFLICT.getReasonPhrase())
                 .status(HttpStatus.CONFLICT.value())
                 .error(ex.getErrorCode().getValue())
-                .messages(Collections.singletonList(ex.getMessage()))
+                .detail(ex.getMessage())
                 .timestamp(LocalDateTime.now())
                 .build();
 
@@ -31,9 +32,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ApiError> handleResourceNotFound(ResourceNotFoundException ex) {
         ApiError error = ApiError.builder()
+                .title(HttpStatus.NOT_FOUND.getReasonPhrase())
                 .status(HttpStatus.NOT_FOUND.value())
                 .error(ex.getErrorCode().getValue())
-                .messages(Collections.singletonList(ex.getMessage()))
+                .detail(ex.getMessage())
                 .timestamp(LocalDateTime.now())
                 .build();
 
@@ -43,9 +45,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ValidationException.class)
     public ResponseEntity<ApiError> handleValidation(ValidationException ex) {
         ApiError error = ApiError.builder()
+                .title(HttpStatus.BAD_REQUEST.getReasonPhrase())
                 .status(HttpStatus.BAD_REQUEST.value())
                 .error(ex.getErrorCode().getValue())
-                .messages(Collections.singletonList(ex.getMessage()))
+                .detail(ex.getMessage())
                 .timestamp(LocalDateTime.now())
                 .build();
 
@@ -54,7 +57,7 @@ public class GlobalExceptionHandler {
 
     // Handles @Valid errors
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiError> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
+    public ResponseEntity<ApiValidationError> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
         List<String> validationErrors = ex.getBindingResult()
                 .getAllErrors()
                 .stream()
@@ -67,7 +70,8 @@ public class GlobalExceptionHandler {
                 })
                 .collect(Collectors.toList());
 
-        ApiError error = ApiError.builder()
+        ApiValidationError error = ApiValidationError.builder()
+                .title("Validation Failed")
                 .status(HttpStatus.BAD_REQUEST.value())
                 .error(ErrorCodes.VALIDATION_FAILED.getValue())
                 .messages(validationErrors)
@@ -81,9 +85,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError> handleAllExceptions(Exception ex) {
         ApiError error = ApiError.builder()
+                .title(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
                 .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
                 .error(ErrorCodes.INTERNAL_SERVER_ERROR.getValue())
-                .messages(Collections.singletonList(ex.getMessage()))
+                .detail(ex.getMessage())
                 .timestamp(LocalDateTime.now())
                 .build();
 

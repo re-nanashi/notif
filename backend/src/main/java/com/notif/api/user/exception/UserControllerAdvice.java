@@ -23,9 +23,10 @@ public class UserControllerAdvice {
     @ExceptionHandler(PasswordMismatchException.class)
     public ResponseEntity<ApiError> handlePasswordMismatchException(PasswordMismatchException ex) {
         ApiError error = ApiError.builder()
+            .title(HttpStatus.BAD_REQUEST.getReasonPhrase())
             .status(HttpStatus.BAD_REQUEST.value())
             .error(ex.getErrorCode().getValue())
-            .messages(Collections.singletonList(ex.getMessage()))
+            .detail(ex.getMessage())
             .timestamp(LocalDateTime.now())
             .build();
 
@@ -35,9 +36,10 @@ public class UserControllerAdvice {
     @ExceptionHandler(InvalidPasswordException.class)
     public ResponseEntity<ApiError> handleBadCredentialsException(InvalidPasswordException ex) {
         ApiError error = ApiError.builder()
+                .title(HttpStatus.BAD_REQUEST.getReasonPhrase())
                 .status(HttpStatus.BAD_REQUEST.value())
                 .error(ErrorCodes.INVALID_CREDENTIALS.getValue())
-                .messages(Collections.singletonList(ex.getMessage()))
+                .detail(ex.getMessage())
                 .timestamp(LocalDateTime.now())
                 .build();
 
