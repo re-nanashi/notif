@@ -46,9 +46,9 @@ public class UserService implements IUserService {
                 .password(passwordEncoder.encode(request.getPassword()))
                 .build();
 
-        userRepository.save(newUser);
+        User savedUser = userRepository.save(newUser);
 
-        return convertUserToDto(newUser);
+        return convertUserToDto(savedUser);
     }
 
     // TODO (Future):
@@ -107,9 +107,9 @@ public class UserService implements IUserService {
         if (!Util.isNullOrBlank(firstName)) existingUser.setFirstName(firstName);
         if (!Util.isNullOrBlank(lastName)) existingUser.setLastName(lastName);
 
-        userRepository.save(existingUser);
+        User savedUser = userRepository.save(existingUser);
 
-        return convertUserToDto(existingUser);
+        return convertUserToDto(savedUser);
     }
 
     @Override
@@ -138,9 +138,9 @@ public class UserService implements IUserService {
 
         existingUser.setEmail(request.getNewEmail());
 
-        userRepository.save(existingUser);
+        User savedUser = userRepository.save(existingUser);
 
-        return convertUserToDto(existingUser);
+        return convertUserToDto(savedUser);
     }
 
     @Override
@@ -168,9 +168,9 @@ public class UserService implements IUserService {
 
         existingUser.setPassword(passwordEncoder.encode(request.getNewPassword()));
 
-        userRepository.save(existingUser);
+        User savedUser = userRepository.save(existingUser);
 
-        return convertUserToDto(existingUser);
+        return convertUserToDto(savedUser);
     }
 
     @Override
