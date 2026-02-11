@@ -3,6 +3,7 @@ package com.notif.api.common.exception;
 import com.notif.api.common.constants.ErrorCodes;
 import com.notif.api.common.response.ApiError;
 import com.notif.api.common.response.ApiValidationError;
+import com.notif.api.common.response.CustomValidationFieldError;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -12,7 +13,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -58,23 +58,28 @@ public class GlobalExceptionHandler {
     // Handles @Valid errors
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiValidationError> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
-        List<String> validationErrors = ex.getBindingResult()
+        List<CustomValidationFieldError> fieldErrors = ex.getBindingResult()
                 .getAllErrors()
                 .stream()
                 .map(error -> {
                     if (error instanceof FieldError fieldError) {
-                        return fieldError.getField() + ": " + fieldError.getDefaultMessage();
+                        return CustomValidationFieldError.builder()
+                                .field(fieldError.getField())
+                                .message(fieldError.getDefaultMessage())
+                                .build();
                     } else {
-                        return error.getDefaultMessage();
+                        return CustomValidationFieldError.builder()
+                                .field("error")
+                                .message(error.getDefaultMessage())
+                                .build();
                     }
-                })
-                .collect(Collectors.toList());
+                }).toList();
 
         ApiValidationError error = ApiValidationError.builder()
                 .title("Validation Failed")
                 .status(HttpStatus.BAD_REQUEST.value())
                 .error(ErrorCodes.VALIDATION_FAILED.getValue())
-                .messages(validationErrors)
+                .fieldErrors(fieldErrors)
                 .timestamp(LocalDateTime.now())
                 .build();
 
