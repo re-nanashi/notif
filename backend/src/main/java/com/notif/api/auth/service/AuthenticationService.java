@@ -82,7 +82,6 @@ public class AuthenticationService {
             Date expiration = jwtService.extractExpiration(jwtToken);
             long expiresIn = (expiration.getTime() - System.currentTimeMillis()) / AppConstants.MILLISECONDS_PER_SECOND;
 
-
             return AuthenticationResponse.builder()
                     .accessToken(jwtToken)
                     .tokenType("Bearer")
