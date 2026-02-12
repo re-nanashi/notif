@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
 
 /**
  * Handles user-related exceptions thrown by {@link UserController}.
