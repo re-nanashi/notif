@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
 
 @RestControllerAdvice(assignableTypes = AuthenticationController.class)
 @Order(Ordered.HIGHEST_PRECEDENCE)
