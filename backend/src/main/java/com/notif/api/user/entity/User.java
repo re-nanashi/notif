@@ -7,7 +7,6 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -15,6 +14,7 @@ import java.util.UUID;
  *
  * Implements {@link UserDetails} for Spring Security authentication.
  * Contains login credentials, personal information, and unique email.
+ *  TODO (Authentication): Implement timestamps
  */
 @Entity
 @Table(name = "_user", uniqueConstraints = {@UniqueConstraint(name = "uk_users_email", columnNames = "email")})
@@ -42,13 +42,13 @@ public class User implements UserDetails, CredentialsContainer {
     @Column(nullable = false)
     private String lastName;
 
+    @Enumerated(EnumType.STRING)
+    private Role role;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
+        return role.getAuthorities();
     }
-
-    // TODO (Authentication): Implement timestamps
-    // TODO (Authorization): Implement roles
 
     @Override
     public String getPassword() {

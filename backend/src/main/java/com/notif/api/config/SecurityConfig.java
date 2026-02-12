@@ -14,6 +14,9 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import static com.notif.api.user.entity.Role.ADMIN;
+import static com.notif.api.user.entity.Role.MANAGER;
+
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -24,6 +27,12 @@ public class SecurityConfig {
 
     @Value("${api.prefix}")
     private String apiBasePath;
+
+    private final String[] WHITE_LIST_URL = {
+            "/api/v1/auth/test",
+            "/api/v1/auth/login",
+            "/api/v1/auth/register"
+    };
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -36,9 +45,12 @@ public class SecurityConfig {
                 // Configure endpoint authorization
                 .authorizeHttpRequests(auth -> auth
                         // Public endpoints
-                        .requestMatchers( apiBasePath + "/auth/test", apiBasePath + "/auth/login", apiBasePath + "/auth/register").permitAll()
+                        .requestMatchers(WHITE_LIST_URL).permitAll()
+                        // Role-based endpoints
+                        .requestMatchers(apiBasePath + "/management/**").hasAnyRole(ADMIN.name(), MANAGER.name())
                         // All other endpoints require authentication
-                        .anyRequest().authenticated()
+                        .anyRequest()
+                        .authenticated()
                 )
                 // Stateless session
                 .sessionManagement(sessionManagement -> sessionManagement
@@ -48,6 +60,7 @@ public class SecurityConfig {
                 .authenticationProvider(authenticationProvider)
                 // Add JWT filter before Spring Security's default filter
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        // TODO: Configure logout
 
         return http.build();
     }
