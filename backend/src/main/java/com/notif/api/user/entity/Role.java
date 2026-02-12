@@ -23,14 +23,14 @@ public enum Role {
     // Administrator with all admin + manager permissions
     ADMIN(
             Set.of(
-                ADMIN_READ,
-                ADMIN_UPDATE,
-                ADMIN_CREATE,
-                ADMIN_DELETE,
-                MANAGER_READ,
-                MANAGER_UPDATE,
-                MANAGER_CREATE,
-                MANAGER_DELETE
+                    ADMIN_READ,
+                    ADMIN_UPDATE,
+                    ADMIN_CREATE,
+                    ADMIN_DELETE,
+                    MANAGER_READ,
+                    MANAGER_UPDATE,
+                    MANAGER_CREATE,
+                    MANAGER_DELETE
             )
     ),
 
