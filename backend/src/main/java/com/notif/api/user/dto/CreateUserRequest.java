@@ -32,6 +32,7 @@ public class CreateUserRequest {
             message = "Password must contain uppercase, lowercase, number, and a special character"
     )
     private String password;
+    private String matchingPassword;
 
     @NotBlank(message = "First name is required")
     private String firstName;
