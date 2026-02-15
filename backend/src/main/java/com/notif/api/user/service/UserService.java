@@ -34,7 +34,7 @@ public class UserService implements IUserService {
         // Check if user already exists
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new ResourceConflictException(
-                    "User with email '" + request.getEmail() + "' already exists",
+                    "User with email '" + request.getEmail() + "' already exists.",
                     ErrorCodes.USER_ALREADY_EXISTS
             );
         }
@@ -67,7 +67,7 @@ public class UserService implements IUserService {
     public UserDTO getUserById(UUID id) {
         User existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "User with ID " + id + " not found",
+                        "User with ID " + id + " not found.",
                         ErrorCodes.USER_NOT_FOUND
                 ));
 
@@ -78,7 +78,7 @@ public class UserService implements IUserService {
     public UserDTO getUserByEmail(String email) {
         User existingUser = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "User with email '" + email + "' not found",
+                        "User with email '" + email + "' not found.",
                         ErrorCodes.USER_NOT_FOUND
                 ));
 
@@ -89,7 +89,7 @@ public class UserService implements IUserService {
     public UserDTO updateUser(UpdateUserRequest request, UUID id) {
         User existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "User with ID " + id + " not found",
+                        "User with ID " + id + " not found.",
                         ErrorCodes.USER_NOT_FOUND
                 ));
 
@@ -99,7 +99,7 @@ public class UserService implements IUserService {
         // Require at least one field to update
         if (Util.isNullOrBlank(firstName) && Util.isNullOrBlank(lastName)) {
             throw new ValidationException(
-                    "At least one field must be provided for update",
+                    "At least one field must be provided for update.",
                     ErrorCodes.NO_FIELDS_TO_UPDATE
             );
         }
@@ -116,14 +116,14 @@ public class UserService implements IUserService {
     public UserDTO changeEmail(ChangeEmailRequest request, UUID id) {
         User existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "User with ID " + id + " not found",
+                        "User with ID " + id + " not found.",
                         ErrorCodes.USER_NOT_FOUND
                 ));
 
         // Check if password is incorrect
         if (!passwordEncoder.matches(request.getCurrentPassword(), existingUser.getPassword())) {
             throw new InvalidPasswordException(
-                    "The password provided is incorrect",
+                    "The password provided is incorrect.",
                     ErrorCodes.INVALID_CREDENTIALS
             );
         }
@@ -131,7 +131,7 @@ public class UserService implements IUserService {
         String email = request.getNewEmail();
         if (userRepository.existsByEmail(email)) {
             throw new ResourceConflictException(
-                    "Email '" + email + "' already in use",
+                    "Email '" + email + "' already in use.",
                     ErrorCodes.EMAIL_ALREADY_EXISTS
             );
         }
@@ -147,21 +147,21 @@ public class UserService implements IUserService {
     public UserDTO changePassword(ChangePasswordRequest request, UUID id) {
         User existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "User with ID " + id + " not found",
+                        "User with ID " + id + " not found.",
                         ErrorCodes.USER_NOT_FOUND
                 ));
 
         // Check if password is incorrect
         if (!passwordEncoder.matches(request.getCurrentPassword(), existingUser.getPassword())) {
             throw new InvalidPasswordException(
-                    "The password provided is incorrect",
+                    "The password provided is incorrect.",
                     ErrorCodes.INVALID_CREDENTIALS
             );
         }
         // Check if new password does not match confirmation password
         if (!request.getNewPassword().equals(request.getConfirmationPassword())) {
             throw new PasswordMismatchException(
-                    "The provided passwords must be identical",
+                    "The provided passwords must be identical.",
                     ErrorCodes.PASSWORD_MISMATCH
             );
         }
@@ -177,7 +177,7 @@ public class UserService implements IUserService {
     public void deleteUser(UUID id) {
         userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(
-                        "User with ID " + id + " not found",
+                        "User with ID " + id + " not found.",
                         ErrorCodes.USER_NOT_FOUND
                 ));
 

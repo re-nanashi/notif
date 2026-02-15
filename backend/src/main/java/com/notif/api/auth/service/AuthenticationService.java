@@ -88,7 +88,7 @@ public class AuthenticationService {
                     .expiresIn(expiresIn)
                     .build();
         } else {
-            throw new UsernameNotFoundException("Invalid user request");
+            throw new UsernameNotFoundException("Invalid user request.");
         }
     }
 
@@ -96,7 +96,7 @@ public class AuthenticationService {
         // Check if user already exists
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new ResourceConflictException(
-                    "User with email '" + request.getEmail() + "' already exists",
+                    "User with email '" + request.getEmail() + "' already exists.",
                     ErrorCodes.USER_ALREADY_EXISTS
             );
         }
