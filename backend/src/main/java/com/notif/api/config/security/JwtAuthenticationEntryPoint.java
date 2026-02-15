@@ -1,6 +1,7 @@
 package com.notif.api.config.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.notif.api.common.constants.ErrorCodes;
 import com.notif.api.common.response.ApiError;
 import jakarta.servlet.ServletException;
@@ -19,8 +20,6 @@ import java.time.LocalDateTime;
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
-    private final ObjectMapper objectMapper;
-
     @Override
     public void commence(
             HttpServletRequest request,
@@ -37,6 +36,9 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
                 .timestamp(LocalDateTime.now())
                 .build();
 
-        objectMapper.writeValue(response.getOutputStream(), error);
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+
+        mapper.writeValue(response.getOutputStream(), error);
     }
 }
