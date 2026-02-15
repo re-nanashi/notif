@@ -1,5 +1,7 @@
 package com.notif.api.user.dto;
 
+import com.notif.api.common.validation.PasswordMatchable;
+import com.notif.api.common.validation.PasswordMatches;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -15,20 +17,20 @@ import lombok.Data;
  * - {@code currentPassword} must not be blank
  * - {@code newPassword} must not be blank, between 8-64 characters, and contain
  *   at least one uppercase letter, one lowercase letter, and one number
- * - {@code confirmationPassword} must not be blank
+ * - {@code confirmPassword} must match {@code newPassword}
  */
 @Data
-public class ChangePasswordRequest {
+@PasswordMatches
+public class ChangePasswordRequest implements PasswordMatchable {
     @NotBlank(message = "Current password is required")
     private String currentPassword;
 
     @NotBlank(message = "New password is required")
     @Size(min = 8, max = 64, message = "Password must be between 8 and 64 characters")
-    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,64}$",
-            message = "Password must contain uppercase, lowercase, and a number")
-    private String newPassword;
-
-    /** Confirmation of the new password. Must match {@code newPassword}. */
-    @NotBlank(message = "Confirmation password is required")
-    private String confirmationPassword;
+    @Pattern(
+            regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{}|;:',.<>?/]).{8,64}$",
+            message = "Password must contain uppercase, lowercase, number, and a special character"
+    )
+    private String password;
+    private String confirmPassword;
 }

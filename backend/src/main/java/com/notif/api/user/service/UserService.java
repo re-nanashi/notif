@@ -158,15 +158,8 @@ public class UserService implements IUserService {
                     ErrorCodes.INVALID_CREDENTIALS
             );
         }
-        // Check if new password does not match confirmation password
-        if (!request.getNewPassword().equals(request.getConfirmationPassword())) {
-            throw new PasswordMismatchException(
-                    "The provided passwords must be identical.",
-                    ErrorCodes.PASSWORD_MISMATCH
-            );
-        }
 
-        existingUser.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        existingUser.setPassword(passwordEncoder.encode(request.getPassword()));
 
         User savedUser = userRepository.save(existingUser);
 
