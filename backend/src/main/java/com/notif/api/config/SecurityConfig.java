@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -19,6 +20,7 @@ import static com.notif.api.user.entity.Role.MANAGER;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity(prePostEnabled = true)
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final AuthenticationProvider authenticationProvider;
@@ -47,6 +49,7 @@ public class SecurityConfig {
                         // Public endpoints
                         .requestMatchers(WHITE_LIST_URL).permitAll()
                         // Role-based endpoints
+                        .requestMatchers(apiBasePath + "/admin/**").hasRole(ADMIN.name())
                         .requestMatchers(apiBasePath + "/management/**").hasAnyRole(ADMIN.name(), MANAGER.name())
                         // All other endpoints require authentication
                         .anyRequest()
