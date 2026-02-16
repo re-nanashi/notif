@@ -23,9 +23,8 @@ import lombok.Data;
  * - {@code firstName} and {@code lastName} must not be blank
  */
 @Data
-@PasswordMatches
 @Builder
-public class CreateUserRequest implements PasswordMatchable {
+public class CreateUserRequest {
     @NotBlank(message = "Email is required.")
     @ValidEmail
     private String email;
@@ -38,7 +37,6 @@ public class CreateUserRequest implements PasswordMatchable {
             message = "Password must contain uppercase, lowercase, number, and a special character."
     )
     private String password;
-    private String confirmPassword;
 
     @NotBlank(message = "First name is required.")
     private String firstName;

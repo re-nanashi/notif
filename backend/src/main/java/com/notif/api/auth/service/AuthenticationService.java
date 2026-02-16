@@ -108,7 +108,6 @@ public class AuthenticationService {
                 CreateUserRequest.builder()
                         .email(request.getEmail())
                         .password(request.getPassword())
-                        .confirmPassword(request.getConfirmPassword())
                         .firstName(request.getFirstName())
                         .lastName(request.getLastName())
                         .build()
