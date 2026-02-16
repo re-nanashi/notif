@@ -6,7 +6,6 @@ import com.notif.api.common.exception.ValidationException;
 import com.notif.api.user.dto.*;
 import com.notif.api.user.entity.User;
 import com.notif.api.user.exception.InvalidPasswordException;
-import com.notif.api.user.exception.PasswordMismatchException;
 import com.notif.api.user.repository.UserRepository;
 import com.notif.api.common.util.Util;
 import com.notif.api.common.exception.ResourceConflictException;
