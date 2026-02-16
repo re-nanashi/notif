@@ -19,19 +19,6 @@ import java.time.LocalDateTime;
 @RestControllerAdvice(assignableTypes = UserController.class)
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class UserControllerAdvice {
-    @ExceptionHandler(PasswordMismatchException.class)
-    public ResponseEntity<ApiError> handlePasswordMismatchException(PasswordMismatchException ex) {
-        ApiError error = ApiError.builder()
-            .title(HttpStatus.BAD_REQUEST.getReasonPhrase())
-            .status(HttpStatus.BAD_REQUEST.value())
-            .error(ex.getErrorCode().getValue())
-            .detail(ex.getMessage())
-            .timestamp(LocalDateTime.now())
-            .build();
-
-        return ResponseEntity.status(error.getStatus()).body(error);
-    }
-
     @ExceptionHandler(InvalidPasswordException.class)
     public ResponseEntity<ApiError> handleBadCredentialsException(InvalidPasswordException ex) {
         ApiError error = ApiError.builder()
