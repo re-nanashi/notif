@@ -1,4 +1,4 @@
-package com.notif.api.auth.dto;
+package com.notif.api.auth.request;
 
 import com.notif.api.common.validation.PasswordMatchable;
 import com.notif.api.common.validation.PasswordMatches;
@@ -9,7 +9,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 /**
- * Request DTO used for registering a new user account.
+ * Request DTO used for creating a new user account (admin-only).
  *
  * Contains all required fields for registration, including account credentials
  * and basic user profile information.
