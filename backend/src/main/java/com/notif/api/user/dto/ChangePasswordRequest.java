@@ -22,14 +22,14 @@ import lombok.Data;
 @Data
 @PasswordMatches
 public class ChangePasswordRequest implements PasswordMatchable {
-    @NotBlank(message = "Current password is required")
+    @NotBlank(message = "Current password is required.")
     private String currentPassword;
 
-    @NotBlank(message = "New password is required")
-    @Size(min = 8, max = 64, message = "Password must be between 8 and 64 characters")
+    @NotBlank(message = "New password is required.")
+    @Size(min = 8, max = 64, message = "Password must be between 8 and 64 characters.")
     @Pattern(
             regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{}|;:',.<>?/]).{8,64}$",
-            message = "Password must contain uppercase, lowercase, number, and a special character"
+            message = "Password must contain uppercase, lowercase, number, and a special character."
     )
     private String password;
     private String confirmPassword;

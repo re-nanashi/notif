@@ -1,6 +1,6 @@
 package com.notif.api.user.dto;
 
-import jakarta.validation.constraints.Email;
+import com.notif.api.common.validation.ValidEmail;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
@@ -14,10 +14,10 @@ import lombok.Data;
  */
 @Data
 public class ChangeEmailRequest {
-    @NotBlank(message = "Email is required")
-    @Email(message = "Email must be valid")
+    @NotBlank(message = "Email is required.")
+    @ValidEmail
     String newEmail;
 
-    @NotBlank(message = "Password is required")
+    @NotBlank(message = "Password is required.")
     String currentPassword;
 }

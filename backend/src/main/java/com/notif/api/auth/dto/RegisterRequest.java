@@ -2,7 +2,7 @@ package com.notif.api.auth.dto;
 
 import com.notif.api.common.validation.PasswordMatchable;
 import com.notif.api.common.validation.PasswordMatches;
-import jakarta.validation.constraints.Email;
+import com.notif.api.common.validation.ValidEmail;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -24,22 +24,22 @@ import lombok.Data;
 @Data
 @PasswordMatches
 public class RegisterRequest implements PasswordMatchable {
-    @NotBlank(message = "Email is required")
-    @Email(message = "Email must be valid")
+    @NotBlank(message = "Email is required.")
+    @ValidEmail
     private String email;
 
-    @NotBlank(message = "Password is required")
-    @Size(min = 8, max = 64, message = "Password must be between 8 and 64 characters")
+    @NotBlank(message = "Password is required.")
+    @Size(min = 8, max = 64, message = "Password must be between 8 and 64 characters.")
     @Pattern(
             regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&*()_+\\-=\\[\\]{}|;:',.<>?/]).{8,64}$",
-            message = "Password must contain uppercase, lowercase, number, and a special character"
+            message = "Password must contain uppercase, lowercase, number, and a special character."
     )
     private String password;
     private String confirmPassword;
 
-    @NotBlank(message = "First name is required")
+    @NotBlank(message = "First name is required.")
     private String firstName;
 
-    @NotBlank(message = "Last name is required")
+    @NotBlank(message = "Last name is required.")
     private String lastName;
 }
