@@ -1,8 +1,8 @@
 package com.notif.api.auth.controller;
 
-import com.notif.api.auth.dto.AuthenticatedUserDTO;
-import com.notif.api.auth.dto.AuthenticationRequest;
-import com.notif.api.auth.dto.AuthenticationResponse;
+import com.notif.api.auth.response.AuthenticatedUserDTO;
+import com.notif.api.auth.request.AuthenticationRequest;
+import com.notif.api.auth.response.AuthenticationResponse;
 import com.notif.api.auth.request.RegisterRequest;
 import com.notif.api.auth.service.AuthenticationService;
 import com.notif.api.common.response.ApiResponse;

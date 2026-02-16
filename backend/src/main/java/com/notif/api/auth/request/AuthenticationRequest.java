@@ -1,4 +1,4 @@
-package com.notif.api.auth.dto;
+package com.notif.api.auth.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
