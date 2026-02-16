@@ -12,6 +12,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+// TODO: Move to user package
 @Transactional
 @Component
 @RequiredArgsConstructor
@@ -47,6 +48,7 @@ public class DataInitializer implements ApplicationListener<ApplicationReadyEven
                 .firstName("Micah")
                 .lastName("Manager")
                 .role(Role.MANAGER)
+                .enabled(true)
                 .build();
 
         userRepository.save(manager);
@@ -65,6 +67,7 @@ public class DataInitializer implements ApplicationListener<ApplicationReadyEven
                 .firstName("John")
                 .lastName("Admin")
                 .role(Role.ADMIN)
+                .enabled(true)
                 .build();
 
         userRepository.save(admin);
