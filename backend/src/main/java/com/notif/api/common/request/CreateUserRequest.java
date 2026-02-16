@@ -6,6 +6,7 @@ import com.notif.api.common.validation.ValidEmail;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import lombok.Builder;
 import lombok.Data;
 
 /**
@@ -23,6 +24,7 @@ import lombok.Data;
  */
 @Data
 @PasswordMatches
+@Builder
 public class CreateUserRequest implements PasswordMatchable {
     @NotBlank(message = "Email is required.")
     @ValidEmail
