@@ -45,6 +45,9 @@ public class User implements UserDetails, CredentialsContainer {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @Column(name = "enabled")
+    private boolean enabled;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return role.getAuthorities();
@@ -77,7 +80,7 @@ public class User implements UserDetails, CredentialsContainer {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return enabled;
     }
 
     @Override

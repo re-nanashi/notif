@@ -47,6 +47,7 @@ public class UserService implements IUserService {
                 .lastName(request.getLastName().strip())
                 .email(request.getEmail()) // @Email annotation fails whitespaces
                 .password(passwordEncoder.encode(request.getPassword()))
+                .enabled(false)
                 .build();
 
         User savedUser = userRepository.save(newUser);
