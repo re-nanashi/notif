@@ -9,6 +9,13 @@ import java.util.UUID;
  *
  * Excludes sensitive fields such as passwords.
  * Used for responses to clients or other services.
+ * TODO:
+ *  - [ ] emailVerified
+ *  - [ ] fullName; computed instead of stored
+ *  - [ ] roles - List; e.g., ["USER"], ["ADMIN"]
+ *  - [ ] status - Enum; e.g., ACTIVE, INACTIVE, SUSPENDED
+ *  - [ ] createdAt
+ *  - [ ] lastLogin
  */
 @Data
 public class UserDTO {
