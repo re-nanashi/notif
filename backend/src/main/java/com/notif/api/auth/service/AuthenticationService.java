@@ -3,14 +3,16 @@ package com.notif.api.auth.service;
 import com.notif.api.auth.dto.AuthenticatedUserDTO;
 import com.notif.api.auth.dto.AuthenticationRequest;
 import com.notif.api.auth.dto.AuthenticationResponse;
-import com.notif.api.auth.dto.RegisterRequest;
+import com.notif.api.auth.request.RegisterRequest;
 import com.notif.api.common.constants.AppConstants;
 import com.notif.api.common.constants.ErrorCodes;
+import com.notif.api.common.contracts.UserManagementContract;
 import com.notif.api.common.exception.ResourceConflictException;
 import com.notif.api.common.exception.ResourceNotFoundException;
+import com.notif.api.common.request.CreateUserRequest;
+import com.notif.api.common.response.UserDTO;
 import com.notif.api.config.security.JwtService;
 import com.notif.api.user.entity.User;
-import com.notif.api.user.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +32,7 @@ import java.util.Date;
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService {
-    private final UserRepository userRepository;
+    private final UserManagementContract userManagement;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
@@ -92,31 +94,24 @@ public class AuthenticationService {
         }
     }
 
-    public AuthenticationResponse register(RegisterRequest request) {
+    public UserDTO register(RegisterRequest request) {
         // Check if user already exists
-        if (userRepository.existsByEmail(request.getEmail())) {
+        if (userManagement.existsByEmail(request.getEmail())) {
             throw new ResourceConflictException(
                     "User with email '" + request.getEmail() + "' already exists.",
                     ErrorCodes.USER_ALREADY_EXISTS
             );
         }
 
-        User newUser = User.builder()
-                .firstName(request.getFirstName().strip()) // remove leading/trailing whitespaces
-                .lastName(request.getLastName().strip())
-                .email(request.getEmail()) // @Email annotation fails whitespaces
-                .password(passwordEncoder.encode(request.getPassword()))
-                .build();
-        User savedUser = userRepository.save(newUser);
-
-        String jwtToken = jwtService.generateToken(savedUser);
-        Date expiration = jwtService.extractExpiration(jwtToken);
-        long expiresIn = (expiration.getTime() - System.currentTimeMillis()) / AppConstants.MILLISECONDS_PER_SECOND;
-
-        return AuthenticationResponse.builder()
-                .accessToken(jwtToken)
-                .tokenType("Bearer")
-                .expiresIn(expiresIn)
-                .build();
+        // Create user via contract
+        return userManagement.createUser(
+                CreateUserRequest.builder()
+                        .email(request.getEmail())
+                        .password(request.getPassword())
+                        .confirmPassword(request.getConfirmPassword())
+                        .firstName(request.getFirstName())
+                        .lastName(request.getLastName())
+                        .build()
+        );
     }
 }
