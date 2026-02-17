@@ -8,8 +8,8 @@ import com.notif.api.core.constants.AppConstants;
 import com.notif.api.core.exception.ErrorCodes;
 import com.notif.api.common.contracts.UserManagementContract;
 import com.notif.api.common.events.UserRegisteredEvent;
-import com.notif.api.core.exception.ResourceConflictException;
-import com.notif.api.core.exception.ResourceNotFoundException;
+import com.notif.api.core.exception.AlreadyExistsException;
+import com.notif.api.core.exception.NotFoundException;
 import com.notif.api.common.request.CreateUserRequest;
 import com.notif.api.common.response.UserDTO;
 import com.notif.api.config.security.JwtService;
@@ -54,7 +54,7 @@ public class AuthenticationService {
 
         jwtToken = authHeader.substring(7);
         userInfo = userManagement.findByEmail(user.getUsername())
-                .orElseThrow(() -> new ResourceNotFoundException(
+                .orElseThrow(() -> new NotFoundException(
                         "User with email " + user.getUsername() + " does not exists.",
                         ErrorCodes.USER_NOT_FOUND
                 ));
@@ -98,14 +98,6 @@ public class AuthenticationService {
 
     // TODO: Add auth-specific fields to RegisterRequest (e.g., agreeToTerms, captchaToken) then validate
     public UserDTO register(RegisterRequest request, String appUrl) {
-        // Check if user already exists
-        if (userManagement.userAlreadyExists(request.getEmail())) {
-            throw new ResourceConflictException(
-                    "User with email '" + request.getEmail() + "' already exists.",
-                    ErrorCodes.USER_ALREADY_EXISTS
-            );
-        }
-
         // Map register request to user creation request
         CreateUserRequest createUserRequest = CreateUserRequest.builder()
                 .email(request.getEmail())

@@ -6,8 +6,13 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum ErrorCodes {
-    // Generic
+    // Generic, any entity
     INTERNAL_SERVER_ERROR("INTERNAL_SERVER_ERROR"),
+    BUSINESS_ERROR("BUSINESS_ERROR"),
+    NOT_FOUND("NOT_FOUND"),
+    ALREADY_EXISTS("ALREADY_EXISTS"),
+    VALIDATION_FAILED("VALIDATION_FAILED"),
+    UNAUTHORIZED("UNAUTHORIZED"),
 
     // Auth
     INVALID_CREDENTIALS("INVALID_CREDENTIALS"),
@@ -24,9 +29,7 @@ public enum ErrorCodes {
     TOKEN_EXPIRED("TOKEN_EXPIRED"),
 
     // Validation
-    VALIDATION_FAILED("VALIDATION_FAILED"),
     NO_FIELDS_TO_UPDATE("NO_FIELDS_TO_UPDATE");
-
 
     private final String value;
 }

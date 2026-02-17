@@ -1,7 +1,7 @@
 package com.notif.api.user.service;
 
 import com.notif.api.core.exception.ErrorCodes;
-import com.notif.api.core.exception.ResourceNotFoundException;
+import com.notif.api.core.exception.NotFoundException;
 import com.notif.api.core.exception.ValidationException;
 import com.notif.api.common.request.CreateUserRequest;
 import com.notif.api.common.response.UserDTO;
@@ -10,7 +10,7 @@ import com.notif.api.user.entity.User;
 import com.notif.api.user.exception.InvalidPasswordException;
 import com.notif.api.user.repository.UserRepository;
 import com.notif.api.core.utils.Util;
-import com.notif.api.core.exception.ResourceConflictException;
+import com.notif.api.core.exception.AlreadyExistsException;
 import com.notif.api.user.api.dto.ChangeEmailRequest;
 import com.notif.api.user.api.dto.ChangePasswordRequest;
 import com.notif.api.user.api.dto.UpdateUserRequest;
@@ -37,9 +37,8 @@ public class UserService implements IUserService {
     public UserDTO createUser(CreateUserRequest request) {
         // Check if user already exists
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new ResourceConflictException(
-                    "User with email '" + request.getEmail() + "' already exists.",
-                    ErrorCodes.USER_ALREADY_EXISTS
+            throw new AlreadyExistsException(
+                    "User with email '" + request.getEmail() + "' already exists."
             );
         }
 
@@ -72,7 +71,7 @@ public class UserService implements IUserService {
     @Override
     public UserDTO getUserById(UUID id) {
         User existingUser = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(
+                .orElseThrow(() -> new NotFoundException(
                         "User with ID " + id + " not found.",
                         ErrorCodes.USER_NOT_FOUND
                 ));
@@ -83,7 +82,7 @@ public class UserService implements IUserService {
     @Override
     public UserDTO getUserByEmail(String email) {
         User existingUser = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException(
+                .orElseThrow(() -> new NotFoundException(
                         "User with email '" + email + "' not found.",
                         ErrorCodes.USER_NOT_FOUND
                 ));
@@ -98,7 +97,7 @@ public class UserService implements IUserService {
     @Override
     public UserDTO updateUser(UpdateUserRequest request, UUID id) {
         User existingUser = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(
+                .orElseThrow(() -> new NotFoundException(
                         "User with ID " + id + " not found.",
                         ErrorCodes.USER_NOT_FOUND
                 ));
@@ -125,7 +124,7 @@ public class UserService implements IUserService {
     @Override
     public UserDTO changeEmail(ChangeEmailRequest request, UUID id) {
         User existingUser = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(
+                .orElseThrow(() -> new NotFoundException(
                         "User with ID " + id + " not found.",
                         ErrorCodes.USER_NOT_FOUND
                 ));
@@ -140,7 +139,7 @@ public class UserService implements IUserService {
         // Check if email is already in use
         String email = request.getNewEmail();
         if (userRepository.existsByEmail(email)) {
-            throw new ResourceConflictException(
+            throw new AlreadyExistsException(
                     "Email '" + email + "' already in use.",
                     ErrorCodes.EMAIL_ALREADY_EXISTS
             );
@@ -156,7 +155,7 @@ public class UserService implements IUserService {
     @Override
     public UserDTO changePassword(ChangePasswordRequest request, UUID id) {
         User existingUser = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(
+                .orElseThrow(() -> new NotFoundException(
                         "User with ID " + id + " not found.",
                         ErrorCodes.USER_NOT_FOUND
                 ));
@@ -179,7 +178,7 @@ public class UserService implements IUserService {
     @Override
     public void deleteUser(UUID id) {
         userRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(
+                .orElseThrow(() -> new NotFoundException(
                         "User with ID " + id + " not found.",
                         ErrorCodes.USER_NOT_FOUND
                 ));

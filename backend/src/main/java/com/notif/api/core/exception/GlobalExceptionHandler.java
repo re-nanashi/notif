@@ -15,34 +15,8 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-    @ExceptionHandler(ResourceConflictException.class)
-    public ResponseEntity<ApiError> handleResourceConflict(ResourceConflictException ex) {
-        ApiError error = ApiError.builder()
-                .title(HttpStatus.CONFLICT.getReasonPhrase())
-                .status(HttpStatus.CONFLICT.value())
-                .error(ex.getErrorCode().getValue())
-                .detail(ex.getMessage())
-                .timestamp(LocalDateTime.now())
-                .build();
-
-        return ResponseEntity.status(error.getStatus()).body(error);
-    }
-
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ApiError> handleResourceNotFound(ResourceNotFoundException ex) {
-        ApiError error = ApiError.builder()
-                .title(HttpStatus.NOT_FOUND.getReasonPhrase())
-                .status(HttpStatus.NOT_FOUND.value())
-                .error(ex.getErrorCode().getValue())
-                .detail(ex.getMessage())
-                .timestamp(LocalDateTime.now())
-                .build();
-
-        return ResponseEntity.status(error.getStatus()).body(error);
-    }
-
-    @ExceptionHandler(ValidationException.class)
-    public ResponseEntity<ApiError> handleValidation(ValidationException ex) {
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<ApiError> handleBusinessException(BusinessException ex) {
         ApiError error = ApiError.builder()
                 .title(HttpStatus.BAD_REQUEST.getReasonPhrase())
                 .status(HttpStatus.BAD_REQUEST.value())
@@ -54,9 +28,60 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(error.getStatus()).body(error);
     }
 
-    // Handles @Valid errors
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<ApiError> handleNotFoundException(NotFoundException ex) {
+        ApiError error = ApiError.builder()
+                .title(HttpStatus.NOT_FOUND.getReasonPhrase())
+                .status(HttpStatus.NOT_FOUND.value())
+                .error(ex.getErrorCode().getValue())
+                .detail(ex.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        return ResponseEntity.status(error.getStatus()).body(error);
+    }
+
+    @ExceptionHandler(AlreadyExistsException.class)
+    public ResponseEntity<ApiError> handleAlreadyExistsException(AlreadyExistsException ex) {
+        ApiError error = ApiError.builder()
+                .title(HttpStatus.CONFLICT.getReasonPhrase())
+                .status(HttpStatus.CONFLICT.value())
+                .error(ex.getErrorCode().getValue())
+                .detail(ex.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        return ResponseEntity.status(error.getStatus()).body(error);
+    }
+
+    @ExceptionHandler(ValidationException.class)
+    public ResponseEntity<ApiError> handleValidationException(ValidationException ex) {
+        ApiError error = ApiError.builder()
+                .title(HttpStatus.BAD_REQUEST.getReasonPhrase())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error(ex.getErrorCode().getValue())
+                .detail(ex.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        return ResponseEntity.status(error.getStatus()).body(error);
+    }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ApiError> handleUnauthorizedException(UnauthorizedException ex) {
+        ApiError error = ApiError.builder()
+                .title(HttpStatus.BAD_REQUEST.getReasonPhrase())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error(ex.getErrorCode().getValue())
+                .detail(ex.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        return ResponseEntity.status(error.getStatus()).body(error);
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiError> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
+    public ResponseEntity<ApiError> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
         List<Map<String, String>> fieldErrors = new ArrayList<>();
 
         ex.getBindingResult()
