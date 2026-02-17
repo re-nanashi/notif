@@ -1,4 +1,4 @@
-package com.notif.api.shared.constants;
+package com.notif.api.core.constants;
 
 public final class AppConstants {
     private AppConstants() {

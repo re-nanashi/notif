@@ -39,4 +39,4 @@ volumes:
   db-data:                                               # persistent storage
 
 networks:
-  spring-postgres:                                       # shared network between backend + db
+  spring-postgres:                                       # core network between backend + db

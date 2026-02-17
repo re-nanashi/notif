@@ -5,7 +5,7 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
-import static com.notif.api.shared.constants.AppConstants.*;
+import static com.notif.api.core.constants.AppConstants.*;
 
 // Must link back to User
 // Will be created after registration

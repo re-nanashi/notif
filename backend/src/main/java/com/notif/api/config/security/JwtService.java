@@ -1,6 +1,6 @@
 package com.notif.api.config.security;
 
-import com.notif.api.shared.constants.AppConstants;
+import com.notif.api.core.constants.AppConstants;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
