@@ -5,6 +5,7 @@ import com.notif.api.common.exception.ResourceNotFoundException;
 import com.notif.api.common.exception.ValidationException;
 import com.notif.api.common.request.CreateUserRequest;
 import com.notif.api.common.response.UserDTO;
+import com.notif.api.user.entity.Role;
 import com.notif.api.user.entity.User;
 import com.notif.api.user.exception.InvalidPasswordException;
 import com.notif.api.user.repository.UserRepository;
@@ -47,6 +48,7 @@ public class UserService implements IUserService {
                 .lastName(request.getLastName().strip())
                 .email(request.getEmail()) // @Email annotation fails whitespaces
                 .password(passwordEncoder.encode(request.getPassword()))
+                .role(Role.USER)
                 .enabled(false)
                 .build();
 
@@ -87,6 +89,10 @@ public class UserService implements IUserService {
                 ));
 
         return convertUserToDto(existingUser);
+    }
+
+    public boolean userAlreadyExists(String email) {
+        return userRepository.existsByEmail(email);
     }
 
     @Override
@@ -181,8 +187,8 @@ public class UserService implements IUserService {
         userRepository.deleteById(id);
     }
 
-    // Internal utility: converts User entity to DTO
-    private UserDTO convertUserToDto(User user) {
+    // Converts User entity to DTO
+    public UserDTO convertUserToDto(User user) {
         return modelMapper.map(user, UserDTO.class);
     }
 }
