@@ -32,7 +32,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
         ApiError error = ApiError.builder()
                 .title(HttpStatus.UNAUTHORIZED.getReasonPhrase())
                 .status(HttpStatus.UNAUTHORIZED.value()) .error(ErrorCodes.AUTHENTICATION_FAILED.getValue())
-                .detail("Unauthorized: You may login and try again.")
+                .detail("You may login and try again with a different account.")
                 .timestamp(LocalDateTime.now())
                 .build();
 

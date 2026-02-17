@@ -1,8 +1,6 @@
 package com.notif.api.core.exception;
 
 import com.notif.api.core.dto.ApiError;
-import com.notif.api.core.dto.ApiValidationError;
-import com.notif.api.core.dto.CustomValidationFieldError;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -11,7 +9,9 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -56,26 +56,19 @@ public class GlobalExceptionHandler {
 
     // Handles @Valid errors
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiValidationError> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
-        List<CustomValidationFieldError> fieldErrors = ex.getBindingResult()
-                .getAllErrors()
-                .stream()
-                .map(error -> {
-                    if (error instanceof FieldError fieldError) {
-                        return CustomValidationFieldError.builder()
-                                .field(fieldError.getField())
-                                .message(fieldError.getDefaultMessage())
-                                .build();
-                    } else {
-                        return CustomValidationFieldError.builder()
-                                .field("error")
-                                .message(error.getDefaultMessage())
-                                .build();
-                    }
-                }).toList();
+    public ResponseEntity<ApiError> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
+        List<Map<String, String>> fieldErrors = new ArrayList<>();
 
-        ApiValidationError error = ApiValidationError.builder()
-                .title("Validation Failed")
+        ex.getBindingResult()
+                .getAllErrors()
+                .forEach(error -> {
+                    String fieldName = ((FieldError) error).getField();
+                    String errorMessage = error.getDefaultMessage();
+                    fieldErrors.add(Map.of("field", fieldName, "message", errorMessage));
+                });
+
+        ApiError error = ApiError.builder()
+                .title("Invalid input")
                 .status(HttpStatus.BAD_REQUEST.value())
                 .error(ErrorCodes.VALIDATION_FAILED.getValue())
                 .fieldErrors(fieldErrors)
