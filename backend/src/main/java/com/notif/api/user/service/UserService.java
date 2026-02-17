@@ -109,7 +109,7 @@ public class UserService implements IUserService {
         // Require at least one field to update
         if (Util.isNullOrBlank(firstName) && Util.isNullOrBlank(lastName)) {
             throw new ValidationException(
-                    "At least one field must be provided for update.",
+                    "At least one field must be provided.",
                     ErrorCodes.NO_FIELDS_TO_UPDATE
             );
         }
