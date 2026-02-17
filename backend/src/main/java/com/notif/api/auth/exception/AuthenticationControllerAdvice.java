@@ -1,7 +1,7 @@
 package com.notif.api.auth.exception;
 
 import com.notif.api.auth.controller.AuthenticationController;
-import com.notif.api.common.constants.ErrorCodes;
+import com.notif.api.core.exception.ErrorCodes;
 import com.notif.api.common.response.ApiError;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.Ordered;

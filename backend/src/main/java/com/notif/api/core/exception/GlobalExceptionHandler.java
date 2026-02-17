@@ -1,6 +1,5 @@
-package com.notif.api.common.exception;
+package com.notif.api.core.exception;
 
-import com.notif.api.common.constants.ErrorCodes;
 import com.notif.api.common.response.ApiError;
 import com.notif.api.common.response.ApiValidationError;
 import com.notif.api.common.response.CustomValidationFieldError;

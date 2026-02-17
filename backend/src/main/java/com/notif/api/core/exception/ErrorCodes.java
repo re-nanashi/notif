@@ -1,4 +1,4 @@
-package com.notif.api.common.constants;
+package com.notif.api.core.exception;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

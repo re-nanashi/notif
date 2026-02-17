@@ -1,6 +1,5 @@
-package com.notif.api.common.exception;
+package com.notif.api.core.exception;
 
-import com.notif.api.common.constants.ErrorCodes;
 import lombok.Getter;
 
 @Getter

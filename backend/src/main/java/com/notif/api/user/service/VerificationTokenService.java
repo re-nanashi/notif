@@ -1,7 +1,7 @@
 package com.notif.api.user.service;
 
-import com.notif.api.common.constants.ErrorCodes;
-import com.notif.api.common.exception.ResourceNotFoundException;
+import com.notif.api.core.exception.ErrorCodes;
+import com.notif.api.core.exception.ResourceNotFoundException;
 import com.notif.api.user.entity.User;
 import com.notif.api.user.entity.VerificationToken;
 import com.notif.api.user.repository.UserRepository;

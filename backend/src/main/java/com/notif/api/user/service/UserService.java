@@ -1,8 +1,8 @@
 package com.notif.api.user.service;
 
-import com.notif.api.common.constants.ErrorCodes;
-import com.notif.api.common.exception.ResourceNotFoundException;
-import com.notif.api.common.exception.ValidationException;
+import com.notif.api.core.exception.ErrorCodes;
+import com.notif.api.core.exception.ResourceNotFoundException;
+import com.notif.api.core.exception.ValidationException;
 import com.notif.api.common.request.CreateUserRequest;
 import com.notif.api.common.response.UserDTO;
 import com.notif.api.user.entity.Role;
@@ -10,7 +10,7 @@ import com.notif.api.user.entity.User;
 import com.notif.api.user.exception.InvalidPasswordException;
 import com.notif.api.user.repository.UserRepository;
 import com.notif.api.common.util.Util;
-import com.notif.api.common.exception.ResourceConflictException;
+import com.notif.api.core.exception.ResourceConflictException;
 import com.notif.api.user.request.ChangeEmailRequest;
 import com.notif.api.user.request.ChangePasswordRequest;
 import com.notif.api.user.request.UpdateUserRequest;
