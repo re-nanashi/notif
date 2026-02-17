@@ -38,7 +38,8 @@ public class UserService implements IUserService {
         // Check if user already exists
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new AlreadyExistsException(
-                    "User with email '" + request.getEmail() + "' already exists."
+                    "User with email '" + request.getEmail() + "' already exists.",
+                    ErrorCodes.USER_ALREADY_EXISTS
             );
         }
 

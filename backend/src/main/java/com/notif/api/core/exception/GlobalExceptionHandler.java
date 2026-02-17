@@ -70,8 +70,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UnauthorizedException.class)
     public ResponseEntity<ApiError> handleUnauthorizedException(UnauthorizedException ex) {
         ApiError error = ApiError.builder()
-                .title(HttpStatus.BAD_REQUEST.getReasonPhrase())
-                .status(HttpStatus.BAD_REQUEST.value())
+                .title(HttpStatus.UNAUTHORIZED.getReasonPhrase())
+                .status(HttpStatus.UNAUTHORIZED.value())
                 .error(ex.getErrorCode().getValue())
                 .detail(ex.getMessage())
                 .timestamp(LocalDateTime.now())
