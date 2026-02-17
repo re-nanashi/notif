@@ -4,7 +4,7 @@ import com.notif.api.auth.response.AuthenticatedUserDTO;
 import com.notif.api.auth.request.AuthenticationRequest;
 import com.notif.api.auth.response.AuthenticationResponse;
 import com.notif.api.auth.request.RegisterRequest;
-import com.notif.api.common.constants.AppConstants;
+import com.notif.api.shared.constants.AppConstants;
 import com.notif.api.common.constants.ErrorCodes;
 import com.notif.api.common.contracts.UserManagementContract;
 import com.notif.api.common.events.UserRegisteredEvent;
