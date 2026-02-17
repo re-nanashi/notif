@@ -1,4 +1,4 @@
-package com.notif.api.user.controller;
+package com.notif.api.user.api.controller;
 
 import org.springframework.web.bind.annotation.*;
 

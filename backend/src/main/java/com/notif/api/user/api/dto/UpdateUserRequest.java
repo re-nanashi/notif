@@ -1,4 +1,4 @@
-package com.notif.api.user.request;
+package com.notif.api.user.api.dto;
 
 import lombok.Data;
 

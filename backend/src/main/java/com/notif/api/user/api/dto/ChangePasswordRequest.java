@@ -1,4 +1,4 @@
-package com.notif.api.user.request;
+package com.notif.api.user.api.dto;
 
 import com.notif.api.common.validation.PasswordMatchable;
 import com.notif.api.common.validation.PasswordMatches;

@@ -2,9 +2,9 @@ package com.notif.api.user.service;
 
 import com.notif.api.common.request.CreateUserRequest;
 import com.notif.api.common.response.UserDTO;
-import com.notif.api.user.request.ChangeEmailRequest;
-import com.notif.api.user.request.ChangePasswordRequest;
-import com.notif.api.user.request.UpdateUserRequest;
+import com.notif.api.user.api.dto.ChangeEmailRequest;
+import com.notif.api.user.api.dto.ChangePasswordRequest;
+import com.notif.api.user.api.dto.UpdateUserRequest;
 
 import java.util.List;
 import java.util.UUID;
