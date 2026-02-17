@@ -1,4 +1,4 @@
-package com.notif.api.config;
+package com.notif.api.core.config;
 
 import com.notif.api.config.security.JwtAuthenticationEntryPoint;
 import com.notif.api.config.security.JwtAuthenticationFilter;

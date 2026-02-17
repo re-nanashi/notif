@@ -1,4 +1,4 @@
-package com.notif.api.data;
+package com.notif.api.core.config;
 
 import com.notif.api.user.entity.Role;
 import com.notif.api.user.entity.User;
