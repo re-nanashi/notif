@@ -1,4 +1,4 @@
-package com.notif.api.common.response;
+package com.notif.api.core.dto;
 
 import lombok.Builder;
 import lombok.Data;

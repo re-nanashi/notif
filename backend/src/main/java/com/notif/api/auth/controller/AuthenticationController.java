@@ -5,7 +5,7 @@ import com.notif.api.auth.request.AuthenticationRequest;
 import com.notif.api.auth.response.AuthenticationResponse;
 import com.notif.api.auth.request.RegisterRequest;
 import com.notif.api.auth.service.AuthenticationService;
-import com.notif.api.common.response.ApiResponse;
+import com.notif.api.core.dto.ApiResponse;
 import com.notif.api.common.response.UserDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

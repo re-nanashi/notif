@@ -1,7 +1,7 @@
 package com.notif.api.user.exception;
 
 import com.notif.api.core.exception.ErrorCodes;
-import com.notif.api.common.response.ApiError;
+import com.notif.api.core.dto.ApiError;
 import com.notif.api.user.controller.UserController;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;

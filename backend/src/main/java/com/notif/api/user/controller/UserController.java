@@ -1,7 +1,7 @@
 package com.notif.api.user.controller;
 
 import com.notif.api.common.request.CreateUserRequest;
-import com.notif.api.common.response.ApiResponse;
+import com.notif.api.core.dto.ApiResponse;
 import com.notif.api.common.response.UserDTO;
 import com.notif.api.user.request.ChangeEmailRequest;
 import com.notif.api.user.request.ChangePasswordRequest;
