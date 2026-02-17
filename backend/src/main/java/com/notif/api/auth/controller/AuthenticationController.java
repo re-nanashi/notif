@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -24,6 +25,9 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class AuthenticationController {
     private final AuthenticationService authenticationService;
+
+    @Value("${api.prefix}")
+    private String apiPrefix;
 
     @GetMapping("/test")
     public ResponseEntity<String> test() {
@@ -41,11 +45,38 @@ public class AuthenticationController {
         return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse("Success", userInfo));
     }
 
-    // TODO: Properly structure response so user can get a hint to verify email
+    // TODO: Properly structure response so user can get a hint to verify email.
+    //  appUrl should be frontend url and not backend.
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse> register(@RequestBody @Valid RegisterRequest request) {
-        UserDTO userDTO = authenticationService.register(request);
+    public ResponseEntity<ApiResponse> register(
+            @RequestBody @Valid RegisterRequest request,
+            HttpServletRequest servletRequest
+    ) {
+        String appUrl = getAppUrl(servletRequest);
+
+        UserDTO userDTO = authenticationService.register(request, appUrl);
         return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse("Pending verification", userDTO));
+    }
+
+    private String getAppUrl(HttpServletRequest request) {
+        String scheme = request.getScheme();                    // http or https
+        String serverName = request.getServerName();            // localhost or domain.com
+        int serverPort = request.getServerPort();               // 8080
+        String contextPath = request.getContextPath();          // usually empty unless deployed with context
+
+        String portPart = (!(serverPort == 80 || serverPort == 443)) ? ":" + serverPort : "";
+
+        return scheme + "://" + serverName + portPart + contextPath + apiPrefix;
+    }
+
+    @GetMapping("/confirm-registration")
+    public ResponseEntity<ApiResponse> confirmRegistration(
+            @RequestParam("token") String token,
+            @RequestParam("email") String email
+    ) {
+        // TODO: Check if token is already used
+        UserDTO userDTO = authenticationService.confirmRegistration(token, email);
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse("Email verified successfully.", userDTO));
     }
 
     @PostMapping("/login")

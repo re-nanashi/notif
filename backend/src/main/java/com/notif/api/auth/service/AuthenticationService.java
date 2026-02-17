@@ -7,6 +7,7 @@ import com.notif.api.auth.request.RegisterRequest;
 import com.notif.api.common.constants.AppConstants;
 import com.notif.api.common.constants.ErrorCodes;
 import com.notif.api.common.contracts.UserManagementContract;
+import com.notif.api.common.events.UserRegisteredEvent;
 import com.notif.api.common.exception.ResourceConflictException;
 import com.notif.api.common.exception.ResourceNotFoundException;
 import com.notif.api.common.request.CreateUserRequest;
@@ -16,13 +17,13 @@ import com.notif.api.user.entity.User;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.security.sasl.AuthenticationException;
@@ -33,10 +34,11 @@ import java.util.Date;
 @RequiredArgsConstructor
 public class AuthenticationService {
     private final UserManagementContract userManagement;
-    private final PasswordEncoder passwordEncoder;
+    private final ApplicationEventPublisher eventPublisher;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
+    // TODO: refactor; userRepository uses UserDetails
     public AuthenticatedUserDTO getCurrentlyLoggedUser(
             HttpServletRequest request,
             HttpServletResponse response,
@@ -44,14 +46,14 @@ public class AuthenticationService {
     ) throws IOException {
         final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         final String jwtToken;
-        final User userInfo;
+        final UserDTO userInfo;
 
         if (authHeader == null || !authHeader.startsWith("Bearer")) {
             throw new AuthenticationException("Missing or invalid Authorization header.");
         }
 
         jwtToken = authHeader.substring(7);
-        userInfo = userRepository.findByEmail(user.getUsername())
+        userInfo = userManagement.findByEmail(user.getUsername())
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "User with email " + user.getUsername() + " does not exists.",
                         ErrorCodes.USER_NOT_FOUND
@@ -94,23 +96,34 @@ public class AuthenticationService {
         }
     }
 
-    public UserDTO register(RegisterRequest request) {
+    // TODO: Add auth-specific fields to RegisterRequest (e.g., agreeToTerms, captchaToken) then validate
+    public UserDTO register(RegisterRequest request, String appUrl) {
         // Check if user already exists
-        if (userManagement.existsByEmail(request.getEmail())) {
+        if (userManagement.userAlreadyExists(request.getEmail())) {
             throw new ResourceConflictException(
                     "User with email '" + request.getEmail() + "' already exists.",
                     ErrorCodes.USER_ALREADY_EXISTS
             );
         }
 
+        // Map register request to user creation request
+        CreateUserRequest createUserRequest = CreateUserRequest.builder()
+                .email(request.getEmail())
+                .password(request.getPassword())
+                .firstName(request.getFirstName())
+                .lastName(request.getLastName())
+                .build();
+
         // Create user via contract
-        return userManagement.createUser(
-                CreateUserRequest.builder()
-                        .email(request.getEmail())
-                        .password(request.getPassword())
-                        .firstName(request.getFirstName())
-                        .lastName(request.getLastName())
-                        .build()
-        );
+        UserDTO newUser = userManagement.createUser(createUserRequest);
+
+        // Publish event
+        eventPublisher.publishEvent(new UserRegisteredEvent(newUser.getId(), newUser.getEmail(), appUrl));
+
+        return newUser;
+    }
+
+    public UserDTO confirmRegistration(String token, String userEmail) {
+        return userManagement.enableUser(token, userEmail);
     }
 }
