@@ -1,4 +1,4 @@
-package com.notif.api.common.util;
+package com.notif.api.core.utils;
 
 public final class Util {
     public static boolean isNullOrBlank(String s) {

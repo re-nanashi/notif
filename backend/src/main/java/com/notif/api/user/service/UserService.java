@@ -9,7 +9,7 @@ import com.notif.api.user.entity.Role;
 import com.notif.api.user.entity.User;
 import com.notif.api.user.exception.InvalidPasswordException;
 import com.notif.api.user.repository.UserRepository;
-import com.notif.api.common.util.Util;
+import com.notif.api.core.utils.Util;
 import com.notif.api.core.exception.ResourceConflictException;
 import com.notif.api.user.request.ChangeEmailRequest;
 import com.notif.api.user.request.ChangePasswordRequest;
