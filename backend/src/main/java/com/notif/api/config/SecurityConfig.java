@@ -33,7 +33,8 @@ public class SecurityConfig {
     private final String[] WHITE_LIST_URL = {
             "/api/v1/auth/test",
             "/api/v1/auth/login",
-            "/api/v1/auth/register"
+            "/api/v1/auth/register",
+            "/api/v1/auth/confirm-registration"
     };
 
     @Bean
