@@ -1,4 +1,4 @@
-package com.notif.api.user.repository;
+package com.notif.api.user.infrastructure.repository;
 
 import com.notif.api.user.entity.User;
 import com.notif.api.user.entity.VerificationToken;

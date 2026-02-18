@@ -1,4 +1,4 @@
-package com.notif.api.user.repository;
+package com.notif.api.user.infrastructure.repository;
 
 import com.notif.api.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;

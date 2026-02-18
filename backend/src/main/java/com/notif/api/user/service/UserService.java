@@ -8,7 +8,7 @@ import com.notif.api.common.response.UserDTO;
 import com.notif.api.user.entity.Role;
 import com.notif.api.user.entity.User;
 import com.notif.api.user.exception.InvalidPasswordException;
-import com.notif.api.user.repository.UserRepository;
+import com.notif.api.user.infrastructure.repository.UserRepository;
 import com.notif.api.core.utils.Util;
 import com.notif.api.core.exception.AlreadyExistsException;
 import com.notif.api.user.api.dto.ChangeEmailRequest;
