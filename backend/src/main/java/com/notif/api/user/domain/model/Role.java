@@ -1,4 +1,4 @@
-package com.notif.api.user.entity;
+package com.notif.api.user.domain.model;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.notif.api.user.entity.Permission.*;
+import static com.notif.api.user.domain.model.Permission.*;
 
 /**
  * Enum representing application roles (USER, ADMIN, MANAGER).

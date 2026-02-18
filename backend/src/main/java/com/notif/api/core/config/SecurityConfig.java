@@ -15,8 +15,8 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import static com.notif.api.user.entity.Role.ADMIN;
-import static com.notif.api.user.entity.Role.MANAGER;
+import static com.notif.api.user.domain.model.Role.ADMIN;
+import static com.notif.api.user.domain.model.Role.MANAGER;
 
 @Configuration
 @EnableWebSecurity

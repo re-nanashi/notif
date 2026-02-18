@@ -2,8 +2,8 @@ package com.notif.api.user.service;
 
 import com.notif.api.core.exception.ErrorCodes;
 import com.notif.api.core.exception.NotFoundException;
-import com.notif.api.user.entity.User;
-import com.notif.api.user.entity.VerificationToken;
+import com.notif.api.user.domain.model.User;
+import com.notif.api.user.domain.model.VerificationToken;
 import com.notif.api.user.infrastructure.repository.UserRepository;
 import com.notif.api.user.infrastructure.repository.VerificationTokenRepository;
 import jakarta.transaction.Transactional;

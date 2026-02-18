@@ -1,6 +1,6 @@
 package com.notif.api.user.infrastructure.repository;
 
-import com.notif.api.user.entity.User;
+import com.notif.api.user.domain.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

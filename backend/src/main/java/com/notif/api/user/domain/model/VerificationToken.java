@@ -1,4 +1,4 @@
-package com.notif.api.user.entity;
+package com.notif.api.user.domain.model;
 
 import jakarta.persistence.*;
 import lombok.*;

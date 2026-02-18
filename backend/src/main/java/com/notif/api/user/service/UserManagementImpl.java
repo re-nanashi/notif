@@ -3,7 +3,7 @@ package com.notif.api.user.service;
 import com.notif.api.common.contracts.UserManagementContract;
 import com.notif.api.common.request.CreateUserRequest;
 import com.notif.api.common.response.UserDTO;
-import com.notif.api.user.entity.User;
+import com.notif.api.user.domain.model.User;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 

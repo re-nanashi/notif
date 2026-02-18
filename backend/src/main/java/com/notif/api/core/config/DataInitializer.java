@@ -1,7 +1,7 @@
 package com.notif.api.core.config;
 
-import com.notif.api.user.entity.Role;
-import com.notif.api.user.entity.User;
+import com.notif.api.user.domain.model.Role;
+import com.notif.api.user.domain.model.User;
 import com.notif.api.user.infrastructure.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;

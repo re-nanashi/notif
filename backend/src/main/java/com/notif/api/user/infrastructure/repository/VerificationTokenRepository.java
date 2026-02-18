@@ -1,7 +1,7 @@
 package com.notif.api.user.infrastructure.repository;
 
-import com.notif.api.user.entity.User;
-import com.notif.api.user.entity.VerificationToken;
+import com.notif.api.user.domain.model.User;
+import com.notif.api.user.domain.model.VerificationToken;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
