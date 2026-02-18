@@ -18,7 +18,7 @@ import java.util.UUID;
  *  - [ ] lastLogin
  */
 @Data
-public class UserDTO {
+public class UserResponse {
     private UUID id;
     private String email;
     private String firstName;

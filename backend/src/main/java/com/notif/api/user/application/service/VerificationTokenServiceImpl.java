@@ -5,7 +5,7 @@ import com.notif.api.core.exception.NotFoundException;
 import com.notif.api.user.domain.model.User;
 import com.notif.api.user.domain.model.VerificationToken;
 import com.notif.api.user.domain.repository.UserRepository;
-import com.notif.api.user.infrastructure.repository.VerificationTokenRepository;
+import com.notif.api.user.domain.repository.VerificationTokenRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class VerificationTokenService {
+public class VerificationTokenServiceImpl {
     private final UserRepository userRepository;
     private final VerificationTokenRepository tokenRepository;
 

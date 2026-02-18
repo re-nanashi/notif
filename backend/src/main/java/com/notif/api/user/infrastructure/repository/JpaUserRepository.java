@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import java.util.UUID;
 
 /**
- * Repository interface for managing {@link User} entities.
+ * Spring Data JPA repository for User, extending JpaRepository and UserRepository.
  */
 @Repository
 public interface JpaUserRepository extends JpaRepository<User, UUID>, UserRepository {
