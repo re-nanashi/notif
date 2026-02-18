@@ -1,8 +1,9 @@
-package com.notif.api.user.domain.exception;
+package com.notif.api.user.api.exception;
 
 import com.notif.api.core.exception.ErrorCodes;
 import com.notif.api.core.dto.ApiError;
 import com.notif.api.user.api.controller.UserController;
+import com.notif.api.user.domain.exception.InvalidPasswordException;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
@@ -24,7 +25,7 @@ public class UserControllerAdvice {
         ApiError error = ApiError.builder()
                 .title(HttpStatus.BAD_REQUEST.getReasonPhrase())
                 .status(HttpStatus.BAD_REQUEST.value())
-                .error(ErrorCodes.INVALID_CREDENTIALS.getValue())
+                .error(ex.getErrorCode().getValue())
                 .detail(ex.getMessage())
                 .timestamp(LocalDateTime.now())
                 .build();

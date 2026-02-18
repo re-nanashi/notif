@@ -1,10 +1,11 @@
 package com.notif.api.user.application.service;
 
+import com.notif.api.user.api.dto.UserResponse;
 import com.notif.api.user.application.dto.CreateUserRequest;
-import com.notif.api.user.api.dto.UserDTO;
 import com.notif.api.user.api.dto.ChangeEmailRequest;
 import com.notif.api.user.api.dto.ChangePasswordRequest;
 import com.notif.api.user.api.dto.UpdateUserRequest;
+import com.notif.api.user.domain.model.User;
 
 import java.util.List;
 import java.util.UUID;
@@ -12,71 +13,17 @@ import java.util.UUID;
 /**
  * Service interface for managing users.
  *
- * Provides methods for creating, updating, retrieving, and deleting users, as well as changing email and password.
+ * Provides methods for creating, updating, retrieving, and deleting users, as well as modifying user information.
  */
-public interface IUserService {
-    /**
-     * Creates a new user.
-     *
-     * @param request the user creation request containing email, password, and profile information
-     * @return the created {@link UserDTO}
-     */
-    UserDTO createUser(CreateUserRequest request);
-
-    /**
-     * Retrieves all users.
-     *
-     * @return list of {@link UserDTO} representing all users
-     */
-    List<UserDTO> getAllUsers();
-
-    /**
-     * Retrieves a user by their ID.
-     *
-     * @param id the UUID of the user
-     * @return the {@link UserDTO} of the user
-     */
-    UserDTO getUserById(UUID id);
-
-    /**
-     * Retrieves a user by their email.
-     *
-     * @param email the email of the user
-     * @return the {@link UserDTO} of the user
-     */
-    UserDTO getUserByEmail(String email);
-
-    /**
-     * Updates a user's profile information.
-     *
-     * @param request the fields to update
-     * @param id      the UUID of the user
-     * @return the updated {@link UserDTO}
-     */
-    UserDTO updateUser(UpdateUserRequest request, UUID id);
-
-    /**
-     * Changes a user's email address.
-     *
-     * @param request the new email and current password for verification
-     * @param id      the UUID of the user
-     * @return the updated {@link UserDTO}
-     */
-    UserDTO changeEmail(ChangeEmailRequest request, UUID id);
-
-    /**
-     * Changes a user's password.
-     *
-     * @param request contains current password, new password, and confirmation
-     * @param id      the UUID of the user
-     * @return the updated {@link UserDTO}
-     */
-    UserDTO changePassword(ChangePasswordRequest request, UUID id);
-
-    /**
-     * Deletes a user by their ID.
-     *
-     * @param id the UUID of the user to delete
-     */
+public interface UserService {
+    User createUser(CreateUserRequest request);
+    User getUserById(UUID id);
+    User getUserByEmail(String email);
+    List<User> getAllUsers();
+    User updateUser(UpdateUserRequest request, UUID id);
+    User enableUser(String email);
+    User changeEmail(ChangeEmailRequest request, UUID id);
+    User changePassword(ChangePasswordRequest request, UUID id);
     void deleteUser(UUID id);
+    UserResponse convertUserToResponse(User user);
 }

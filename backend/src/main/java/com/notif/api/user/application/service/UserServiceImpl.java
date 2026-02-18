@@ -1,10 +1,12 @@
 package com.notif.api.user.application.service;
 
+import com.notif.api.core.domain.event.EventPublisher;
 import com.notif.api.core.exception.ErrorCodes;
 import com.notif.api.core.exception.NotFoundException;
 import com.notif.api.core.exception.ValidationException;
+import com.notif.api.user.api.dto.UserResponse;
 import com.notif.api.user.application.dto.CreateUserRequest;
-import com.notif.api.user.api.dto.UserDTO;
+import com.notif.api.user.domain.event.UserCreatedEvent;
 import com.notif.api.user.domain.model.Role;
 import com.notif.api.user.domain.model.User;
 import com.notif.api.user.domain.exception.InvalidPasswordException;
@@ -15,8 +17,8 @@ import com.notif.api.user.api.dto.ChangeEmailRequest;
 import com.notif.api.user.api.dto.ChangePasswordRequest;
 import com.notif.api.user.api.dto.UpdateUserRequest;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -25,17 +27,15 @@ import java.util.UUID;
 
 @Service
 @Transactional
-public class UserService implements IUserService {
-    @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-    @Autowired
-    private ModelMapper modelMapper;
+@RequiredArgsConstructor
+public class UserServiceImpl implements UserService {
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final EventPublisher eventPublisher;
+    private final ModelMapper modelMapper;
 
     @Override
-    public UserDTO createUser(CreateUserRequest request) {
-        // Check if user already exists
+    public User createUser(CreateUserRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new AlreadyExistsException(
                     "User with email '" + request.getEmail() + "' already exists.",
@@ -54,49 +54,39 @@ public class UserService implements IUserService {
 
         User savedUser = userRepository.save(newUser);
 
-        return convertUserToDto(savedUser);
+        eventPublisher.publish(new UserCreatedEvent(savedUser.getId(), savedUser.getEmail()));
+
+        return savedUser;
+    }
+
+    @Override
+    public User getUserById(UUID id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(
+                        "User with ID " + id + " not found.",
+                        ErrorCodes.USER_NOT_FOUND
+                ));
+    }
+
+    @Override
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new NotFoundException(
+                        "User with email '" + email + "' not found.",
+                        ErrorCodes.USER_NOT_FOUND
+                ));
     }
 
     // TODO (Future):
     //  For large datasets, use pagination and sorting with methods like findAll(Pageable pageable)
     //  or findAll(Sort sort) to fetch data in manageable chunks.
     @Override
-    public List<UserDTO> getAllUsers() {
-        // Convert all users to DTOs
-        return userRepository.findAll()
-                .stream()
-                .map(this::convertUserToDto)
-                .toList();
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
     }
 
     @Override
-    public UserDTO getUserById(UUID id) {
-        User existingUser = userRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(
-                        "User with ID " + id + " not found.",
-                        ErrorCodes.USER_NOT_FOUND
-                ));
-
-        return convertUserToDto(existingUser);
-    }
-
-    @Override
-    public UserDTO getUserByEmail(String email) {
-        User existingUser = userRepository.findByEmail(email)
-                .orElseThrow(() -> new NotFoundException(
-                        "User with email '" + email + "' not found.",
-                        ErrorCodes.USER_NOT_FOUND
-                ));
-
-        return convertUserToDto(existingUser);
-    }
-
-    public boolean userAlreadyExists(String email) {
-        return userRepository.existsByEmail(email);
-    }
-
-    @Override
-    public UserDTO updateUser(UpdateUserRequest request, UUID id) {
+    public User updateUser(UpdateUserRequest request, UUID id) {
         User existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(
                         "User with ID " + id + " not found.",
@@ -108,22 +98,30 @@ public class UserService implements IUserService {
 
         // Require at least one field to update
         if (Util.isNullOrBlank(firstName) && Util.isNullOrBlank(lastName)) {
-            throw new ValidationException(
-                    "At least one field must be provided.",
-                    ErrorCodes.NO_FIELDS_TO_UPDATE
-            );
+            throw new ValidationException("At least one field must be provided.", ErrorCodes.NO_FIELDS_TO_UPDATE);
         }
 
         if (!Util.isNullOrBlank(firstName)) existingUser.setFirstName(firstName);
         if (!Util.isNullOrBlank(lastName)) existingUser.setLastName(lastName);
 
-        User savedUser = userRepository.save(existingUser);
-
-        return convertUserToDto(savedUser);
+        return userRepository.save(existingUser);
     }
 
     @Override
-    public UserDTO changeEmail(ChangeEmailRequest request, UUID id) {
+    public User enableUser(String email) {
+        User existingUser = userRepository.findByEmail(email)
+                .orElseThrow(() -> new NotFoundException(
+                        "User with email " + email + " not found.",
+                        ErrorCodes.USER_NOT_FOUND
+                ));
+
+        existingUser.setEnabled(true);
+
+        return userRepository.save(existingUser);
+    }
+
+    @Override
+    public User changeEmail(ChangeEmailRequest request, UUID id) {
         User existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(
                         "User with ID " + id + " not found.",
@@ -132,29 +130,22 @@ public class UserService implements IUserService {
 
         // Check if password is incorrect
         if (!passwordEncoder.matches(request.getCurrentPassword(), existingUser.getPassword())) {
-            throw new InvalidPasswordException(
-                    "The password provided is incorrect.",
-                    ErrorCodes.INVALID_CREDENTIALS
-            );
+            throw new InvalidPasswordException("The password provided is incorrect.", ErrorCodes.INVALID_CREDENTIALS);
         }
         // Check if email is already in use
         String email = request.getNewEmail();
         if (userRepository.existsByEmail(email)) {
-            throw new AlreadyExistsException(
-                    "Email '" + email + "' already in use.",
-                    ErrorCodes.EMAIL_ALREADY_EXISTS
-            );
+            throw new AlreadyExistsException("Email '" + email + "' already in use.", ErrorCodes.EMAIL_ALREADY_EXISTS);
         }
 
         existingUser.setEmail(request.getNewEmail());
 
-        User savedUser = userRepository.save(existingUser);
+        return userRepository.save(existingUser);
 
-        return convertUserToDto(savedUser);
     }
 
     @Override
-    public UserDTO changePassword(ChangePasswordRequest request, UUID id) {
+    public User changePassword(ChangePasswordRequest request, UUID id) {
         User existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(
                         "User with ID " + id + " not found.",
@@ -163,19 +154,15 @@ public class UserService implements IUserService {
 
         // Check if password is incorrect
         if (!passwordEncoder.matches(request.getCurrentPassword(), existingUser.getPassword())) {
-            throw new InvalidPasswordException(
-                    "The password provided is incorrect.",
-                    ErrorCodes.INVALID_CREDENTIALS
-            );
+            throw new InvalidPasswordException("The password provided is incorrect.", ErrorCodes.INVALID_CREDENTIALS);
         }
 
         existingUser.setPassword(passwordEncoder.encode(request.getPassword()));
 
-        User savedUser = userRepository.save(existingUser);
-
-        return convertUserToDto(savedUser);
+        return userRepository.save(existingUser);
     }
 
+    // TODO: UserDeletedEvent
     @Override
     public void deleteUser(UUID id) {
         userRepository.findById(id)
@@ -187,8 +174,7 @@ public class UserService implements IUserService {
         userRepository.deleteById(id);
     }
 
-    // Converts User entity to DTO
-    public UserDTO convertUserToDto(User user) {
-        return modelMapper.map(user, UserDTO.class);
+    public UserResponse convertUserToResponse(User user) {
+        return modelMapper.map(user, UserResponse.class);
     }
 }

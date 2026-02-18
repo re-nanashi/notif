@@ -1,5 +1,6 @@
 package com.notif.api.user.domain.exception;
 
+import com.notif.api.core.exception.BusinessException;
 import com.notif.api.core.exception.ErrorCodes;
 import lombok.Getter;
 
@@ -11,11 +12,12 @@ import lombok.Getter;
  * when the user simply provides an incorrect current password.
  */
 @Getter
-public class InvalidPasswordException extends RuntimeException {
-    private final ErrorCodes errorCode;
+public class InvalidPasswordException extends BusinessException {
+    public InvalidPasswordException(String message) {
+        super(message, ErrorCodes.INVALID_CREDENTIALS);
+    }
 
     public InvalidPasswordException(String message, ErrorCodes errorCode) {
-        super(message);
-        this.errorCode = errorCode;
+        super(message, errorCode);
     }
 }

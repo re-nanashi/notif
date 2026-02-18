@@ -6,7 +6,7 @@ import com.notif.api.auth.response.AuthenticationResponse;
 import com.notif.api.auth.request.RegisterRequest;
 import com.notif.api.core.constants.AppConstants;
 import com.notif.api.core.exception.ErrorCodes;
-import com.notif.api.user.client.UserManagementContract;
+import com.notif.api.user.client.UserClient;
 import com.notif.api.user.domain.event.UserRegisteredEvent;
 import com.notif.api.core.exception.NotFoundException;
 import com.notif.api.user.application.dto.CreateUserRequest;
@@ -32,7 +32,7 @@ import java.util.Date;
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService {
-    private final UserManagementContract userManagement;
+    private final UserClient userClient;
     private final ApplicationEventPublisher eventPublisher;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
@@ -52,7 +52,7 @@ public class AuthenticationService {
         }
 
         jwtToken = authHeader.substring(7);
-        userInfo = userManagement.findByEmail(user.getUsername())
+        userInfo = userClient.findByEmail(user.getUsername())
                 .orElseThrow(() -> new NotFoundException(
                         "User with email " + user.getUsername() + " does not exists.",
                         ErrorCodes.USER_NOT_FOUND
@@ -106,7 +106,7 @@ public class AuthenticationService {
                 .build();
 
         // Create user via contract
-        UserDTO newUser = userManagement.createUser(createUserRequest);
+        UserDTO newUser = userClient.createUser(createUserRequest);
 
         // Publish event
         eventPublisher.publishEvent(new UserRegisteredEvent(newUser.getId(), newUser.getEmail(), appUrl));
@@ -115,6 +115,6 @@ public class AuthenticationService {
     }
 
     public UserDTO confirmRegistration(String token, String userEmail) {
-        return userManagement.enableUser(token, userEmail);
+        return userClient.enableUser(token, userEmail);
     }
 }

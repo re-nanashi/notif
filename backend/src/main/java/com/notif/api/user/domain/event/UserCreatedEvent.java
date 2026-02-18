@@ -1,23 +1,25 @@
 package com.notif.api.user.domain.event;
 
+import com.notif.api.core.domain.event.DomainEvent;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
-import org.springframework.context.ApplicationEvent;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
+/**
+ * Event published when a new User is created.
+ * Contains basic information about the user.
+ */
 @Getter
-@Setter
-public class UserRegisteredEvent extends ApplicationEvent {
-    private UUID userId;
-    private String userEmail;
-    private String appUrl;
+@AllArgsConstructor
+public class UserCreatedEvent implements DomainEvent {
+    private final UUID userId;
+    private final String userEmail;
+    private final LocalDateTime occurredOn = LocalDateTime.now();
 
-    public UserRegisteredEvent(UUID userId, String userEmail, String appUrl) {
-        super(userId);
-
-        this.userId = userId;
-        this.userEmail = userEmail;
-        this.appUrl = appUrl;
+    @Override
+    public String getEventType() {
+        return "USER_CREATED";
     }
 }

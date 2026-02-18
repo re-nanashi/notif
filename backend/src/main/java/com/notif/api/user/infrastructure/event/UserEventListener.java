@@ -12,6 +12,10 @@ import org.springframework.stereotype.Component;
 
 import java.util.UUID;
 
+/**
+ * Listens for UserCreatedEvent and sends a verification email to the new user.
+ * Generates a unique verification token and constructs the confirmation URL.
+ */
 @Component
 @RequiredArgsConstructor
 public class UserEventListener {
@@ -27,13 +31,17 @@ public class UserEventListener {
     @EventListener
     @Async
     public void handleUserCreatedEvent(UserCreatedEvent event) {
+        // Generate a unique verification token for the new user
         String userEmail = event.getUserEmail();
         String token = UUID.randomUUID().toString();
         tokenService.createVerificationToken(userEmail, token);
 
-        String subject = "Confirm Registration";
+        // Construct the full confirmation URL with token and email
         String confirmationUrl =
                 appUrl + apiPrefix + "/auth/confirm-registration?token=" + token + "&email=" + userEmail;
+
+        // Compose email then send
+        String subject = "Confirm Registration";
         String message = "Click the link to verify your account:";
 
         SimpleMailMessage email = new SimpleMailMessage();
@@ -41,6 +49,5 @@ public class UserEventListener {
         email.setSubject(subject);
         email.setText(message + "\r\n" + confirmationUrl);
         mailSender.send(email);
-
     }
 }

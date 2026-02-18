@@ -2,11 +2,12 @@ package com.notif.api.user.api.controller;
 
 import com.notif.api.user.application.dto.CreateUserRequest;
 import com.notif.api.core.dto.ApiResponse;
-import com.notif.api.user.api.dto.UserDTO;
 import com.notif.api.user.api.dto.ChangeEmailRequest;
 import com.notif.api.user.api.dto.ChangePasswordRequest;
 import com.notif.api.user.api.dto.UpdateUserRequest;
+import com.notif.api.user.api.dto.UserResponse;
 import com.notif.api.user.application.service.UserService;
+import com.notif.api.user.domain.model.User;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -35,23 +36,28 @@ public class UserController {
      * Creates a new user (admin-only).
      *
      * @param request the user creation payload
-     * @return {@link ApiResponse} containing the created {@link UserDTO}
+     * @return {@link ApiResponse} containing the created {@link UserResponse}
      */
     @PostMapping
     public ResponseEntity<ApiResponse> createUser(@RequestBody @Valid CreateUserRequest request) {
-        UserDTO user = userService.createUser(request);
-        // TODO (Authentication): JWT response; User registration is implemented on Auth
-        return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse("User created successfully", user));
+        User user = userService.createUser(request);
+        UserResponse response = userService.convertUserToResponse(user);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse("User created successfully.", response));
     }
 
     /**
      * Retrieves all users (admin-only).
      *
-     * @return {@link ApiResponse} containing a list of {@link UserDTO}
+     * @return {@link ApiResponse} containing a list of {@link UserResponse}
      */
     @GetMapping
     public ResponseEntity<ApiResponse> getAllUsers() {
-        List<UserDTO> users = userService.getAllUsers();
+        List<UserResponse> users = userService.getAllUsers()
+                .stream()
+                .map(userService::convertUserToResponse)
+                .toList();
+
         return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse("Success", users));
     }
 
@@ -59,12 +65,14 @@ public class UserController {
      * Retrieves a user by their UUID (admin-only).
      *
      * @param id the UUID of the user
-     * @return {@link ApiResponse} containing the {@link UserDTO}
+     * @return {@link ApiResponse} containing the {@link UserResponse}
      */
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse> getUserById(@PathVariable UUID id) {
-        UserDTO user = userService.getUserById(id);
-        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse("Success", user));
+        User user = userService.getUserById(id);
+        UserResponse response = userService.convertUserToResponse(user);
+
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse("Success", response));
     }
 
     /**
@@ -72,15 +80,17 @@ public class UserController {
      *
      * @param request the update payload
      * @param id      the UUID of the user to update
-     * @return {@link ApiResponse} containing the updated {@link UserDTO}
+     * @return {@link ApiResponse} containing the updated {@link UserResponse}
      */
     @PatchMapping("/{id}")
     public ResponseEntity<ApiResponse> updateUser(@RequestBody UpdateUserRequest request, @PathVariable UUID id) {
         // TODO (Authorization):
         //  [ ] Only connected users can update their own data (profile, password, etc). Admin can update anyone's profile.
         //  [ ] We should check the ID on the endpoint and check if the connected user has the same ID.
-        UserDTO user = userService.updateUser(request, id);
-        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse("User updated successfully", user));
+        User user = userService.updateUser(request, id);
+        UserResponse response = userService.convertUserToResponse(user);
+
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse("User updated successfully.", response));
     }
 
     /**
@@ -92,12 +102,14 @@ public class UserController {
      *
      * @param request the {@link ChangeEmailRequest} containing the new email
      * @param id      the UUID of the user
-     * @return {@link ApiResponse} containing the updated {@link UserDTO}
+     * @return {@link ApiResponse} containing the updated {@link UserResponse}
      */
     @PatchMapping("/{id}/email")
     public ResponseEntity<ApiResponse> changeEmail(@RequestBody @Valid ChangeEmailRequest request, @PathVariable UUID id) {
-        UserDTO user = userService.changeEmail(request, id);
-        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse("Email changed successfully", user));
+        User user = userService.changeEmail(request, id);
+        UserResponse response = userService.convertUserToResponse(user);
+
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse("Email changed successfully.", response));
     }
 
     /**
@@ -108,12 +120,14 @@ public class UserController {
      *
      * @param request the {@link ChangePasswordRequest} containing the current and new passwords
      * @param id      the UUID of the user
-     * @return {@link ApiResponse} containing the updated {@link UserDTO}
+     * @return {@link ApiResponse} containing the updated {@link UserResponse}
      */
     @PatchMapping("/{id}/password")
     public ResponseEntity<ApiResponse> changePassword(@RequestBody @Valid ChangePasswordRequest request, @PathVariable UUID id) {
-        UserDTO user = userService.changePassword(request, id);
-        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse("Password changed successfully", user));
+        User user = userService.changePassword(request, id);
+        UserResponse response = userService.convertUserToResponse(user);
+
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse("Password changed successfully.", response));
     }
 
     /**

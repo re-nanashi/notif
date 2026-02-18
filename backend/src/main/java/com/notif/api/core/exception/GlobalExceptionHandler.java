@@ -95,7 +95,7 @@ public class GlobalExceptionHandler {
         ApiError error = ApiError.builder()
                 .title("Invalid input")
                 .status(HttpStatus.BAD_REQUEST.value())
-                .error(ErrorCodes.VALIDATION_FAILED.getValue())
+                .error(ErrorCodes.VALIDATION_ERROR.getValue())
                 .fieldErrors(fieldErrors)
                 .timestamp(LocalDateTime.now())
                 .build();

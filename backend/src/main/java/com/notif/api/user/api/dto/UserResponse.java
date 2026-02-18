@@ -10,8 +10,6 @@ import java.util.UUID;
  * Excludes sensitive fields such as passwords.
  * Used for responses to clients or other services.
  * TODO:
- *  - [ ] emailVerified
- *  - [ ] fullName; computed instead of stored
  *  - [ ] roles - List; e.g., ["USER"], ["ADMIN"]
  *  - [ ] status - Enum; e.g., ACTIVE, INACTIVE, SUSPENDED
  *  - [ ] createdAt
@@ -21,6 +19,9 @@ import java.util.UUID;
 public class UserResponse {
     private UUID id;
     private String email;
+    private boolean emailVerified;
     private String firstName;
     private String lastName;
+    private String fullName;
+    private String role;
 }
