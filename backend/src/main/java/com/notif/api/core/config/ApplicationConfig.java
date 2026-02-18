@@ -1,6 +1,6 @@
 package com.notif.api.core.config;
 
-import com.notif.api.user.infrastructure.repository.UserRepository;
+import com.notif.api.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;

@@ -1,6 +1,6 @@
 package com.notif.api.user.api.dto;
 
-import com.notif.api.common.validation.ValidEmail;
+import com.notif.api.core.validation.ValidEmail;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 

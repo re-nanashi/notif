@@ -2,7 +2,7 @@ package com.notif.api.core.config;
 
 import com.notif.api.user.domain.model.Role;
 import com.notif.api.user.domain.model.User;
-import com.notif.api.user.infrastructure.repository.UserRepository;
+import com.notif.api.user.domain.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;

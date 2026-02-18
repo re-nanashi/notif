@@ -1,8 +1,6 @@
-package com.notif.api.common.request;
+package com.notif.api.user.application.dto;
 
-import com.notif.api.common.validation.PasswordMatchable;
-import com.notif.api.common.validation.PasswordMatches;
-import com.notif.api.common.validation.ValidEmail;
+import com.notif.api.core.validation.ValidEmail;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;

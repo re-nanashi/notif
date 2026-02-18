@@ -1,4 +1,4 @@
-package com.notif.api.user.exception;
+package com.notif.api.user.domain.exception;
 
 import com.notif.api.core.exception.ErrorCodes;
 import com.notif.api.core.dto.ApiError;

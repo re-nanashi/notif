@@ -1,7 +1,8 @@
 package com.notif.api.user.service;
 
-import com.notif.api.common.response.UserDTO;
-import com.notif.api.user.infrastructure.repository.UserRepository;
+import com.notif.api.user.api.dto.UserDTO;
+import com.notif.api.user.application.service.UserService;
+import com.notif.api.user.domain.repository.UserRepository;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;

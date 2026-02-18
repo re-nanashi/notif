@@ -1,10 +1,10 @@
-package com.notif.api.user.service;
+package com.notif.api.user.application.service;
 
 import com.notif.api.core.exception.ErrorCodes;
 import com.notif.api.core.exception.NotFoundException;
 import com.notif.api.user.domain.model.User;
 import com.notif.api.user.domain.model.VerificationToken;
-import com.notif.api.user.infrastructure.repository.UserRepository;
+import com.notif.api.user.domain.repository.UserRepository;
 import com.notif.api.user.infrastructure.repository.VerificationTokenRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;

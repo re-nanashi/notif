@@ -1,4 +1,4 @@
-package com.notif.api.common.validation;
+package com.notif.api.core.validation;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;

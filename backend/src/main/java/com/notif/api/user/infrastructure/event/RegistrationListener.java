@@ -1,7 +1,7 @@
-package com.notif.api.user.listener;
+package com.notif.api.user.infrastructure.event;
 
-import com.notif.api.common.events.UserRegisteredEvent;
-import com.notif.api.user.service.VerificationTokenService;
+import com.notif.api.user.domain.event.UserRegisteredEvent;
+import com.notif.api.user.application.service.VerificationTokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationListener;
 import org.springframework.mail.SimpleMailMessage;

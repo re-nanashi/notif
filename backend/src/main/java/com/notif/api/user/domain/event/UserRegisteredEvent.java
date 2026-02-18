@@ -1,4 +1,4 @@
-package com.notif.api.common.events;
+package com.notif.api.user.domain.event;
 
 import lombok.Getter;
 import lombok.Setter;

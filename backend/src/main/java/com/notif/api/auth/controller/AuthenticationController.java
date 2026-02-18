@@ -6,7 +6,7 @@ import com.notif.api.auth.response.AuthenticationResponse;
 import com.notif.api.auth.request.RegisterRequest;
 import com.notif.api.auth.service.AuthenticationService;
 import com.notif.api.core.dto.ApiResponse;
-import com.notif.api.common.response.UserDTO;
+import com.notif.api.user.api.dto.UserDTO;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -46,7 +46,8 @@ public class AuthenticationController {
     }
 
     // TODO: Properly structure response so user can get a hint to verify email.
-    //  appUrl should be frontend url and not backend.
+    //  - appUrl should be frontend url and not backend.
+    //  - RegisterResponse
     @PostMapping("/register")
     public ResponseEntity<ApiResponse> register(
             @RequestBody @Valid RegisterRequest request,

@@ -1,9 +1,10 @@
-package com.notif.api.user.service;
+package com.notif.api.user.client;
 
-import com.notif.api.common.contracts.UserManagementContract;
-import com.notif.api.common.request.CreateUserRequest;
-import com.notif.api.common.response.UserDTO;
+import com.notif.api.user.application.dto.CreateUserRequest;
+import com.notif.api.user.api.dto.UserDTO;
 import com.notif.api.user.domain.model.User;
+import com.notif.api.user.application.service.UserService;
+import com.notif.api.user.application.service.VerificationTokenService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 

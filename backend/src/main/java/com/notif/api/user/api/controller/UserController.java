@@ -1,12 +1,12 @@
 package com.notif.api.user.api.controller;
 
-import com.notif.api.common.request.CreateUserRequest;
+import com.notif.api.user.application.dto.CreateUserRequest;
 import com.notif.api.core.dto.ApiResponse;
-import com.notif.api.common.response.UserDTO;
+import com.notif.api.user.api.dto.UserDTO;
 import com.notif.api.user.api.dto.ChangeEmailRequest;
 import com.notif.api.user.api.dto.ChangePasswordRequest;
 import com.notif.api.user.api.dto.UpdateUserRequest;
-import com.notif.api.user.service.UserService;
+import com.notif.api.user.application.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

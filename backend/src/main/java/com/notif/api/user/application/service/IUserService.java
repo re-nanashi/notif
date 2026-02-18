@@ -1,7 +1,7 @@
-package com.notif.api.user.service;
+package com.notif.api.user.application.service;
 
-import com.notif.api.common.request.CreateUserRequest;
-import com.notif.api.common.response.UserDTO;
+import com.notif.api.user.application.dto.CreateUserRequest;
+import com.notif.api.user.api.dto.UserDTO;
 import com.notif.api.user.api.dto.ChangeEmailRequest;
 import com.notif.api.user.api.dto.ChangePasswordRequest;
 import com.notif.api.user.api.dto.UpdateUserRequest;

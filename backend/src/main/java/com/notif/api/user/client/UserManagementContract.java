@@ -1,7 +1,7 @@
-package com.notif.api.common.contracts;
+package com.notif.api.user.client;
 
-import com.notif.api.common.request.CreateUserRequest;
-import com.notif.api.common.response.UserDTO;
+import com.notif.api.user.application.dto.CreateUserRequest;
+import com.notif.api.user.api.dto.UserDTO;
 
 import java.util.Optional;
 

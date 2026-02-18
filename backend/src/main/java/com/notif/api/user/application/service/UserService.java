@@ -1,14 +1,14 @@
-package com.notif.api.user.service;
+package com.notif.api.user.application.service;
 
 import com.notif.api.core.exception.ErrorCodes;
 import com.notif.api.core.exception.NotFoundException;
 import com.notif.api.core.exception.ValidationException;
-import com.notif.api.common.request.CreateUserRequest;
-import com.notif.api.common.response.UserDTO;
+import com.notif.api.user.application.dto.CreateUserRequest;
+import com.notif.api.user.api.dto.UserDTO;
 import com.notif.api.user.domain.model.Role;
 import com.notif.api.user.domain.model.User;
-import com.notif.api.user.exception.InvalidPasswordException;
-import com.notif.api.user.infrastructure.repository.UserRepository;
+import com.notif.api.user.domain.exception.InvalidPasswordException;
+import com.notif.api.user.domain.repository.UserRepository;
 import com.notif.api.core.utils.Util;
 import com.notif.api.core.exception.AlreadyExistsException;
 import com.notif.api.user.api.dto.ChangeEmailRequest;
