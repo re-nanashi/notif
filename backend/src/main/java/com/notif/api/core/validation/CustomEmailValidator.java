@@ -1,5 +1,6 @@
 package com.notif.api.core.validation;
 
+import com.notif.api.core.utils.Util;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
@@ -15,6 +16,11 @@ public class CustomEmailValidator implements ConstraintValidator<ValidEmail, Str
 
     @Override
     public boolean isValid(String email, ConstraintValidatorContext context) {
+        // let @NotBlank handle validation if missing
+        if (Util.isNullOrBlank(email)) {
+            return true;
+        }
+
         return (validateEmail(email));
     }
 
