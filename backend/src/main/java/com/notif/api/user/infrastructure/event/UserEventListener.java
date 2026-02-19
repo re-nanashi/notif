@@ -9,6 +9,8 @@ import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.util.UUID;
 
@@ -29,6 +31,7 @@ public class UserEventListener {
     private final JavaMailSender mailSender;
 
     @EventListener
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Async
     public void handleUserCreatedEvent(UserCreatedEvent event) {
         // Generate a unique verification token for the new user
