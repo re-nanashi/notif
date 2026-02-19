@@ -9,7 +9,7 @@ import java.util.Optional;
  * Repository interface for VerificationToken entity.
  */
 public interface VerificationTokenRepository {
-    void save(VerificationToken token);
+    VerificationToken save(VerificationToken token);
     Optional<VerificationToken> findByToken(String token);
     Optional<VerificationToken> findByUser(User user);
 }

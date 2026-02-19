@@ -1,7 +1,7 @@
 package com.notif.api.user.application.service;
 
 import com.notif.api.core.domain.event.EventPublisher;
-import com.notif.api.core.exception.ErrorCodes;
+import com.notif.api.core.exception.ErrorCode;
 import com.notif.api.core.exception.NotFoundException;
 import com.notif.api.core.exception.ValidationException;
 import com.notif.api.user.api.dto.UserResponse;
@@ -40,7 +40,7 @@ public class UserServiceImpl implements UserService {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new AlreadyExistsException(
                     "User with email '" + request.getEmail() + "' already exists.",
-                    ErrorCodes.USER_ALREADY_EXISTS
+                    ErrorCode.USER_ALREADY_EXISTS
             );
         }
 
@@ -65,7 +65,7 @@ public class UserServiceImpl implements UserService {
         return userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(
                         "User with ID " + id + " not found.",
-                        ErrorCodes.USER_NOT_FOUND
+                        ErrorCode.USER_NOT_FOUND
                 ));
     }
 
@@ -74,7 +74,7 @@ public class UserServiceImpl implements UserService {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new NotFoundException(
                         "User with email '" + email + "' not found.",
-                        ErrorCodes.USER_NOT_FOUND
+                        ErrorCode.USER_NOT_FOUND
                 ));
     }
 
@@ -91,7 +91,7 @@ public class UserServiceImpl implements UserService {
         User existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(
                         "User with ID " + id + " not found.",
-                        ErrorCodes.USER_NOT_FOUND
+                        ErrorCode.USER_NOT_FOUND
                 ));
 
         String firstName = request.getFirstName();
@@ -99,7 +99,7 @@ public class UserServiceImpl implements UserService {
 
         // Require at least one field to update
         if (Util.isNullOrBlank(firstName) && Util.isNullOrBlank(lastName)) {
-            throw new ValidationException("At least one field must be provided.", ErrorCodes.NO_FIELDS_TO_UPDATE);
+            throw new ValidationException("At least one field must be provided.", ErrorCode.MISSING_REQUIRED_FIELD);
         }
 
         if (!Util.isNullOrBlank(firstName)) existingUser.setFirstName(firstName);
@@ -113,7 +113,7 @@ public class UserServiceImpl implements UserService {
         User existingUser = userRepository.findByEmail(email)
                 .orElseThrow(() -> new NotFoundException(
                         "User with email " + email + " not found.",
-                        ErrorCodes.USER_NOT_FOUND
+                        ErrorCode.USER_NOT_FOUND
                 ));
 
         existingUser.setEnabled(true);
@@ -126,17 +126,20 @@ public class UserServiceImpl implements UserService {
         User existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(
                         "User with ID " + id + " not found.",
-                        ErrorCodes.USER_NOT_FOUND
+                        ErrorCode.USER_NOT_FOUND
                 ));
 
         // Check if password is incorrect
         if (!passwordEncoder.matches(request.getCurrentPassword(), existingUser.getPassword())) {
-            throw new InvalidPasswordException("The password provided is incorrect.", ErrorCodes.INVALID_CREDENTIALS);
+            throw new InvalidPasswordException("The password provided is incorrect.", ErrorCode.USER_INVALID_CREDENTIALS);
         }
         // Check if email is already in use
         String email = request.getNewEmail();
         if (userRepository.existsByEmail(email)) {
-            throw new AlreadyExistsException("Email '" + email + "' already in use.", ErrorCodes.EMAIL_ALREADY_EXISTS);
+            throw new AlreadyExistsException(
+                    "Email '" + email + "' already in use.",
+                    ErrorCode.USER_EMAIL_ALREADY_EXISTS
+            );
         }
 
         existingUser.setEmail(request.getNewEmail());
@@ -150,12 +153,12 @@ public class UserServiceImpl implements UserService {
         User existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(
                         "User with ID " + id + " not found.",
-                        ErrorCodes.USER_NOT_FOUND
+                        ErrorCode.USER_NOT_FOUND
                 ));
 
         // Check if password is incorrect
         if (!passwordEncoder.matches(request.getCurrentPassword(), existingUser.getPassword())) {
-            throw new InvalidPasswordException("The password provided is incorrect.", ErrorCodes.INVALID_CREDENTIALS);
+            throw new InvalidPasswordException("The password provided is incorrect.", ErrorCode.USER_INVALID_CREDENTIALS);
         }
 
         existingUser.setPassword(passwordEncoder.encode(request.getPassword()));

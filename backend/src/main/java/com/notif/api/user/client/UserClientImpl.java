@@ -20,10 +20,12 @@ public class UserClientImpl implements UserClient {
         try {
             User user = userService.createUser(request);
             return userService.convertUserToResponse(user);
-        } catch (AlreadyExistsException ex) {
-            throw new UserClientException(ex.getMessage(), ex.getErrorCode());
+        } catch (BusinessException ex) {
+            // propagate domain exception
+            throw ex;
         } catch (Exception ex) {
-            throw new UserClientException("Unexpected error in user service.", ErrorCodes.INTERNAL_ERROR);
+            // wrap unexpected exceptions for inter-module consistency.
+            throw new UserClientException("Unexpected error in user service.");
         }
     }
 
@@ -32,10 +34,10 @@ public class UserClientImpl implements UserClient {
         try {
             User user = userService.getUserByEmail(email);
             return userService.convertUserToResponse(user);
-        } catch (NotFoundException ex) {
-            throw new UserClientException(ex.getMessage(), ex.getErrorCode());
+        } catch (BusinessException ex) {
+            throw ex;
         } catch (Exception ex) {
-            throw new UserClientException("Unexpected error in user service.", ErrorCodes.INTERNAL_ERROR);
+            throw new UserClientException("Unexpected error in user service.");
         }
     }
 
@@ -46,10 +48,10 @@ public class UserClientImpl implements UserClient {
             User user = userService.enableUser(email);
 
             return userService.convertUserToResponse(user);
-        } catch (NotFoundException | InvalidTokenException | TokenExpiredException ex) {
-            throw new UserClientException(ex.getMessage(), ex.getErrorCode());
+        } catch (BusinessException ex) {
+            throw ex;
         } catch (Exception ex) {
-            throw new UserClientException("Unexpected error in user service.",ErrorCodes.INTERNAL_ERROR);
+            throw new UserClientException("Unexpected error in user service.");
         }
     }
 }

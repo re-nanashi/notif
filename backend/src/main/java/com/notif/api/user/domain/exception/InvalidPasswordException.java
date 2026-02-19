@@ -1,7 +1,7 @@
 package com.notif.api.user.domain.exception;
 
 import com.notif.api.core.exception.BusinessException;
-import com.notif.api.core.exception.ErrorCodes;
+import com.notif.api.core.exception.ErrorCode;
 import lombok.Getter;
 
 /**
@@ -14,10 +14,10 @@ import lombok.Getter;
 @Getter
 public class InvalidPasswordException extends BusinessException {
     public InvalidPasswordException(String message) {
-        super(message, ErrorCodes.INVALID_CREDENTIALS);
+        super(message, ErrorCode.USER_INVALID_CREDENTIALS);
     }
 
-    public InvalidPasswordException(String message, ErrorCodes errorCode) {
+    public InvalidPasswordException(String message, ErrorCode errorCode) {
         super(message, errorCode);
     }
 }
