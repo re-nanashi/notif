@@ -35,6 +35,7 @@ public class RegisterRequest implements PasswordMatchable {
             message = "Password must contain uppercase, lowercase, number, and a special character."
     )
     private String password;
+    @NotBlank(message = "Confirmation password is required.")
     private String confirmPassword;
 
     @NotBlank(message = "First name is required.")
