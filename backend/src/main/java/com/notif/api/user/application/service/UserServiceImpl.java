@@ -19,6 +19,7 @@ import com.notif.api.user.api.dto.UpdateUserRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.PropertyMap;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -168,13 +169,24 @@ public class UserServiceImpl implements UserService {
         userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(
                         "User with ID " + id + " not found.",
-                        ErrorCodes.USER_NOT_FOUND
+                        ErrorCode.USER_NOT_FOUND
                 ));
 
         userRepository.deleteById(id);
     }
 
     public UserResponse convertUserToResponse(User user) {
+        PropertyMap<User, UserResponse> userResponseMap = new PropertyMap<User, UserResponse>() {
+            @Override
+            protected void configure() {
+                String fullName = source.getFirstName() + " " + source.getLastName();
+                map().setFullName(fullName);
+                map().setEmailVerified(source.isEnabled());
+            }
+        };
+
+        modelMapper.addMappings(userResponseMap);
+
         return modelMapper.map(user, UserResponse.class);
     }
 }
