@@ -2,6 +2,7 @@ package com.notif.api.user.application.service;
 
 import com.notif.api.core.exception.ErrorCode;
 import com.notif.api.core.exception.NotFoundException;
+import com.notif.api.core.exception.UnauthorizedException;
 import com.notif.api.core.exception.ValidationException;
 import com.notif.api.user.domain.model.User;
 import com.notif.api.user.domain.model.VerificationToken;
@@ -57,7 +58,7 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
             );
         }
         if (tok.isTokenExpired()) {
-            throw new ValidationException(
+            throw new UnauthorizedException(
                     "Verification token has expired.",
                     ErrorCode.USER_VERIFICATION_TOKEN_EXPIRED
             );
