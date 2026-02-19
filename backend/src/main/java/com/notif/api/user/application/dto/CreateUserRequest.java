@@ -1,5 +1,6 @@
 package com.notif.api.user.application.dto;
 
+import com.notif.api.core.validation.PasswordMatches;
 import com.notif.api.core.validation.ValidEmail;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -22,6 +23,7 @@ import lombok.Data;
  */
 @Data
 @Builder
+@PasswordMatches
 public class CreateUserRequest {
     @NotBlank(message = "Email is required.")
     @ValidEmail
@@ -35,6 +37,7 @@ public class CreateUserRequest {
             message = "Password must contain uppercase, lowercase, number, and a special character."
     )
     private String password;
+    private String confirmPassword;
 
     @NotBlank(message = "First name is required.")
     private String firstName;
