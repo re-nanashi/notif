@@ -80,6 +80,32 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(error.getStatus()).body(error);
     }
 
+    @ExceptionHandler(ForbiddenException.class)
+    public ResponseEntity<ApiError> handleForbiddenException(ForbiddenException ex) {
+        ApiError error = ApiError.builder()
+                .title(HttpStatus.FORBIDDEN.getReasonPhrase())
+                .status(HttpStatus.FORBIDDEN.value())
+                .error(ex.getErrorCode().getValue())
+                .detail(ex.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        return ResponseEntity.status(error.getStatus()).body(error);
+    }
+
+    @ExceptionHandler(ModuleClientException.class)
+    public ResponseEntity<ApiError> handleModuleClientException(ModuleClientException ex) {
+        ApiError error = ApiError.builder()
+                .title(HttpStatus.BAD_GATEWAY.getReasonPhrase())
+                .status(HttpStatus.BAD_GATEWAY.value())
+                .error(ex.getErrorCode().getValue())
+                .detail(ex.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        return ResponseEntity.status(error.getStatus()).body(error);
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiError> handleMethodArgumentNotValidException(MethodArgumentNotValidException ex) {
         List<Map<String, String>> fieldErrors = new ArrayList<>();
@@ -89,13 +115,14 @@ public class GlobalExceptionHandler {
                 .forEach(error -> {
                     String fieldName = ((FieldError) error).getField();
                     String errorMessage = error.getDefaultMessage();
+                    assert errorMessage != null;
                     fieldErrors.add(Map.of("field", fieldName, "message", errorMessage));
                 });
 
         ApiError error = ApiError.builder()
-                .title("Invalid input")
+                .title(HttpStatus.BAD_REQUEST.getReasonPhrase())
                 .status(HttpStatus.BAD_REQUEST.value())
-                .error(ErrorCodes.VALIDATION_ERROR.getValue())
+                .error(ErrorCode.INVALID_INPUT.getValue())
                 .fieldErrors(fieldErrors)
                 .timestamp(LocalDateTime.now())
                 .build();
@@ -109,7 +136,7 @@ public class GlobalExceptionHandler {
         ApiError error = ApiError.builder()
                 .title(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
                 .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                .error(ErrorCodes.INTERNAL_SERVER_ERROR.getValue())
+                .error(ErrorCode.INTERNAL_SERVER_ERROR.getValue())
                 .detail(ex.getMessage())
                 .timestamp(LocalDateTime.now())
                 .build();
