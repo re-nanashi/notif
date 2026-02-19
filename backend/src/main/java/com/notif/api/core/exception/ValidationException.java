@@ -5,10 +5,10 @@ import lombok.Getter;
 @Getter
 public class ValidationException extends BusinessException {
     public ValidationException(String message) {
-        super(message);
+        super(message, ErrorCode.VALIDATION_FAILED);
     }
 
-    public ValidationException(String message, ErrorCodes errorCode) {
+    public ValidationException(String message, ErrorCode errorCode) {
         super(message, errorCode);
     }
 }
