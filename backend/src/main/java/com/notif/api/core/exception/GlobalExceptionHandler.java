@@ -113,7 +113,7 @@ public class GlobalExceptionHandler {
         ex.getBindingResult()
                 .getAllErrors()
                 .forEach(error -> {
-                    String fieldName = ((FieldError) error).getField();
+                    String fieldName = error instanceof FieldError fieldError ? fieldError.getField() : "error";
                     String errorMessage = error.getDefaultMessage();
                     assert errorMessage != null;
                     fieldErrors.add(Map.of("field", fieldName, "message", errorMessage));
