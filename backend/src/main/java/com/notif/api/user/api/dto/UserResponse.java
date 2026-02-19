@@ -1,5 +1,7 @@
 package com.notif.api.user.api.dto;
 
+import com.notif.api.user.domain.model.Role;
+import lombok.Builder;
 import lombok.Data;
 
 import java.util.UUID;
@@ -16,6 +18,7 @@ import java.util.UUID;
  *  - [ ] lastLogin
  */
 @Data
+@Builder
 public class UserResponse {
     private UUID id;
     private String email;
@@ -23,5 +26,5 @@ public class UserResponse {
     private String firstName;
     private String lastName;
     private String fullName;
-    private String role;
+    private Role role;
 }
