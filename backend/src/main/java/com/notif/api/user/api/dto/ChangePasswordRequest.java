@@ -32,5 +32,6 @@ public class ChangePasswordRequest implements PasswordMatchable {
             message = "Password must contain uppercase, lowercase, number, and a special character."
     )
     private String password;
+    @NotBlank(message = "Confirmation password is required.")
     private String confirmPassword;
 }
