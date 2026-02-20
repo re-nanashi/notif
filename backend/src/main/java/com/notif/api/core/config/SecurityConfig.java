@@ -1,12 +1,12 @@
 package com.notif.api.core.config;
 
-import com.notif.api.config.security.JwtAuthenticationEntryPoint;
-import com.notif.api.config.security.JwtAuthenticationFilter;
+import com.notif.api.auth.infrastructure.security.JwtAuthenticationEntryPoint;
+import com.notif.api.auth.infrastructure.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -23,7 +23,7 @@ import static com.notif.api.user.domain.model.Role.MANAGER;
 @EnableMethodSecurity(prePostEnabled = true)
 @RequiredArgsConstructor
 public class SecurityConfig {
-    private final AuthenticationProvider authenticationProvider;
+    private final AuthenticationManager authenticationManager;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final JwtAuthenticationEntryPoint unauthorizedHandler;
 
@@ -43,6 +43,10 @@ public class SecurityConfig {
                 // Disable CSRF (not needed for stateless JWT)
                 .csrf(csrf -> csrf.disable())
                 .anonymous(AbstractHttpConfigurer::disable) // Disables anonymous authentication
+                // Stateless session
+                .sessionManagement(sessionManagement -> sessionManagement
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
                 // Configure unauthorized handling
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(unauthorizedHandler))
                 // Configure endpoint authorization
@@ -56,12 +60,8 @@ public class SecurityConfig {
                         .anyRequest()
                         .authenticated()
                 )
-                // Stateless session
-                .sessionManagement(sessionManagement -> sessionManagement
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
                 // Set custom authentication provider
-                .authenticationProvider(authenticationProvider)
+                .authenticationManager(authenticationManager)
                 // Add JWT filter before Spring Security's default filter
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         // TODO: Configure logout
