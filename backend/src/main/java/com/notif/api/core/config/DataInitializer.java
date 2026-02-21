@@ -12,7 +12,6 @@ import org.springframework.lang.NonNull;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-// TODO: Move to user package
 @Transactional
 @Component
 @RequiredArgsConstructor
