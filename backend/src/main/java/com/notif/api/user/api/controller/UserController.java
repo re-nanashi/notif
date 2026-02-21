@@ -98,7 +98,7 @@ public class UserController {
      *
      * Business rules:
      * - TODO (Future): Requires validation of current email/password internally.
-     * - TODO (Future): Marks email as unverified.
+     * - TODO (Future): Marks email as unverified. User needs to verify email again.
      *
      * @param request the {@link ChangeEmailRequest} containing the new email
      * @param id      the UUID of the user
