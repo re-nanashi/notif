@@ -90,8 +90,8 @@ public class AuthenticationControllerAdvice {
         return ResponseEntity.status(error.getStatus()).body(error);
     }
 
-    // Fallback for all uncaught exceptions (including AuthenticationException, JwtException)
-    @ExceptionHandler(Exception.class)
+    // Fallback for all uncaught authentication exceptions
+    @ExceptionHandler({JwtException.class, AuthenticationException.class})
     public ResponseEntity<ApiError> handleAllExceptions(Exception ex) {
         ApiError error = ApiError.builder()
                 .title(HttpStatus.UNAUTHORIZED.getReasonPhrase())
