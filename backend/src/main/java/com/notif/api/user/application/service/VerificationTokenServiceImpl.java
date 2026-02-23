@@ -59,7 +59,7 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
         }
         if (tok.isTokenExpired()) {
             throw new UnauthorizedException(
-                    "Verification token has expired.",
+                    "The verification link has expired. Please request a new one.",
                     ErrorCode.USER_VERIFICATION_TOKEN_EXPIRED
             );
         }
