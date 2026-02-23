@@ -37,7 +37,7 @@ public class UserEventListener {
         // Generate a unique verification token for the new user
         String userEmail = event.getUserEmail();
         String token = UUID.randomUUID().toString();
-        tokenService.createVerificationToken(userEmail, token);
+        tokenService.generateVerificationToken(userEmail, token);
 
         // Construct the full confirmation URL with token and email
         String confirmationUrl =

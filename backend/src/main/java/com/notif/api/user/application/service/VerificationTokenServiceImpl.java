@@ -21,7 +21,7 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
     private final UserRepository userRepository;
     private final VerificationTokenRepository tokenRepository;
 
-    public void createVerificationToken(String userEmail, String token) {
+    public void generateVerificationToken(String userEmail, String token) {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new NotFoundException(
                         "User with email " + userEmail + " does not exists.",
