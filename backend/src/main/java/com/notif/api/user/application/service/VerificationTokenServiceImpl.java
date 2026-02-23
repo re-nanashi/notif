@@ -1,9 +1,6 @@
 package com.notif.api.user.application.service;
 
-import com.notif.api.core.exception.ErrorCode;
-import com.notif.api.core.exception.NotFoundException;
-import com.notif.api.core.exception.UnauthorizedException;
-import com.notif.api.core.exception.ValidationException;
+import com.notif.api.core.exception.*;
 import com.notif.api.user.domain.model.User;
 import com.notif.api.user.domain.model.VerificationToken;
 import com.notif.api.user.domain.repository.UserRepository;
@@ -13,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Service
 @Transactional
@@ -21,7 +19,9 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
     private final UserRepository userRepository;
     private final VerificationTokenRepository tokenRepository;
 
-    public void generateVerificationToken(String userEmail, String token) {
+    public VerificationToken generateVerificationToken(String userEmail) {
+        String token = UUID.randomUUID().toString();
+
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new NotFoundException(
                         "User with email " + userEmail + " does not exists.",
@@ -32,12 +32,13 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
                 .token(token)
                 .user(user)
                 .expirationDate(LocalDateTime.now().plusMinutes(VerificationToken.EXPIRATION))
+                .used(false)
                 .build();
 
-        tokenRepository.save(tok);
+        return tokenRepository.save(tok);
     }
 
-    public void validateVerificationToken(String token, String userEmail) {
+    public VerificationToken validateVerificationToken(String token, String userEmail) {
         // Check if token and user exists
         VerificationToken tok = tokenRepository.findByToken(token)
                 .orElseThrow(() -> new NotFoundException(
@@ -50,11 +51,17 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
                         ErrorCode.USER_NOT_FOUND
                 ));
 
-        // Check token validity
+        // Check verification token validity
         if (!user.equals(tok.getUser())) {
             throw new ValidationException(
                     "Verification token user mismatch.",
                     ErrorCode.USER_VERIFICATION_TOKEN_INVALID
+            );
+        }
+        if (tok.isUsed()) {
+            throw new ConflictException(
+                    "This account has already been verified. Please log in.",
+                    ErrorCode.USER_VERIFICATION_TOKEN_ALREADY_USED
             );
         }
         if (tok.isTokenExpired()) {
@@ -63,5 +70,9 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
                     ErrorCode.USER_VERIFICATION_TOKEN_EXPIRED
             );
         }
+
+        tok.setUsed(true);
+
+        return tokenRepository.save(tok);
     }
 }

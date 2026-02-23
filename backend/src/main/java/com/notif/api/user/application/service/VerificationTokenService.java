@@ -1,8 +1,8 @@
 package com.notif.api.user.application.service;
 
-import com.notif.api.user.domain.model.User;
+import com.notif.api.user.domain.model.VerificationToken;
 
 public interface VerificationTokenService {
-    void generateVerificationToken(String userEmail, String token);
-    void validateVerificationToken(String token, String userEmail);
+    VerificationToken generateVerificationToken(String userEmail);
+    VerificationToken validateVerificationToken(String token, String userEmail);
 }

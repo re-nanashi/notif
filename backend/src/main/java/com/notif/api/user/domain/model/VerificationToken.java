@@ -37,6 +37,9 @@ public class VerificationToken {
     @Column(nullable = false)
     private LocalDateTime expirationDate;
 
+    @Column(nullable = false)
+    private boolean used;
+
     public boolean isTokenExpired() {
         return expirationDate.isBefore(LocalDateTime.now());
     }

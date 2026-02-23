@@ -2,6 +2,7 @@ package com.notif.api.user.infrastructure.event;
 
 import com.notif.api.user.domain.event.UserCreatedEvent;
 import com.notif.api.user.application.service.VerificationTokenService;
+import com.notif.api.user.domain.model.VerificationToken;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
@@ -36,12 +37,11 @@ public class UserEventListener {
     public void handleUserCreatedEvent(UserCreatedEvent event) {
         // Generate a unique verification token for the new user
         String userEmail = event.getUserEmail();
-        String token = UUID.randomUUID().toString();
-        tokenService.generateVerificationToken(userEmail, token);
+        VerificationToken token = tokenService.generateVerificationToken(userEmail);
 
         // Construct the full confirmation URL with token and email
         String confirmationUrl =
-                appUrl + apiPrefix + "/auth/confirm-registration?token=" + token + "&email=" + userEmail;
+                appUrl + apiPrefix + "/auth/confirm-registration?token=" + token.getToken() + "&email=" + userEmail;
 
         // Compose email then send
         String subject = "Confirm Registration";
