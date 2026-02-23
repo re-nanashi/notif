@@ -1,19 +1,17 @@
 package com.notif.api.auth.application.service;
 
-import com.notif.api.auth.api.dto.LoginRequest;
-import com.notif.api.auth.api.dto.LoginResponse;
+import com.notif.api.auth.api.dto.*;
 import com.notif.api.auth.infrastructure.security.JwtTokenProvider;
 import com.notif.api.core.constants.AppConstants;
+import com.notif.api.user.api.dto.UserResponse;
+import com.notif.api.user.application.dto.CreateUserRequest;
 import com.notif.api.user.client.UserClient;
 import com.notif.api.user.domain.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -71,7 +69,6 @@ public class AuthenticationService {
                 )
         );
 
-        // TODO: any error here should map to something like: "Error logging in. Please try again later."
         String jwtToken = jwtTokenProvider.generateToken((User)authentication.getPrincipal());
         Date expiration = jwtTokenProvider.extractExpiration(jwtToken);
         long expiresIn = (expiration.getTime() - System.currentTimeMillis()) / AppConstants.MILLISECONDS_PER_SECOND;
@@ -84,34 +81,38 @@ public class AuthenticationService {
     }
 
     // TODO: Add auth-specific fields to RegisterRequest (e.g., agreeToTerms, captchaToken) then validate
-    /**
-    public UserResponse register(RegisterRequest request, String appUrl) {
-        // Map register request to user creation request
+    public RegisterResponse register(RegisterRequest request) {
+        // Map RegisterRequest to CreateUserRequest
         CreateUserRequest createUserRequest = CreateUserRequest.builder()
                 .email(request.getEmail())
                 .password(request.getPassword())
+                .confirmPassword(request.getConfirmPassword())
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
                 .build();
 
-        // Create user via client
-        try {
-            return userClient.createUser(createUserRequest);
-        } catch (UserClientException e) {
+        UserResponse createdUser = userClient.createUser(createUserRequest);
 
-        }
+        return RegisterResponse.builder()
+                .id(createdUser.getId())
+                .email(createdUser.getEmail())
+                .emailVerified(createdUser.isEmailVerified())
+                .fullName(createdUser.getFullName())
+                .role(createdUser.getRole())
+                .message("Action Required: Please verify your email to activate your account.")
+                .build();
     }
 
-    public UserResponse confirmRegistration(String token, String userEmail) {
-        try {
-            return userClient.enableUser(token, userEmail);
-        } catch (UserClientException e) {
-            switch (e.getErrorCode()) {
-                case USER_NOT_FOUND -> ;
-                case
+    public RegisterResponse confirmRegistration(String token, String userEmail) {
+        UserResponse activatedUser = userClient.enableUser(token, userEmail);
 
-            }
-        }
+        return RegisterResponse.builder()
+                .id(activatedUser.getId())
+                .email(activatedUser.getEmail())
+                .emailVerified(activatedUser.isEmailVerified())
+                .fullName(activatedUser.getFullName())
+                .role(activatedUser.getRole())
+                .message("Email verified successfully. You can now log in to your account.")
+                .build();
     }
-     */
 }
