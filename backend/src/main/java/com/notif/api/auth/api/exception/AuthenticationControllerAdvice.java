@@ -3,6 +3,7 @@ package com.notif.api.auth.api.exception;
 import com.notif.api.auth.api.controller.AuthenticationController;
 import com.notif.api.core.exception.ErrorCode;
 import com.notif.api.core.dto.ApiError;
+import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -89,14 +90,14 @@ public class AuthenticationControllerAdvice {
         return ResponseEntity.status(error.getStatus()).body(error);
     }
 
-    // Fallback for uncaught exceptions
-    @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<ApiError> handleAllOtherAuthFailures(AuthenticationException ex) {
+    // Fallback for all uncaught exceptions (including AuthenticationException, JwtException)
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ApiError> handleAllExceptions(Exception ex) {
         ApiError error = ApiError.builder()
                 .title(HttpStatus.UNAUTHORIZED.getReasonPhrase())
                 .status(HttpStatus.UNAUTHORIZED.value())
                 .error(ErrorCode.AUTHENTICATION_FAILED.getValue())
-                .detail("Authentication failed. Please try again later.")
+                .detail("Authentication failed. Please log in again or try again later.")
                 .timestamp(LocalDateTime.now())
                 .build();
 
