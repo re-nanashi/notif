@@ -41,8 +41,8 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(error.getStatus()).body(error);
     }
 
-    @ExceptionHandler(AlreadyExistsException.class)
-    public ResponseEntity<ApiError> handleAlreadyExistsException(AlreadyExistsException ex) {
+    @ExceptionHandler(ConflictException.class)
+    public ResponseEntity<ApiError> handleConflictException(ConflictException ex) {
         ApiError error = ApiError.builder()
                 .title(HttpStatus.CONFLICT.getReasonPhrase())
                 .status(HttpStatus.CONFLICT.value())

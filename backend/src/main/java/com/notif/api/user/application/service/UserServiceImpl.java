@@ -12,7 +12,7 @@ import com.notif.api.user.domain.model.User;
 import com.notif.api.user.domain.exception.InvalidPasswordException;
 import com.notif.api.user.domain.repository.UserRepository;
 import com.notif.api.core.utils.Util;
-import com.notif.api.core.exception.AlreadyExistsException;
+import com.notif.api.core.exception.ConflictException;
 import com.notif.api.user.api.dto.ChangeEmailRequest;
 import com.notif.api.user.api.dto.ChangePasswordRequest;
 import com.notif.api.user.api.dto.UpdateUserRequest;
@@ -35,7 +35,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User createUser(CreateUserRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new AlreadyExistsException(
+            throw new ConflictException(
                     "User with email '" + request.getEmail() + "' already exists.",
                     ErrorCode.USER_ALREADY_EXISTS
             );
@@ -133,7 +133,7 @@ public class UserServiceImpl implements UserService {
         // Check if email is already in use
         String email = request.getNewEmail();
         if (userRepository.existsByEmail(email)) {
-            throw new AlreadyExistsException(
+            throw new ConflictException(
                     "Email '" + email + "' already in use.",
                     ErrorCode.USER_EMAIL_ALREADY_EXISTS
             );
