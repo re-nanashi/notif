@@ -9,6 +9,7 @@ import com.notif.api.user.api.dto.UserResponse;
 import com.notif.api.user.application.service.UserService;
 import com.notif.api.user.domain.model.User;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,9 +29,9 @@ import java.util.UUID;
  */
 @RestController
 @RequestMapping("${api.prefix}/users")
+@RequiredArgsConstructor
 public class UserController {
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
 
     /**
      * Creates a new user (admin-only).
