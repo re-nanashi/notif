@@ -24,42 +24,10 @@ public class AuthenticationService {
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthenticationManager authenticationManager;
 
-    // TODO: refactor; userRepository uses UserDetails, just use the UserDetails do not worry about the jwt lol
-    /**
-    public AuthenticatedUserDTO getCurrentlyLoggedUser(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            UserDetails user
-    ) throws IOException {
-        final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
-        final String jwtToken;
-        final UserD userInfo;
-
-        if (authHeader == null || !authHeader.startsWith("Bearer")) {
-            throw new AuthenticationException("Missing or invalid Authorization header.");
-        }
-
-        jwtToken = authHeader.substring(7);
-        userInfo = userClient.findByEmail(user.getUsername())
-                .orElseThrow(() -> new NotFoundException(
-                        "User with email " + user.getUsername() + " does not exists.",
-                        ErrorCodes.USER_NOT_FOUND
-                ));
-
-        if (!jwtTokenProvider.isTokenValid(jwtToken, user)) {
-            throw new AuthenticationException("Expired or invalid token.");
-        }
-
-        Date expiration = jwtTokenProvider.extractExpiration(jwtToken);
-        long expiresIn = (expiration.getTime() - System.currentTimeMillis()) / AppConstants.MILLISECONDS_PER_SECOND;
-
-        return AuthenticatedUserDTO.builder()
-                .id(userInfo.getId())
-                .email(userInfo.getEmail())
-                .expiresIn(expiresIn)
-                .build();
+    // TODO: Extract JWT from HttpCookieOnly
+    public CurrentlyLoggedInUserInfo getCurrentlyLoggedUser(String email) {
+        return null;
     }
-     */
 
     public LoginResponse authenticate(LoginRequest request) {
         Authentication authentication = authenticationManager.authenticate(

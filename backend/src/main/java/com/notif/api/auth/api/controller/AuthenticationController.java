@@ -23,12 +23,14 @@ public class AuthenticationController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
+    // TODO: Remove JWT information from LoginResponse, and implement HttpOnly cookie
     @PostMapping("/login")
     public ResponseEntity<ApiResponse> login(@RequestBody @Valid LoginRequest request) {
         LoginResponse response = authenticationService.authenticate(request);
         return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse("Login successful", response));
     }
 
+    // TODO: Extract JWT from HttpOnlyCookie
     @GetMapping("/me")
     public ResponseEntity<ApiResponse> getCurrentlyLoggedUserInfo(@AuthenticationPrincipal UserDetails loggedInUser) {
         CurrentlyLoggedInUserInfo userInfo = authenticationService.getCurrentlyLoggedUser(loggedInUser.getUsername());
