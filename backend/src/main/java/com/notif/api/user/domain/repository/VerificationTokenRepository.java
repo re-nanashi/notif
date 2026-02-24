@@ -1,8 +1,10 @@
 package com.notif.api.user.domain.repository;
 
+import com.notif.api.user.domain.model.TokenStatus;
 import com.notif.api.user.domain.model.User;
 import com.notif.api.user.domain.model.VerificationToken;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -12,4 +14,6 @@ public interface VerificationTokenRepository {
     VerificationToken save(VerificationToken token);
     Optional<VerificationToken> findByToken(String token);
     Optional<VerificationToken> findByUser(User user);
+    List<VerificationToken> findByUserAndStatus(User user, TokenStatus status);
+    List<VerificationToken> saveAll(List<VerificationToken> tokens);
 }
