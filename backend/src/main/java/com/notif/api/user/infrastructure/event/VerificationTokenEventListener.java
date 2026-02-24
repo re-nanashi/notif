@@ -12,8 +12,8 @@ import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 /**
- * Listens for VerificationRequestedEvent and constructs a confirmation URL then sends a verification email
- * to the new user's email.
+ * Listens VerificationRequestedEvent.
+ * Constructs a confirmation URL then sends a verification email to the new user's email.
  */
 @Component
 @RequiredArgsConstructor
