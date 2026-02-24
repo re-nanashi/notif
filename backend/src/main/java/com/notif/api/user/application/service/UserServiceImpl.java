@@ -6,7 +6,6 @@ import com.notif.api.core.exception.NotFoundException;
 import com.notif.api.core.exception.ValidationException;
 import com.notif.api.user.api.dto.UserResponse;
 import com.notif.api.user.application.dto.CreateUserRequest;
-import com.notif.api.user.domain.event.UserCreatedEvent;
 import com.notif.api.user.domain.model.Role;
 import com.notif.api.user.domain.model.User;
 import com.notif.api.user.domain.exception.InvalidPasswordException;
@@ -28,6 +27,7 @@ import java.util.UUID;
 @Transactional
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
+    private final VerificationTokenService verificationTokenService;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final EventPublisher eventPublisher;
@@ -52,7 +52,7 @@ public class UserServiceImpl implements UserService {
 
         User savedUser = userRepository.save(newUser);
 
-        eventPublisher.publish(new UserCreatedEvent(savedUser.getId(), savedUser.getEmail()));
+        verificationTokenService.generateVerificationToken(savedUser.getEmail());
 
         return savedUser;
     }
