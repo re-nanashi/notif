@@ -1,8 +1,6 @@
 package com.notif.api.user.infrastructure.event;
 
-import com.notif.api.user.domain.event.UserCreatedEvent;
-import com.notif.api.user.application.service.VerificationTokenService;
-import com.notif.api.user.domain.model.VerificationToken;
+import com.notif.api.user.domain.event.VerificationRequestedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
@@ -13,35 +11,31 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
-import java.util.UUID;
-
 /**
- * Listens for UserCreatedEvent and sends a verification email to the new user.
- * Generates a unique verification token and constructs the confirmation URL.
+ * Listens for VerificationRequestedEvent and constructs a confirmation URL then sends a verification email
+ * to the new user's email.
  */
 @Component
 @RequiredArgsConstructor
-public class UserEventListener {
+public class VerificationTokenEventListener {
     @Value("${app.url}")
     private String appUrl;
 
     @Value("${api.prefix}")
     private String apiPrefix;
 
-    private final VerificationTokenService tokenService;
     private final JavaMailSender mailSender;
 
     @EventListener
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Async
-    public void handleUserCreatedEvent(UserCreatedEvent event) {
-        // Generate a unique verification token for the new user
+    public void handleVerificationRequestedEvent(VerificationRequestedEvent event) {
         String userEmail = event.getUserEmail();
-        VerificationToken token = tokenService.generateVerificationToken(userEmail);
+        String token = event.getToken();
 
         // Construct the full confirmation URL with token and email
         String confirmationUrl =
-                appUrl + apiPrefix + "/auth/confirm-registration?token=" + token.getToken() + "&email=" + userEmail;
+                appUrl + apiPrefix + "/auth/confirm-registration?token=" + token + "&email=" + userEmail;
 
         // Compose email then send
         String subject = "Confirm Registration";
