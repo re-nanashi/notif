@@ -20,8 +20,8 @@ public interface UserService {
     User getUserById(UUID id);
     User getUserByEmail(String email);
     List<User> getAllUsers();
-    User updateUser(UpdateUserRequest request, UUID id);
     User enableUser(String email);
+    User updateUser(UpdateUserRequest request, UUID id);
     User changeEmail(ChangeEmailRequest request, UUID id);
     User changePassword(ChangePasswordRequest request, UUID id);
     void deleteUser(UUID id);
