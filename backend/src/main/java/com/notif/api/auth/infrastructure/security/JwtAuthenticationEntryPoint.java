@@ -44,7 +44,6 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
         ApiError error = ApiError.builder()
                 .title(HttpStatus.UNAUTHORIZED.getReasonPhrase())
                 .status(HttpStatus.UNAUTHORIZED.value())
-                // TODO: All authentication errors, even token expired errors are being handled by this
                 .error(errorCode)
                 .detail(errorDetails)
                 .timestamp(LocalDateTime.now())
