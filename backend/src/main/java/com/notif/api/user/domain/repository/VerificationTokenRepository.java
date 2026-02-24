@@ -15,5 +15,4 @@ public interface VerificationTokenRepository {
     Optional<VerificationToken> findByToken(String token);
     Optional<VerificationToken> findByUser(User user);
     List<VerificationToken> findByUserAndStatus(User user, TokenStatus status);
-    List<VerificationToken> saveAll(List<VerificationToken> tokens);
 }

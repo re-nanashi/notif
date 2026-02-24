@@ -34,7 +34,8 @@ public class SecurityConfig {
             "/api/v1/auth/test",
             "/api/v1/auth/login",
             "/api/v1/auth/register",
-            "/api/v1/auth/confirm-registration"
+            "/api/v1/auth/confirm-registration",
+            "/api/v1/auth/resend-confirmation"
     };
 
     @Bean

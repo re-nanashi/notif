@@ -35,8 +35,6 @@ public class AuthenticationController {
         return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse("Success", userInfo));
     }
 
-    // TODO: Properly structure response so user can get a hint to verify email.
-    //  - appUrl should be frontend url and not backend.
     @PostMapping("/register")
     public ResponseEntity<ApiResponse> register(@RequestBody @Valid RegisterRequest request) {
         RegisterResponse response = authenticationService.register(request);
@@ -48,8 +46,13 @@ public class AuthenticationController {
             @RequestParam("token") String token,
             @RequestParam("email") String email
     ) {
-        // TODO: Check if token is already used
         RegisterResponse response = authenticationService.confirmRegistration(token, email);
         return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse("Success", response));
+    }
+
+    @PostMapping("/resend-confirmation")
+    public ResponseEntity<ApiResponse> resendConfirmation(@RequestParam("email") String email) {
+        RegisterResponse response = authenticationService.resendVerificationEmail(email);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(new ApiResponse("Success", response));
     }
 }

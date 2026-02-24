@@ -7,4 +7,5 @@ public interface UserClient {
     UserResponse createUser(CreateUserRequest request) throws UserClientException;
     UserResponse getByUserEmail(String email) throws UserClientException;
     UserResponse enableUser(String token, String email) throws UserClientException;
+    UserResponse requestVerification(String email) throws UserClientException;
 }

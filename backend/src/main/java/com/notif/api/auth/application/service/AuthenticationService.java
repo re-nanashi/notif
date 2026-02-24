@@ -115,4 +115,17 @@ public class AuthenticationService {
                 .message("Email verified successfully. You can now log in to your account.")
                 .build();
     }
+
+    public RegisterResponse resendVerificationEmail(String userEmail) {
+        UserResponse requestedUser = userClient.requestVerification(userEmail);
+
+        return RegisterResponse.builder()
+                .id(requestedUser.getId())
+                .email(requestedUser.getEmail())
+                .emailVerified(requestedUser.isEmailVerified())
+                .fullName(requestedUser.getFullName())
+                .role(requestedUser.getRole())
+                .message("Action Required: Please verify your email to activate your account.")
+                .build();
+    }
 }

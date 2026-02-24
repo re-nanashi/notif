@@ -54,4 +54,31 @@ public class UserClientImpl implements UserClient {
             throw new UserClientException("Unexpected error in user service.");
         }
     }
+
+    @Override
+    public UserResponse requestVerification(String email) {
+        try {
+            User user = userService.getUserByEmail(email);
+
+            // Check if user is already verified
+            if (user.isEnabled()) {
+                throw new ConflictException(
+                        "User is already verified.",
+                        ErrorCode.USER_ALREADY_VERIFIED
+                );
+            }
+
+            // Void all of user's pending verification tokens
+            tokenService.voidExistingTokens(email);
+
+            // Generate new verification token
+            tokenService.generateVerificationToken(email);
+
+            return userService.convertUserToResponse(user);
+        } catch (BusinessException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            throw new UserClientException("Unexpected error in user service.");
+        }
+    }
 }
