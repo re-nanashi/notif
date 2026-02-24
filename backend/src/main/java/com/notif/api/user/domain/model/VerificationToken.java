@@ -1,5 +1,6 @@
 package com.notif.api.user.domain.model;
 
+import com.notif.api.core.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
@@ -19,7 +20,7 @@ import static com.notif.api.core.constants.AppConstants.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class VerificationToken {
+public class VerificationToken extends BaseEntity {
     public static final int EXPIRATION = MINUTES_PER_HOUR * HOURS_PER_DAY; // 24 hours in minutes
 
     @Id

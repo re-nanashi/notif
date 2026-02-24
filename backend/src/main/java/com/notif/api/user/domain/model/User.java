@@ -1,5 +1,6 @@
 package com.notif.api.user.domain.model;
 
+import com.notif.api.core.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.CredentialsContainer;
@@ -14,7 +15,6 @@ import java.util.UUID;
  *
  * Implements {@link UserDetails} for Spring Security authentication.
  * Contains login credentials, personal information, and unique email.
- *  TODO (Authentication): Implement timestamps
  */
 @Entity
 @Table(name = "_user", uniqueConstraints = {@UniqueConstraint(name = "uk_users_email", columnNames = "email")})
@@ -23,7 +23,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class User implements UserDetails, CredentialsContainer {
+public class User extends BaseEntity implements UserDetails, CredentialsContainer {
     // ID
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
