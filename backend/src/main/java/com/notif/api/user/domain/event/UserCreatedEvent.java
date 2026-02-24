@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 /**
  * Event published when a new User is created.
@@ -14,7 +13,6 @@ import java.util.UUID;
 @Getter
 @AllArgsConstructor
 public class UserCreatedEvent implements DomainEvent {
-    private final UUID userId;
     private final String userEmail;
     private final LocalDateTime occurredOn = LocalDateTime.now();
 
