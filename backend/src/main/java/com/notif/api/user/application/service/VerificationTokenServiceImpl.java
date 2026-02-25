@@ -6,7 +6,6 @@ import com.notif.api.user.domain.event.VerificationRequestedEvent;
 import com.notif.api.user.domain.model.TokenStatus;
 import com.notif.api.user.domain.model.User;
 import com.notif.api.user.domain.model.VerificationToken;
-import com.notif.api.user.domain.repository.UserRepository;
 import com.notif.api.user.domain.repository.VerificationTokenRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -20,7 +19,6 @@ import java.util.UUID;
 @Transactional
 @RequiredArgsConstructor
 public class VerificationTokenServiceImpl implements VerificationTokenService {
-    private final UserRepository userRepository;
     private final VerificationTokenRepository tokenRepository;
     private final EventPublisher eventPublisher;
 
