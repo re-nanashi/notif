@@ -184,6 +184,7 @@ public class UserServiceImpl implements UserService {
                 .lastName(user.getLastName())
                 .fullName(user.getFirstName() + " " + user.getLastName())
                 .role(user.getRole())
+                .createdAt(user.getCreatedAt())
                 .build();
     }
 }

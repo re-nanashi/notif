@@ -4,6 +4,7 @@ import com.notif.api.user.domain.model.Role;
 import lombok.Builder;
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 /**
@@ -19,6 +20,5 @@ public class CurrentlyLoggedInUserInfo {
     private String email;
     private String fullName;
     private Role role;
-    // TODO: RefreshTokenExpiration
-    private long expiresIn; // in seconds
+    private LocalDateTime createdAt;
 }

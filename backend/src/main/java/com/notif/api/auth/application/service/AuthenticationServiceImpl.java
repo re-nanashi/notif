@@ -77,6 +77,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .emailVerified(createdUser.isEmailVerified())
                 .fullName(createdUser.getFullName())
                 .role(createdUser.getRole())
+                .createdAt(createdUser.getCreatedAt())
                 .message("Action Required: Please verify your email to activate your account.")
                 .build();
     }
@@ -91,6 +92,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .emailVerified(activatedUser.isEmailVerified())
                 .fullName(activatedUser.getFullName())
                 .role(activatedUser.getRole())
+                .createdAt(activatedUser.getCreatedAt())
                 .message("Email verified successfully. You can now log in to your account.")
                 .build();
     }
@@ -105,6 +107,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .emailVerified(requestedUser.isEmailVerified())
                 .fullName(requestedUser.getFullName())
                 .role(requestedUser.getRole())
+                .createdAt(requestedUser.getCreatedAt())
                 .message("Action Required: Please verify your email to activate your account.")
                 .build();
     }

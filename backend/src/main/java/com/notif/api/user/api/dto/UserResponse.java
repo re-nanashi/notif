@@ -4,6 +4,7 @@ import com.notif.api.user.domain.model.Role;
 import lombok.Builder;
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 /**
@@ -14,7 +15,6 @@ import java.util.UUID;
  * TODO:
  *  - [ ] roles - List; e.g., ["USER"], ["ADMIN"]
  *  - [ ] status - Enum; e.g., ACTIVE, INACTIVE, SUSPENDED
- *  - [ ] createdAt
  *  - [ ] lastLogin
  */
 @Data
@@ -27,4 +27,5 @@ public class UserResponse {
     private String lastName;
     private String fullName;
     private Role role;
+    private LocalDateTime createdAt;
 }
