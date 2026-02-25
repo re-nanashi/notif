@@ -1,6 +1,5 @@
 package com.notif.api.user.application.service;
 
-import com.notif.api.core.domain.event.EventPublisher;
 import com.notif.api.core.exception.ErrorCode;
 import com.notif.api.core.exception.NotFoundException;
 import com.notif.api.core.exception.ValidationException;
@@ -15,10 +14,10 @@ import com.notif.api.core.exception.ConflictException;
 import com.notif.api.user.api.dto.ChangeEmailRequest;
 import com.notif.api.user.api.dto.ChangePasswordRequest;
 import com.notif.api.user.api.dto.UpdateUserRequest;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -30,7 +29,6 @@ public class UserServiceImpl implements UserService {
     private final VerificationTokenService verificationTokenService;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final EventPublisher eventPublisher;
 
     @Override
     public User createUser(CreateUserRequest request) {

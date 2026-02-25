@@ -8,9 +8,9 @@ import com.notif.api.user.domain.model.User;
 import com.notif.api.user.domain.model.VerificationToken;
 import com.notif.api.user.domain.repository.UserRepository;
 import com.notif.api.user.domain.repository.VerificationTokenRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -41,7 +41,7 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
         return tokenRepository.save(tok);
     }
 
-    @Transactional(dontRollbackOn = UnauthorizedException.class)
+    @Transactional(noRollbackFor = UnauthorizedException.class)
     public VerificationToken validateVerificationToken(String token, User user) {
         // Check if token and user exists
         VerificationToken tok = tokenRepository.findByToken(token)
