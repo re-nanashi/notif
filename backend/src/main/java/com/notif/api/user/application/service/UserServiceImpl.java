@@ -52,7 +52,7 @@ public class UserServiceImpl implements UserService {
 
         User savedUser = userRepository.save(newUser);
 
-        verificationTokenService.generateVerificationToken(savedUser.getEmail());
+        verificationTokenService.generateVerificationToken(savedUser);
 
         return savedUser;
     }

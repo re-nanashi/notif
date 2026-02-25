@@ -24,14 +24,8 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
     private final VerificationTokenRepository tokenRepository;
     private final EventPublisher eventPublisher;
 
-    public VerificationToken generateVerificationToken(String userEmail) {
+    public VerificationToken generateVerificationToken(User user) {
         String token = UUID.randomUUID().toString();
-
-        User user = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new NotFoundException(
-                        "User with email " + userEmail + " does not exists.",
-                        ErrorCode.USER_NOT_FOUND
-                ));
 
         VerificationToken tok = VerificationToken.builder()
                 .token(token)
@@ -48,17 +42,12 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
     }
 
     @Transactional(dontRollbackOn = UnauthorizedException.class)
-    public VerificationToken validateVerificationToken(String token, String userEmail) {
+    public VerificationToken validateVerificationToken(String token, User user) {
         // Check if token and user exists
         VerificationToken tok = tokenRepository.findByToken(token)
                 .orElseThrow(() -> new NotFoundException(
                         "Verification token is either malformed or invalid.",
                         ErrorCode.USER_VERIFICATION_TOKEN_NOT_FOUND
-                ));
-        User user = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new NotFoundException(
-                        "User with email " + userEmail + " does not exists.",
-                        ErrorCode.USER_NOT_FOUND
                 ));
 
         // Check verification token validity
@@ -96,13 +85,7 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
     }
 
     @Override
-    public void voidExistingTokens(String userEmail) {
-        User user = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new NotFoundException(
-                        "User with email " + userEmail + " does not exists.",
-                        ErrorCode.USER_NOT_FOUND
-                ));
-
+    public void voidExistingTokens(User user) {
         List<VerificationToken> activeTokens = tokenRepository.findByUserAndStatus(user, TokenStatus.PENDING);
 
         activeTokens.forEach(token -> {

@@ -44,10 +44,12 @@ public class UserClientImpl implements UserClient {
     @Override
     public UserResponse enableUser(String token, String email) {
         try {
-            tokenService.validateVerificationToken(token, email);
-            User user = userService.enableUser(email);
+            User user = userService.getUserByEmail(email);
 
-            return userService.convertUserToResponse(user);
+            tokenService.validateVerificationToken(token, user);
+            User enabledUser = userService.enableUser(user.getEmail());
+
+            return userService.convertUserToResponse(enabledUser);
         } catch (BusinessException ex) {
             throw ex;
         } catch (Exception ex) {
@@ -69,10 +71,10 @@ public class UserClientImpl implements UserClient {
             }
 
             // Void all of user's pending verification tokens
-            tokenService.voidExistingTokens(email);
+            tokenService.voidExistingTokens(user);
 
             // Generate new verification token
-            tokenService.generateVerificationToken(email);
+            tokenService.generateVerificationToken(user);
 
             return userService.convertUserToResponse(user);
         } catch (BusinessException ex) {
