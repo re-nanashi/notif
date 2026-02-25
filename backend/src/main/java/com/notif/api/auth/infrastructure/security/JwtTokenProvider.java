@@ -21,7 +21,8 @@ import java.util.function.Function;
 public class JwtTokenProvider {
     @Value("${jwt.secret}")
     private String secretKey;
-    @Value("${jwt.expiration}")
+
+    @Value("${jwt.access-token.expiration}")
     private long jwtExpiration; // in seconds
 
     public String extractUsername(String token) {
