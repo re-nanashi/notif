@@ -1,4 +1,4 @@
-package com.notif.api.user.client;
+package com.notif.api.user.infrastructure.client;
 
 import com.notif.api.core.exception.*;
 import com.notif.api.user.application.dto.CreateUserRequest;
