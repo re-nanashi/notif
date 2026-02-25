@@ -5,7 +5,7 @@ import com.notif.api.auth.infrastructure.security.JwtTokenProvider;
 import com.notif.api.core.constants.AppConstants;
 import com.notif.api.user.api.dto.UserResponse;
 import com.notif.api.user.application.dto.CreateUserRequest;
-import com.notif.api.user.client.UserClient;
+import com.notif.api.user.infrastructure.client.UserClient;
 import com.notif.api.user.domain.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
@@ -24,10 +24,17 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthenticationManager authenticationManager;
 
-    // TODO: Extract JWT from HttpCookieOnly
     @Override
     public CurrentlyLoggedInUserInfo getCurrentlyLoggedUser(String email) {
-        return null;
+        UserResponse user = userClient.getByUserEmail(email);
+
+        return CurrentlyLoggedInUserInfo.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .fullName(user.getFullName())
+                .role(user.getRole())
+                .createdAt(user.getCreatedAt())
+                .build();
     }
 
     @Override

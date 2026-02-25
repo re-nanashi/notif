@@ -17,6 +17,7 @@ import java.util.UUID;
 public class CurrentlyLoggedInUserInfo {
     private UUID id;
     private String email;
+    private String fullName;
     private Role role;
     // TODO: RefreshTokenExpiration
     private long expiresIn; // in seconds
