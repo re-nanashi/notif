@@ -36,12 +36,12 @@ public class VerificationToken extends BaseEntity {
     private User user;
 
     @Column(nullable = false)
-    private LocalDateTime expirationDate;
+    private LocalDateTime expiresAt;
 
     @Enumerated(EnumType.STRING)
     private TokenStatus status;
 
     public boolean isTokenExpired() {
-        return expirationDate.isBefore(LocalDateTime.now());
+        return expiresAt.isBefore(LocalDateTime.now());
     }
 }

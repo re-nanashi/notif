@@ -36,7 +36,7 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
         VerificationToken tok = VerificationToken.builder()
                 .token(token)
                 .user(user)
-                .expirationDate(LocalDateTime.now().plusMinutes(VerificationToken.EXPIRATION))
+                .expiresAt(LocalDateTime.now().plusMinutes(VerificationToken.EXPIRATION))
                 .status(TokenStatus.PENDING)
                 .build();
 
