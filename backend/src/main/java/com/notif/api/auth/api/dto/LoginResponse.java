@@ -5,13 +5,17 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Authentication response DTO containing JWT token details
+ * and information about the authenticated user.
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-// TODO (auth): refresh tokens
 public class LoginResponse {
     private String accessToken;
     private String tokenType;
-    private long expiresIn; // in seconds
+    private long expiresIn; // token validity in seconds
+    private CurrentlyLoggedInUserInfo user;
 }
