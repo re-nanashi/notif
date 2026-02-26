@@ -1,10 +1,12 @@
 package com.notif.api.user.application.service;
 
+import com.notif.api.core.domain.event.EventPublisher;
 import com.notif.api.core.exception.ErrorCode;
 import com.notif.api.core.exception.NotFoundException;
 import com.notif.api.core.exception.ValidationException;
 import com.notif.api.user.api.dto.UserResponse;
 import com.notif.api.user.application.dto.CreateUserRequest;
+import com.notif.api.user.domain.event.UserDeletedEvent;
 import com.notif.api.user.domain.model.Role;
 import com.notif.api.user.domain.model.User;
 import com.notif.api.user.domain.exception.InvalidPasswordException;
@@ -29,6 +31,7 @@ public class UserServiceImpl implements UserService {
     private final VerificationTokenService verificationTokenService;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EventPublisher eventPublisher;
 
     @Override
     public User createUser(CreateUserRequest request) {
@@ -169,6 +172,8 @@ public class UserServiceImpl implements UserService {
                         "User with ID " + id + " not found.",
                         ErrorCode.USER_NOT_FOUND
                 ));
+
+        eventPublisher.publish(new UserDeletedEvent(id));
 
         userRepository.deleteById(id);
     }
