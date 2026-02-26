@@ -15,13 +15,22 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Service responsible for verification token lifecycle management.
+ * Handles token generation, validation, and invalidation workflows.
+ */
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class VerificationTokenServiceImpl implements VerificationTokenService {
     private final VerificationTokenRepository tokenRepository;
     private final EventPublisher eventPublisher;
 
+    /**
+     * Generates a new verification token for user verification workflows.
+     * Publishes verification request event after token persistence.
+     */
+    @Override
+    @Transactional
     public VerificationToken generateVerificationToken(User user) {
         String token = UUID.randomUUID().toString();
 
@@ -34,11 +43,16 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
 
         VerificationToken savedToken = tokenRepository.save(tok);
 
+        // Publish event for async email notification
         eventPublisher.publish(new VerificationRequestedEvent(user.getEmail(), savedToken.getToken()));
 
         return tokenRepository.save(tok);
     }
 
+    /**
+     * Validates verification tokens and updates token status accordingly.
+     */
+    @Override
     @Transactional(noRollbackFor = UnauthorizedException.class)
     public VerificationToken validateVerificationToken(String token, User user) {
         // Check if token and user exists
@@ -82,7 +96,11 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
         return tokenRepository.save(tok);
     }
 
+    /**
+     * Voids all pending verification tokens for a user. Prevents reuse of previously issued verification links.
+     */
     @Override
+    @Transactional
     public void voidExistingTokens(User user) {
         List<VerificationToken> activeTokens = tokenRepository.findByUserAndStatus(user, TokenStatus.PENDING);
 
