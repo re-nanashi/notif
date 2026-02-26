@@ -2,13 +2,13 @@ package com.notif.api.auth.api.controller;
 
 import com.notif.api.auth.api.dto.*;
 import com.notif.api.auth.application.service.AuthenticationService;
+import com.notif.api.auth.infrastructure.security.NotifUserDetails;
 import com.notif.api.core.dto.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -32,7 +32,7 @@ public class AuthenticationController {
 
     // TODO: Extract JWT from HttpOnlyCookie
     @GetMapping("/me")
-    public ResponseEntity<ApiResponse> getCurrentlyLoggedUserInfo(@AuthenticationPrincipal UserDetails loggedInUser) {
+    public ResponseEntity<ApiResponse> getCurrentlyLoggedUserInfo(@AuthenticationPrincipal NotifUserDetails loggedInUser) {
         CurrentlyLoggedInUserInfo userInfo = authenticationService.getCurrentlyLoggedUser(loggedInUser.getUsername());
         return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse("Success", userInfo));
     }
