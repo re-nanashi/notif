@@ -1,4 +1,4 @@
-package com.notif.api.user.infrastructure.client;
+package com.notif.api.user.api.client;
 
 import com.notif.api.core.exception.*;
 import com.notif.api.user.api.dto.UserAuthDetails;

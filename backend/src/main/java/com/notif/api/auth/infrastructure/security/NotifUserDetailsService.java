@@ -2,7 +2,7 @@ package com.notif.api.auth.infrastructure.security;
 
 import com.notif.api.core.exception.BusinessException;
 import com.notif.api.user.api.dto.UserAuthDetails;
-import com.notif.api.user.infrastructure.client.UserClient;
+import com.notif.api.user.api.client.UserClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

@@ -1,4 +1,4 @@
-package com.notif.api.user.infrastructure.client;
+package com.notif.api.user.api.client;
 
 import com.notif.api.core.exception.ErrorCode;
 import com.notif.api.core.exception.ModuleClientException;
