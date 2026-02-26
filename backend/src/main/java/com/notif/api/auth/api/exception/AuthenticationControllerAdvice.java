@@ -1,6 +1,10 @@
 package com.notif.api.auth.api.exception;
 
 import com.notif.api.auth.api.controller.AuthenticationController;
+import com.notif.api.auth.domain.exception.TokenExpiredException;
+import com.notif.api.auth.domain.exception.TokenNotFoundException;
+import com.notif.api.auth.domain.exception.TokenRevokedException;
+import com.notif.api.core.exception.BusinessException;
 import com.notif.api.core.exception.ErrorCode;
 import com.notif.api.core.dto.ApiError;
 import io.jsonwebtoken.JwtException;
@@ -84,6 +88,19 @@ public class AuthenticationControllerAdvice {
                 .status(HttpStatus.UNAUTHORIZED.value())
                 .error(ErrorCode.USER_CREDENTIALS_EXPIRED.getValue())
                 .detail("User credentials have expired. Please reset it immediately.")
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        return ResponseEntity.status(error.getStatus()).body(error);
+    }
+
+    @ExceptionHandler({TokenExpiredException.class, TokenNotFoundException.class, TokenRevokedException.class})
+    public ResponseEntity<ApiError> handleTokenExceptions(BusinessException ex) {
+        ApiError error = ApiError.builder()
+                .title(HttpStatus.UNAUTHORIZED.getReasonPhrase())
+                .status(HttpStatus.UNAUTHORIZED.value())
+                .error(ex.getErrorCode().getValue())
+                .detail(ex.getMessage())
                 .timestamp(LocalDateTime.now())
                 .build();
 
