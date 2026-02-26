@@ -63,7 +63,7 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
                 ));
 
         // Check token validity
-        if (user.getId().equals(tok.getUser().getId())) {
+        if (!user.getId().equals(tok.getUser().getId())) {
             throw new ValidationException(
                     "Verification token user mismatch.",
                     ErrorCode.USER_VERIFICATION_TOKEN_INVALID
