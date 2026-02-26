@@ -2,12 +2,11 @@ package com.notif.api.auth.infrastructure.security;
 
 import com.notif.api.core.exception.CustomAuthenticationException;
 import com.notif.api.core.exception.ErrorCode;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 @Component
 public class UserAccessValidator {
-    public void validateUserAccess(UserDetails user) {
+    public void validateUserAccess(NotifUserDetails user) {
         if (!user.isEnabled()) {
             throw new CustomAuthenticationException(
                     "User account disabled. Please contact your system administrator for assistance.",

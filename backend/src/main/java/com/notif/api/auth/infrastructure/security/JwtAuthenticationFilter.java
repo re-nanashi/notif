@@ -14,8 +14,6 @@ import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -44,7 +42,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtTokenProvider jwtTokenProvider;
-    private final UserDetailsService userDetailsService;
+    private final NotifUserDetailsService userDetailsService;
     private final UserAccessValidator userAccessValidator;
     private final JwtAuthenticationEntryPoint authenticationEntryPoint;
 
@@ -67,7 +65,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             final String username = jwtTokenProvider.extractUsername(jwtToken);
 
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                NotifUserDetails userDetails = (NotifUserDetails) userDetailsService.loadUserByUsername(username);
                 // Validate user access
                 userAccessValidator.validateUserAccess(userDetails);
 
