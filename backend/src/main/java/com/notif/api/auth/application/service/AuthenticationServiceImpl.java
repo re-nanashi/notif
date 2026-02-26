@@ -2,11 +2,11 @@ package com.notif.api.auth.application.service;
 
 import com.notif.api.auth.api.dto.*;
 import com.notif.api.auth.infrastructure.security.JwtTokenProvider;
+import com.notif.api.auth.infrastructure.security.NotifUserDetails;
 import com.notif.api.core.constants.AppConstants;
 import com.notif.api.user.api.dto.UserResponse;
 import com.notif.api.user.application.dto.CreateUserRequest;
 import com.notif.api.user.infrastructure.client.UserClient;
-import com.notif.api.user.domain.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -43,7 +43,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 )
         );
 
-        String jwtToken = jwtTokenProvider.generateToken((User)authentication.getPrincipal());
+        // Extract user information
+        NotifUserDetails userDetails = (NotifUserDetails)authentication.getPrincipal();
+        CurrentlyLoggedInUserInfo userInfo = getCurrentlyLoggedUser(userDetails.getUsername());
+
+        // Issue access token
+        String jwtToken = jwtTokenProvider.generateToken(userDetails);
         Date expiration = jwtTokenProvider.extractExpiration(jwtToken);
         long expiresIn = (expiration.getTime() - System.currentTimeMillis()) / AppConstants.MILLISECONDS_PER_SECOND;
 
