@@ -46,7 +46,7 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
         // Publish event for async email notification
         eventPublisher.publish(new VerificationRequestedEvent(user.getEmail(), savedToken.getToken()));
 
-        return tokenRepository.save(tok);
+        return savedToken;
     }
 
     /**
@@ -62,8 +62,8 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
                         ErrorCode.USER_VERIFICATION_TOKEN_NOT_FOUND
                 ));
 
-        // Check verification token validity
-        if (!user.equals(tok.getUser())) {
+        // Check token validity
+        if (user.getId().equals(tok.getUser().getId())) {
             throw new ValidationException(
                     "Verification token user mismatch.",
                     ErrorCode.USER_VERIFICATION_TOKEN_INVALID
