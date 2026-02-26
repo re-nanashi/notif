@@ -24,7 +24,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public CurrentlyLoggedInUserInfo getCurrentlyLoggedUser(String email) {
-        UserResponse user = userClient.getByUserEmail(email);
+        UserResponse user = userClient.getUserByEmail(email);
 
         return CurrentlyLoggedInUserInfo.builder()
                 .id(user.getId())
