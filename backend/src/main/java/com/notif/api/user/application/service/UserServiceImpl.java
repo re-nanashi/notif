@@ -46,6 +46,9 @@ public class UserServiceImpl implements UserService {
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(Role.USER)
                 .enabled(false)
+                .accountNonExpired(true)
+                .accountNonLocked(true)
+                .credentialsNonExpired(true)
                 .build();
 
         User savedUser = userRepository.save(newUser);
