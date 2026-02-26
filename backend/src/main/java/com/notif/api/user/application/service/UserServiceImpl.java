@@ -21,6 +21,12 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Service implementation for user management operations.
+ *
+ * Handles user lifecycle operations including creation, updates, authentication data mapping, and account
+ * state management.
+ */
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -29,6 +35,10 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final EventPublisher eventPublisher;
 
+    /**
+     * Creates a new user with default USER role and disabled verification status.
+     * Also generates a verification token after user persistence.
+     */
     @Override
     @Transactional
     public User createUser(CreateUserRequest request) {
@@ -40,9 +50,9 @@ public class UserServiceImpl implements UserService {
         }
 
         User newUser = User.builder()
-                .firstName(request.getFirstName().strip()) // remove leading/trailing spaces
+                .firstName(request.getFirstName().strip())
                 .lastName(request.getLastName().strip())
-                .email(request.getEmail()) // @Email annotation fails whitespaces
+                .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(Role.USER)
                 .enabled(false)
@@ -53,11 +63,15 @@ public class UserServiceImpl implements UserService {
 
         User savedUser = userRepository.save(newUser);
 
+        // Trigger verification workflow
         verificationTokenService.generateVerificationToken(savedUser);
 
         return savedUser;
     }
 
+    /**
+     * Retrieves user by ID.
+     */
     @Override
     @Transactional(readOnly = true)
     public User getUserById(UUID id) {
@@ -68,6 +82,9 @@ public class UserServiceImpl implements UserService {
                 ));
     }
 
+    /**
+     * Retrieves user by email address.
+     */
     @Override
     @Transactional(readOnly = true)
     public User getUserByEmail(String email) {
@@ -78,15 +95,21 @@ public class UserServiceImpl implements UserService {
                 ));
     }
 
-    // TODO (Future):
-    //  For large datasets, use pagination and sorting with methods like findAll(Pageable pageable)
-    //  or findAll(Sort sort) to fetch data in manageable chunks.
+    /**
+     * Retrieves all users.
+     * TODO:
+     *  For large datasets, use pagination and sorting with methods like findAll(Pageable pageable)
+     *  or findAll(Sort sort) to fetch data in manageable chunks.
+     */
     @Override
     @Transactional(readOnly = true)
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
+    /**
+     * Updates user profile information.
+     */
     @Override
     @Transactional
     public User updateUser(UpdateUserRequest request, UUID id) {
@@ -99,7 +122,7 @@ public class UserServiceImpl implements UserService {
         String firstName = request.getFirstName();
         String lastName = request.getLastName();
 
-        // Require at least one field to update
+        // Require at least one field to be updated
         if (Util.isNullOrBlank(firstName) && Util.isNullOrBlank(lastName)) {
             throw new ValidationException("At least one field must be provided.", ErrorCode.MISSING_REQUIRED_FIELD);
         }
@@ -110,6 +133,9 @@ public class UserServiceImpl implements UserService {
         return userRepository.save(existingUser);
     }
 
+    /**
+     * Enables user account after verification.
+     */
     @Override
     @Transactional
     public User enableUser(String email) {
@@ -124,6 +150,9 @@ public class UserServiceImpl implements UserService {
         return userRepository.save(existingUser);
     }
 
+    /**
+     * Changes user email after password verification.
+     */
     @Override
     @Transactional
     public User changeEmail(ChangeEmailRequest request, UUID id) {
@@ -133,7 +162,7 @@ public class UserServiceImpl implements UserService {
                         ErrorCode.USER_NOT_FOUND
                 ));
 
-        // Check if password is incorrect
+        // Verify current password before allowing sensitive changes
         if (!passwordEncoder.matches(request.getCurrentPassword(), existingUser.getPassword())) {
             throw new InvalidPasswordException("The password provided is incorrect.", ErrorCode.USER_INVALID_CREDENTIALS);
         }
@@ -152,6 +181,9 @@ public class UserServiceImpl implements UserService {
 
     }
 
+    /**
+     * Changes user password after validating current password.
+     */
     @Override
     @Transactional
     public User changePassword(ChangePasswordRequest request, UUID id) {
@@ -161,7 +193,6 @@ public class UserServiceImpl implements UserService {
                         ErrorCode.USER_NOT_FOUND
                 ));
 
-        // Check if password is incorrect
         if (!passwordEncoder.matches(request.getCurrentPassword(), existingUser.getPassword())) {
             throw new InvalidPasswordException("The password provided is incorrect.", ErrorCode.USER_INVALID_CREDENTIALS);
         }
@@ -171,6 +202,9 @@ public class UserServiceImpl implements UserService {
         return userRepository.save(existingUser);
     }
 
+    /**
+     * Deletes user account and publishes domain deletion event.
+     */
     @Override
     @Transactional
     public void deleteUser(UUID id) {
@@ -185,6 +219,9 @@ public class UserServiceImpl implements UserService {
         userRepository.deleteById(id);
     }
 
+    /**
+     * Maps domain User entity to API response DTO.
+     */
     @Override
     public UserResponse convertUserToResponse(User user) {
         return UserResponse.builder()
@@ -199,6 +236,9 @@ public class UserServiceImpl implements UserService {
                 .build();
     }
 
+    /**
+     * Maps domain User entity to authentication security DTO.
+     */
     @Override
     public UserAuthDetails convertUserToAuthDetails(User user) {
         return UserAuthDetails.builder()
