@@ -10,6 +10,11 @@ import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+/**
+ * Global application configuration class.
+ *
+ * Enables asynchronous processing and configures authentication-related beans for Spring Security.
+ */
 @Configuration
 @EnableAsync
 @RequiredArgsConstructor
@@ -17,6 +22,11 @@ public class ApplicationConfig {
     private final NotifUserDetailsService notifUserDetailsService;
     private final PasswordEncoder passwordEncoder;
 
+    /**
+     * Configures the AuthenticationManager using DAO-based authentication.
+     *
+     * Uses a custom UserDetailsService for user lookup and PasswordEncoder for secure password verification.
+     */
     @Bean
     public AuthenticationManager authenticationManager() throws Exception {
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider(notifUserDetailsService);
