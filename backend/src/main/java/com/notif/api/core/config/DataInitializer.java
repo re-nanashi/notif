@@ -12,6 +12,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * Initializes default users at application startup if they are missing.
+ * Intended for development/testing environments.
+ */
 @Component
 @Transactional
 @RequiredArgsConstructor
@@ -19,6 +23,7 @@ public class DataInitializer implements ApplicationListener<ApplicationReadyEven
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
+    // Injected from application.properties (uses .env file)
     @Value("${admin.email}")
     private String DEFAULT_ADMIN_EMAIL;
     @Value("${admin.password}")
@@ -31,7 +36,7 @@ public class DataInitializer implements ApplicationListener<ApplicationReadyEven
 
     @Override
     public void onApplicationEvent(@NonNull ApplicationReadyEvent event) {
-        // Initializes data only users are missing
+        // Runs AFTER Spring boot fully starts.
         initializeAdministrator();
         initializeDefaultManager();
     }
@@ -48,6 +53,9 @@ public class DataInitializer implements ApplicationListener<ApplicationReadyEven
                 .lastName("Manager")
                 .role(Role.MANAGER)
                 .enabled(true)
+                .accountNonExpired(true)
+                .accountNonLocked(true)
+                .credentialsNonExpired(true)
                 .build();
 
         userRepository.save(manager);
@@ -67,6 +75,9 @@ public class DataInitializer implements ApplicationListener<ApplicationReadyEven
                 .lastName("Admin")
                 .role(Role.ADMIN)
                 .enabled(true)
+                .accountNonExpired(true)
+                .accountNonLocked(true)
+                .credentialsNonExpired(true)
                 .build();
 
         userRepository.save(admin);
