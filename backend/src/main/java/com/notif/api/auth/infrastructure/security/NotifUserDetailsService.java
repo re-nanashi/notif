@@ -23,7 +23,7 @@ public class NotifUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         try {
-            // Fetch user authentication details.
+            // Fetch user authentication details
             UserAuthDetails user = userClient.getUserAuthDetailsByEmail(username);
 
             // Converts domain user authentication data into a security principal representation.
@@ -31,7 +31,7 @@ public class NotifUserDetailsService implements UserDetailsService {
             // persistence-side effects.
             return new NotifUserDetails(user);
         } catch (BusinessException ex) {
-            // Will catch USER_NOT_FOUND exception thrown by UserClient.
+            // Will catch USER_NOT_FOUND exception thrown by UserClient
             throw new UsernameNotFoundException(ex.getMessage());
         }
     }
