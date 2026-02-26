@@ -9,6 +9,8 @@ import com.notif.api.user.application.service.VerificationTokenService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 @AllArgsConstructor
 public class UserClientImpl implements UserClient {
@@ -25,6 +27,18 @@ public class UserClientImpl implements UserClient {
             throw ex;
         } catch (Exception ex) {
             // wrap unexpected exceptions for inter-module consistency.
+            throw new UserClientException("Unexpected error in user service.");
+        }
+    }
+
+    @Override
+    public UserResponse getUserById(UUID id) {
+        try {
+            User user = userService.getUserById(id);
+            return userService.convertUserToResponse(user);
+        } catch (BusinessException ex) {
+            throw ex;
+        } catch (Exception ex) {
             throw new UserClientException("Unexpected error in user service.");
         }
     }
