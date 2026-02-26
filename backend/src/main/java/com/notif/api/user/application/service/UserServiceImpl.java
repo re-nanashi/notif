@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final VerificationTokenService verificationTokenService;
@@ -31,6 +30,7 @@ public class UserServiceImpl implements UserService {
     private final EventPublisher eventPublisher;
 
     @Override
+    @Transactional
     public User createUser(CreateUserRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new ConflictException(
@@ -56,6 +56,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public User getUserById(UUID id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(
@@ -65,6 +66,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public User getUserByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new NotFoundException(
@@ -77,11 +79,13 @@ public class UserServiceImpl implements UserService {
     //  For large datasets, use pagination and sorting with methods like findAll(Pageable pageable)
     //  or findAll(Sort sort) to fetch data in manageable chunks.
     @Override
+    @Transactional(readOnly = true)
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
     @Override
+    @Transactional
     public User updateUser(UpdateUserRequest request, UUID id) {
         User existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(
@@ -104,6 +108,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public User enableUser(String email) {
         User existingUser = userRepository.findByEmail(email)
                 .orElseThrow(() -> new NotFoundException(
@@ -117,6 +122,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public User changeEmail(ChangeEmailRequest request, UUID id) {
         User existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(
@@ -144,6 +150,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public User changePassword(ChangePasswordRequest request, UUID id) {
         User existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(
@@ -161,8 +168,8 @@ public class UserServiceImpl implements UserService {
         return userRepository.save(existingUser);
     }
 
-    // TODO: UserDeletedEvent
     @Override
+    @Transactional
     public void deleteUser(UUID id) {
         userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(
