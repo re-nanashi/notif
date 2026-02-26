@@ -44,7 +44,7 @@ public class UserClientImpl implements UserClient {
     }
 
     @Override
-    public UserResponse getByUserEmail(String email) {
+    public UserResponse getUserByEmail(String email) {
         try {
             User user = userService.getUserByEmail(email);
             return userService.convertUserToResponse(user);
