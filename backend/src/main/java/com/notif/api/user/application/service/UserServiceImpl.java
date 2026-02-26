@@ -4,7 +4,7 @@ import com.notif.api.core.domain.event.EventPublisher;
 import com.notif.api.core.exception.ErrorCode;
 import com.notif.api.core.exception.NotFoundException;
 import com.notif.api.core.exception.ValidationException;
-import com.notif.api.user.api.dto.UserResponse;
+import com.notif.api.user.api.dto.*;
 import com.notif.api.user.application.dto.CreateUserRequest;
 import com.notif.api.user.domain.event.UserDeletedEvent;
 import com.notif.api.user.domain.model.Role;
@@ -13,9 +13,6 @@ import com.notif.api.user.domain.exception.InvalidPasswordException;
 import com.notif.api.user.domain.repository.UserRepository;
 import com.notif.api.core.utils.Util;
 import com.notif.api.core.exception.ConflictException;
-import com.notif.api.user.api.dto.ChangeEmailRequest;
-import com.notif.api.user.api.dto.ChangePasswordRequest;
-import com.notif.api.user.api.dto.UpdateUserRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -178,6 +175,7 @@ public class UserServiceImpl implements UserService {
         userRepository.deleteById(id);
     }
 
+    @Override
     public UserResponse convertUserToResponse(User user) {
         return UserResponse.builder()
                 .id(user.getId())
@@ -188,6 +186,20 @@ public class UserServiceImpl implements UserService {
                 .fullName(user.getFirstName() + " " + user.getLastName())
                 .role(user.getRole())
                 .createdAt(user.getCreatedAt())
+                .build();
+    }
+
+    @Override
+    public UserAuthDetails convertUserToAuthDetails(User user) {
+        return UserAuthDetails.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .password(user.getPassword())
+                .role(user.getRole())
+                .enabled(user.isEnabled())
+                .accountNonExpired(user.isAccountNonExpired())
+                .accountNonLocked(user.isAccountNonLocked())
+                .credentialsNonExpired(user.isCredentialsNonExpired())
                 .build();
     }
 }

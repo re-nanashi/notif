@@ -1,10 +1,7 @@
 package com.notif.api.user.application.service;
 
-import com.notif.api.user.api.dto.UserResponse;
+import com.notif.api.user.api.dto.*;
 import com.notif.api.user.application.dto.CreateUserRequest;
-import com.notif.api.user.api.dto.ChangeEmailRequest;
-import com.notif.api.user.api.dto.ChangePasswordRequest;
-import com.notif.api.user.api.dto.UpdateUserRequest;
 import com.notif.api.user.domain.model.User;
 
 import java.util.List;
@@ -26,4 +23,5 @@ public interface UserService {
     User changePassword(ChangePasswordRequest request, UUID id);
     void deleteUser(UUID id);
     UserResponse convertUserToResponse(User user);
+    UserAuthDetails convertUserToAuthDetails(User user);
 }
