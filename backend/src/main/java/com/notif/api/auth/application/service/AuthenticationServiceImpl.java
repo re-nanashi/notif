@@ -8,7 +8,6 @@ import com.notif.api.user.application.dto.CreateUserRequest;
 import com.notif.api.user.infrastructure.client.UserClient;
 import com.notif.api.user.domain.model.User;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -20,7 +19,6 @@ import java.util.Date;
 @RequiredArgsConstructor
 public class AuthenticationServiceImpl implements AuthenticationService {
     private final UserClient userClient;
-    private final ApplicationEventPublisher eventPublisher;
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthenticationManager authenticationManager;
 
@@ -33,7 +31,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .email(user.getEmail())
                 .fullName(user.getFullName())
                 .role(user.getRole())
-                .createdAt(user.getCreatedAt())
                 .build();
     }
 
@@ -54,6 +51,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .accessToken(jwtToken)
                 .tokenType("Bearer")
                 .expiresIn(expiresIn)
+                .user(userInfo)
                 .build();
     }
 
