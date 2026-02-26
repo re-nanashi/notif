@@ -1,6 +1,7 @@
 package com.notif.api.user.infrastructure.client;
 
 import com.notif.api.core.exception.*;
+import com.notif.api.user.api.dto.UserAuthDetails;
 import com.notif.api.user.application.dto.CreateUserRequest;
 import com.notif.api.user.api.dto.UserResponse;
 import com.notif.api.user.domain.model.User;
@@ -48,6 +49,18 @@ public class UserClientImpl implements UserClient {
         try {
             User user = userService.getUserByEmail(email);
             return userService.convertUserToResponse(user);
+        } catch (BusinessException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            throw new UserClientException("Unexpected error in user service.");
+        }
+    }
+
+    @Override
+    public UserAuthDetails getUserAuthDetailsByEmail(String email) {
+        try {
+            User user = userService.getUserByEmail(email);
+            return userService.convertUserToAuthDetails(user);
         } catch (BusinessException ex) {
             throw ex;
         } catch (Exception ex) {
