@@ -4,6 +4,12 @@ import com.notif.api.core.exception.CustomAuthenticationException;
 import com.notif.api.core.exception.ErrorCode;
 import org.springframework.stereotype.Component;
 
+/**
+ * Validates user access status before allowing authentication or protected resource access.
+ *
+ * Ensures that user account security states such as enabled status, account lock status, expiration, and
+ * credential validity are checked, even if JWT is valid.
+ */
 @Component
 public class UserAccessValidator {
     public void validateUserAccess(NotifUserDetails user) {
