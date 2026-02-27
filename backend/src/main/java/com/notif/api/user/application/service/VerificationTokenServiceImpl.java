@@ -7,12 +7,12 @@ import com.notif.api.user.domain.model.TokenStatus;
 import com.notif.api.user.domain.model.User;
 import com.notif.api.user.domain.model.VerificationToken;
 import com.notif.api.user.domain.repository.VerificationTokenRepository;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -23,6 +23,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class VerificationTokenServiceImpl implements VerificationTokenService {
     private final VerificationTokenRepository tokenRepository;
+    private final EntityManager entityManager;
     private final EventPublisher eventPublisher;
 
     /**
@@ -31,12 +32,13 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
      */
     @Override
     @Transactional
-    public VerificationToken generateVerificationToken(User user) {
+    public void generateVerificationToken(UUID userId) {
         String token = UUID.randomUUID().toString();
+        User userProxy = entityManager.getReference(User.class, userId);
 
         VerificationToken tok = VerificationToken.builder()
                 .token(token)
-                .user(user)
+                .user(userProxy)
                 .expiresAt(LocalDateTime.now().plusMinutes(VerificationToken.EXPIRATION))
                 .status(TokenStatus.PENDING)
                 .build();
@@ -44,9 +46,7 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
         VerificationToken savedToken = tokenRepository.save(tok);
 
         // Publish event for async email notification
-        eventPublisher.publish(new VerificationRequestedEvent(user.getEmail(), savedToken.getToken()));
-
-        return savedToken;
+        eventPublisher.publish(new VerificationRequestedEvent(userProxy.getId(), savedToken.getToken()));
     }
 
     /**
@@ -54,7 +54,7 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
      */
     @Override
     @Transactional(noRollbackFor = UnauthorizedException.class)
-    public VerificationToken validateVerificationToken(String token, User user) {
+    public void validateVerificationToken(String token, UUID userId) {
         // Check if token and user exists
         VerificationToken tok = tokenRepository.findByToken(token)
                 .orElseThrow(() -> new NotFoundException(
@@ -63,7 +63,7 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
                 ));
 
         // Check token validity
-        if (!user.getId().equals(tok.getUser().getId())) {
+        if (!userId.equals(tok.getUser().getId())) {
             throw new ValidationException(
                     "Verification token user mismatch.",
                     ErrorCode.USER_VERIFICATION_TOKEN_INVALID
@@ -93,7 +93,7 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
 
         tok.setStatus(TokenStatus.VERIFIED);
 
-        return tokenRepository.save(tok);
+        tokenRepository.save(tok);
     }
 
     /**
@@ -101,12 +101,8 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
      */
     @Override
     @Transactional
-    public void voidExistingTokens(User user) {
-        List<VerificationToken> activeTokens = tokenRepository.findByUserAndStatus(user, TokenStatus.PENDING);
-
-        activeTokens.forEach(token -> {
-            token.setStatus(TokenStatus.VOIDED);
-            tokenRepository.save(token);
-        });
+    public void voidPendingTokensByUserId(UUID userId) {
+        User userProxy = entityManager.getReference(User.class, userId);
+        tokenRepository.voidPendingTokensByUser(userProxy, TokenStatus.VOIDED, TokenStatus.PENDING);
     }
 }
