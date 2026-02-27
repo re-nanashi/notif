@@ -7,6 +7,11 @@ import lombok.Data;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+/**
+ * Response object returned after a successful user registration.
+ * Contains basic account information along with registration metadata
+ * and a status message describing the result of the operation.
+ */
 @Data
 @Builder
 public class RegisterResponse {
