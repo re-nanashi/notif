@@ -2,7 +2,7 @@ package com.notif.api.user.api.client;
 
 import com.notif.api.user.api.dto.UserAuthDetails;
 import com.notif.api.user.api.dto.UserResponse;
-import com.notif.api.user.application.dto.CreateUserRequest;
+import com.notif.api.user.api.dto.CreateUserRequest;
 
 import java.util.UUID;
 

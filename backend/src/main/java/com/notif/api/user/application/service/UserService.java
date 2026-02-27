@@ -1,7 +1,7 @@
 package com.notif.api.user.application.service;
 
 import com.notif.api.user.api.dto.*;
-import com.notif.api.user.application.dto.CreateUserRequest;
+import com.notif.api.user.api.dto.CreateUserRequest;
 import com.notif.api.user.domain.model.User;
 
 import java.util.List;

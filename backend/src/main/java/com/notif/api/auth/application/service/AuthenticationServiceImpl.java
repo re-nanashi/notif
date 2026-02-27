@@ -7,7 +7,7 @@ import com.notif.api.auth.infrastructure.security.JwtTokenProvider;
 import com.notif.api.auth.infrastructure.security.NotifUserDetails;
 import com.notif.api.core.constants.AppConstants;
 import com.notif.api.user.api.dto.UserResponse;
-import com.notif.api.user.application.dto.CreateUserRequest;
+import com.notif.api.user.api.dto.CreateUserRequest;
 import com.notif.api.user.api.client.UserClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
