@@ -1,9 +1,8 @@
 package com.notif.api.auth.api.controller;
 
 import com.notif.api.auth.api.dto.*;
-import com.notif.api.auth.application.dto.AuthResult;
+import com.notif.api.auth.application.dto.AuthenticationResult;
 import com.notif.api.auth.application.service.AuthenticationService;
-import com.notif.api.auth.application.service.RefreshTokenService;
 import com.notif.api.auth.infrastructure.security.CookieUtil;
 import com.notif.api.auth.infrastructure.security.NotifUserDetails;
 import com.notif.api.core.dto.ApiResponse;
@@ -21,7 +20,6 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class AuthenticationController {
     private final AuthenticationService authenticationService;
-    private final RefreshTokenService refreshTokenService;
 
     @GetMapping("/test")
     public ResponseEntity<String> test() {
@@ -30,39 +28,41 @@ public class AuthenticationController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse> login(@RequestBody @Valid LoginRequest request) {
-        AuthResult result = authenticationService.authenticate(request);
+    public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody @Valid LoginRequest request) {
+        AuthenticationResult<LoginResponse> result = authenticationService.authenticate(request);
         ResponseCookie cookie = CookieUtil.createRefreshTokenCookie(result.getRefreshToken());
 
         return ResponseEntity.status(HttpStatus.OK)
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .body(new ApiResponse("Login successful", result.getResponse()));
+                .body(new ApiResponse<>("Login successful", result.getResponse()));
     }
 
     @GetMapping("/me")
-    public ResponseEntity<ApiResponse> getCurrentlyLoggedUserInfo(@AuthenticationPrincipal NotifUserDetails loggedInUser) {
-        CurrentlyLoggedInUserInfo userInfo = authenticationService.getCurrentlyLoggedUser(loggedInUser.getUsername());
-        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse("Success", userInfo));
+    public ResponseEntity<ApiResponse<AuthenticatedUserResponse>> getAuthenticatedUser(
+            @AuthenticationPrincipal NotifUserDetails user
+    ) {
+        AuthenticatedUserResponse userInfo = authenticationService.getAuthenticatedUser(user.getUsername());
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>("Success", userInfo));
     }
 
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse> register(@RequestBody @Valid RegisterRequest request) {
+    public ResponseEntity<ApiResponse<RegisterResponse>> register(@RequestBody @Valid RegisterRequest request) {
         RegisterResponse response = authenticationService.register(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse("Registration successful", response));
+        return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse<>("Registration successful", response));
     }
 
     @GetMapping("/confirm-registration")
-    public ResponseEntity<ApiResponse> confirmRegistration(
+    public ResponseEntity<ApiResponse<RegisterResponse>> confirmRegistration(
             @RequestParam("token") String token,
             @RequestParam("email") String email
     ) {
         RegisterResponse response = authenticationService.confirmRegistration(token, email);
-        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse("Success", response));
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>("Success", response));
     }
 
     @PostMapping("/resend-confirmation")
-    public ResponseEntity<ApiResponse> resendConfirmation(@RequestParam("email") String email) {
+    public ResponseEntity<ApiResponse<RegisterResponse>> resendConfirmation(@RequestParam("email") String email) {
         RegisterResponse response = authenticationService.resendVerificationEmail(email);
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body(new ApiResponse("Success", response));
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(new ApiResponse<>("Success", response));
     }
 }
