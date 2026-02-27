@@ -1,6 +1,8 @@
 package com.notif.api.auth.application.service;
 
 import com.notif.api.auth.api.dto.*;
+import com.notif.api.auth.application.dto.AuthResult;
+import com.notif.api.auth.domain.model.RefreshToken;
 import com.notif.api.auth.infrastructure.security.JwtTokenProvider;
 import com.notif.api.auth.infrastructure.security.NotifUserDetails;
 import com.notif.api.core.constants.AppConstants;
@@ -19,8 +21,9 @@ import java.util.Date;
 @RequiredArgsConstructor
 public class AuthenticationServiceImpl implements AuthenticationService {
     private final UserClient userClient;
-    private final JwtTokenProvider jwtTokenProvider;
     private final AuthenticationManager authenticationManager;
+    private final JwtTokenProvider jwtTokenProvider;
+    private final RefreshTokenService refreshTokenService;
 
     @Override
     public CurrentlyLoggedInUserInfo getCurrentlyLoggedUser(String email) {
@@ -35,7 +38,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public LoginResponse authenticate(LoginRequest request) {
+    public AuthResult authenticate(LoginRequest request) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),
@@ -51,12 +54,20 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         String jwtToken = jwtTokenProvider.generateToken(userDetails);
         Date expiration = jwtTokenProvider.extractExpiration(jwtToken);
         long expiresIn = (expiration.getTime() - System.currentTimeMillis()) / AppConstants.MILLISECONDS_PER_SECOND;
+        // Issue refresh token
+        RefreshToken refreshToken = refreshTokenService.generateRefreshToken(userDetails.getId());
 
-        return LoginResponse.builder()
+        // Map login response
+        LoginResponse loginResponse = LoginResponse.builder()
                 .accessToken(jwtToken)
                 .tokenType("Bearer")
                 .expiresIn(expiresIn)
                 .user(userInfo)
+                .build();
+
+        return AuthResult.builder()
+                .response(loginResponse)
+                .refreshToken(refreshToken.getToken())
                 .build();
     }
 
