@@ -196,6 +196,10 @@ public class UserServiceImpl implements UserService {
         if (!passwordEncoder.matches(request.getCurrentPassword(), existingUser.getPassword())) {
             throw new InvalidPasswordException("The password provided is incorrect.", ErrorCode.USER_INVALID_CREDENTIALS);
         }
+        // Verify if new password is different from current password
+        if (passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new ValidationException("New password must differ from current password.", ErrorCode.USER_SAME_PASSWORD);
+        }
 
         existingUser.setPassword(passwordEncoder.encode(request.getPassword()));
 
