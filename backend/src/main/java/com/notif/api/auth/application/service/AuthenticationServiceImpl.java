@@ -1,11 +1,12 @@
 package com.notif.api.auth.application.service;
 
 import com.notif.api.auth.api.dto.*;
-import com.notif.api.auth.application.dto.AuthResult;
-import com.notif.api.auth.domain.model.RefreshToken;
+import com.notif.api.auth.application.dto.AuthenticationResult;
+import com.notif.api.auth.application.dto.RefreshTokenDto;
 import com.notif.api.auth.infrastructure.security.JwtTokenProvider;
 import com.notif.api.auth.infrastructure.security.NotifUserDetails;
 import com.notif.api.core.constants.AppConstants;
+import com.notif.api.user.api.dto.UserAuthDetails;
 import com.notif.api.user.api.dto.UserResponse;
 import com.notif.api.user.api.dto.CreateUserRequest;
 import com.notif.api.user.api.client.UserClient;
@@ -15,6 +16,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 /**
@@ -30,61 +32,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenService refreshTokenService;
-
-    /**
-     * Retrieves the currently authenticated user's profile information
-     * from the User service using their email identifier.
-     */
-    @Override
-    public CurrentlyLoggedInUserInfo getCurrentlyLoggedUser(String email) {
-        UserResponse user = userClient.getUserByEmail(email);
-
-        return CurrentlyLoggedInUserInfo.builder()
-                .id(user.getId())
-                .email(user.getEmail())
-                .fullName(user.getFullName())
-                .role(user.getRole())
-                .build();
-    }
-
-    /**
-     * Authenticates user credentials, generates a JWT access token and
-     * refresh token, and returns both as part of the authentication result.
-     */
-    @Override
-    public AuthResult authenticate(LoginRequest request) {
-        // Delegate credential validation to Spring Security
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getEmail(),
-                        request.getPassword()
-                )
-        );
-
-        // Extract authenticated user information then load full user profile
-        NotifUserDetails userDetails = (NotifUserDetails)authentication.getPrincipal();
-        CurrentlyLoggedInUserInfo userInfo = getCurrentlyLoggedUser(userDetails.getUsername());
-
-        // Issue short-lived JWT access token
-        String jwtToken = jwtTokenProvider.generateToken(userDetails);
-        Date expiration = jwtTokenProvider.extractExpiration(jwtToken);
-        long expiresIn = (expiration.getTime() - System.currentTimeMillis()) / AppConstants.MILLISECONDS_PER_SECOND;
-        // Issue long-lived refresh token
-        RefreshToken refreshToken = refreshTokenService.generateRefreshToken(userDetails.getId());
-
-        // Map login response
-        LoginResponse loginResponse = LoginResponse.builder()
-                .accessToken(jwtToken)
-                .tokenType("Bearer")
-                .expiresIn(expiresIn)
-                .user(userInfo)
-                .build();
-
-        return AuthResult.builder()
-                .response(loginResponse)
-                .refreshToken(refreshToken.getToken())
-                .build();
-    }
 
     /**
      * Registers a new user by delegating user creation to the User service.
@@ -151,5 +98,91 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .createdAt(requestedUser.getCreatedAt())
                 .message("Action Required: Please verify your email to activate your account.")
                 .build();
+    }
+
+    /**
+     * Retrieves the currently authenticated user's profile information
+     * from the User service using their email identifier.
+     */
+    @Override
+    public AuthenticatedUserResponse getAuthenticatedUser(String email) {
+        UserResponse user = userClient.getUserByEmail(email);
+
+        return AuthenticatedUserResponse.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .fullName(user.getFullName())
+                .role(user.getRole())
+                .build();
+    }
+
+    /**
+     * Authenticates user credentials, generates a JWT access token and
+     * refresh token, and returns both as part of the authentication result.
+     */
+    @Override
+    public AuthenticationResult<LoginResponse> authenticate(LoginRequest request) {
+        // Delegate credential validation to Spring Security
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        request.getEmail(),
+                        request.getPassword()
+                )
+        );
+
+        // Extract authenticated user information then load full user profile
+        NotifUserDetails userDetails = (NotifUserDetails)authentication.getPrincipal();
+        AuthenticatedUserResponse userInfo = getAuthenticatedUser(userDetails.getUsername());
+
+        // Issue short-lived JWT access token
+        String jwtToken = jwtTokenProvider.generateToken(userDetails);
+        Date expiration = jwtTokenProvider.extractExpiration(jwtToken);
+        long expiresIn = (expiration.getTime() - System.currentTimeMillis()) / AppConstants.MILLISECONDS_PER_SECOND;
+        // Issue long-lived refresh token
+        // TODO: What should we do on existing refresh tokens?
+        RefreshTokenDto refreshToken = refreshTokenService.generateRefreshToken(userDetails.getId());
+
+        // Map login response
+        LoginResponse loginResponse = LoginResponse.builder()
+                .accessToken(jwtToken)
+                .tokenType("Bearer")
+                .expiresIn(expiresIn)
+                .user(userInfo)
+                .build();
+
+        return new AuthenticationResult<>(loginResponse, refreshToken.getToken());
+    }
+
+    // TODO: rotate the refresh token (revoke old, issue new) for extra security; return an AuthenticationResult
+    @Override
+    public AuthenticationResult<LoginResponse> refresh(String refreshToken) {
+        // Validate the refresh token
+        RefreshTokenDto validatedToken = refreshTokenService.validateRefreshToken(refreshToken);
+
+        // Extract associated user from token
+        UserAuthDetails associatedUser = userClient.getUserAuthDetailsById(validatedToken.getUserId());
+        NotifUserDetails userDetails = new NotifUserDetails(associatedUser);
+
+        // Generate a new short-lived JWT access token via JwtService
+        String jwtToken = jwtTokenProvider.generateToken(userDetails);
+        Date expiration = jwtTokenProvider.extractExpiration(jwtToken);
+        long expiresIn = (expiration.getTime() - System.currentTimeMillis()) / AppConstants.MILLISECONDS_PER_SECOND;
+
+        LoginResponse loginResponse = LoginResponse.builder()
+                .accessToken(jwtToken)
+                .tokenType("Bearer")
+                .expiresIn(expiresIn)
+                .build();
+
+        return new AuthenticationResult<>(loginResponse, validatedToken.getToken());
+    }
+
+    @Override
+    public AuthenticationResult<LogoutResponse> logout(String refreshToken) {
+        refreshTokenService.revokeRefreshToken(refreshToken);
+        return new AuthenticationResult<>(
+                new LogoutResponse("Logged out successfully", LocalDateTime.now()),
+                null
+        );
     }
 }

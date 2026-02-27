@@ -1,7 +1,7 @@
 package com.notif.api.auth.application.service;
 
 import com.notif.api.auth.api.dto.*;
-import com.notif.api.auth.application.dto.AuthResult;
+import com.notif.api.auth.application.dto.AuthenticationResult;
 
 /**
  * Provides authentication and registration operations, including user login,
@@ -9,9 +9,11 @@ import com.notif.api.auth.application.dto.AuthResult;
  * verification emails, and retrieving the currently authenticated user.
  */
 public interface AuthenticationService {
-    CurrentlyLoggedInUserInfo getCurrentlyLoggedUser(String email);
-    AuthResult authenticate(LoginRequest request);
     RegisterResponse register(RegisterRequest request);
     RegisterResponse confirmRegistration(String token, String userEmail);
     RegisterResponse resendVerificationEmail(String userEmail);
+    AuthenticatedUserResponse getAuthenticatedUser(String email);
+    AuthenticationResult<LoginResponse> authenticate(LoginRequest request);
+    AuthenticationResult<LoginResponse> refresh(String refreshToken);
+    AuthenticationResult<LogoutResponse> logout(String refreshToken);
 }
