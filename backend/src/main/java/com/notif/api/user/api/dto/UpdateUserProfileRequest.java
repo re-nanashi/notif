@@ -9,7 +9,7 @@ import lombok.Data;
  * All fields are optional; only non-null fields will be applied.
  */
 @Data
-public class UpdateUserRequest {
+public class UpdateUserProfileRequest {
     private String firstName;
     private String lastName;
 }
