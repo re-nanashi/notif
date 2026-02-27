@@ -9,6 +9,7 @@ import com.notif.api.user.application.service.UserService;
 import com.notif.api.user.application.service.VerificationTokenService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -26,6 +27,7 @@ public class UserClientImpl implements UserClient {
      * Creates a new user and returns its public representation. Used for Auth/Registration flow.
      */
     @Override
+    @Transactional
     public UserResponse createUser(CreateUserRequest request) {
         try {
             User user = userService.createUser(request);
@@ -91,6 +93,7 @@ public class UserClientImpl implements UserClient {
      * Used only during email verification flow.
      */
     @Override
+    @Transactional
     public UserResponse enableUser(String token, String email) {
         try {
             User user = userService.getUserByEmail(email);
@@ -112,6 +115,7 @@ public class UserClientImpl implements UserClient {
      * Triggers a new verification process (e.g., resend email verification token).
      */
     @Override
+    @Transactional
     public UserResponse requestVerification(String email) {
         try {
             User user = userService.getUserByEmail(email);
