@@ -2,7 +2,6 @@ package com.notif.api.user.application.service;
 
 import com.notif.api.user.api.dto.*;
 import com.notif.api.user.api.dto.CreateUserRequest;
-import com.notif.api.user.domain.model.User;
 
 import java.util.List;
 import java.util.UUID;
@@ -13,15 +12,15 @@ import java.util.UUID;
  * Provides methods for creating, updating, retrieving, and deleting users, as well as modifying user information.
  */
 public interface UserService {
-    User createUser(CreateUserRequest request);
-    User getUserById(UUID id);
-    User getUserByEmail(String email);
-    List<User> getAllUsers();
-    User enableUser(String email);
-    User updateUser(UpdateUserRequest request, UUID id);
-    User changeEmail(ChangeEmailRequest request, UUID id);
-    User changePassword(ChangePasswordRequest request, UUID id);
+    UserResponse createUser(CreateUserRequest request);
+    UserResponse getUserById(UUID id);
+    UserResponse getUserByEmail(String email);
+    UserAuthDetails getUserAuthDetailsById(UUID id);
+    UserAuthDetails getUserAuthDetailsByEmail(String email);
+    List<UserResponse> getAllUsers();
+    UserResponse enableUser(String email);
+    UserResponse updateUserProfile(UpdateUserProfileRequest request, UUID id);
+    UserResponse changeEmail(ChangeEmailRequest request, UUID id);
+    UserResponse changePassword(ChangePasswordRequest request, UUID id);
     void deleteUser(UUID id);
-    UserResponse convertUserToResponse(User user);
-    UserAuthDetails convertUserToAuthDetails(User user);
 }

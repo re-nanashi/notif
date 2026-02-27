@@ -41,7 +41,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     @Transactional
-    public User createUser(CreateUserRequest request) {
+    public UserResponse createUser(CreateUserRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new ConflictException(
                     "User with email '" + request.getEmail() + "' already exists.",
@@ -66,7 +66,7 @@ public class UserServiceImpl implements UserService {
         // Trigger verification workflow
         verificationTokenService.generateVerificationToken(savedUser);
 
-        return savedUser;
+        return convertUserToResponse(savedUser);
     }
 
     /**
@@ -74,12 +74,14 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     @Transactional(readOnly = true)
-    public User getUserById(UUID id) {
-        return userRepository.findById(id)
+    public UserResponse getUserById(UUID id) {
+        User user = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(
                         "User with ID " + id + " not found.",
                         ErrorCode.USER_NOT_FOUND
                 ));
+
+        return convertUserToResponse(user);
     }
 
     /**
@@ -87,12 +89,44 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     @Transactional(readOnly = true)
-    public User getUserByEmail(String email) {
-        return userRepository.findByEmail(email)
+    public UserResponse getUserByEmail(String email) {
+        User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new NotFoundException(
                         "User with email '" + email + "' not found.",
                         ErrorCode.USER_NOT_FOUND
                 ));
+
+        return convertUserToResponse(user);
+    }
+
+    /**
+     * Retrieves user authentication and authorization details by ID.
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public UserAuthDetails getUserAuthDetailsById(UUID id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(
+                        "User with ID " + id + " not found.",
+                        ErrorCode.USER_NOT_FOUND
+                ));
+
+        return convertUserToAuthDetails(user);
+    }
+
+    /**
+     * Retrieves user authentication and authorization details by email.
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public UserAuthDetails getUserAuthDetailsByEmail(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new NotFoundException(
+                        "User with email '" + email + "' not found.",
+                        ErrorCode.USER_NOT_FOUND
+                ));
+
+        return convertUserToAuthDetails(user);
     }
 
     /**
@@ -103,8 +137,34 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     @Transactional(readOnly = true)
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    public List<UserResponse> getAllUsers() {
+        return userRepository.findAll()
+                .stream()
+                .map(this::convertUserToResponse)
+                .toList();
+    }
+
+    /**
+     * Enables user account after verification.
+     */
+    @Override
+    @Transactional
+    public UserResponse enableUser(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new NotFoundException(
+                        "User with email " + email + " not found.",
+                        ErrorCode.USER_NOT_FOUND
+                ));
+
+        if (user.isEnabled()) {
+            throw new ConflictException("User is already verified.", ErrorCode.USER_ALREADY_VERIFIED);
+        }
+
+        user.setEnabled(true);
+
+        User savedUser = userRepository.save(user);
+
+        return convertUserToResponse(savedUser);
     }
 
     /**
@@ -112,8 +172,8 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     @Transactional
-    public User updateUser(UpdateUserRequest request, UUID id) {
-        User existingUser = userRepository.findById(id)
+    public UserResponse updateUserProfile(UpdateUserProfileRequest request, UUID id) {
+        User user = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(
                         "User with ID " + id + " not found.",
                         ErrorCode.USER_NOT_FOUND
@@ -127,27 +187,12 @@ public class UserServiceImpl implements UserService {
             throw new ValidationException("At least one field must be provided.", ErrorCode.MISSING_REQUIRED_FIELD);
         }
 
-        if (!Util.isNullOrBlank(firstName)) existingUser.setFirstName(firstName);
-        if (!Util.isNullOrBlank(lastName)) existingUser.setLastName(lastName);
+        if (!Util.isNullOrBlank(firstName)) user.setFirstName(firstName.strip());
+        if (!Util.isNullOrBlank(lastName)) user.setLastName(lastName.strip());
 
-        return userRepository.save(existingUser);
-    }
+        User savedUser = userRepository.save(user);
 
-    /**
-     * Enables user account after verification.
-     */
-    @Override
-    @Transactional
-    public User enableUser(String email) {
-        User existingUser = userRepository.findByEmail(email)
-                .orElseThrow(() -> new NotFoundException(
-                        "User with email " + email + " not found.",
-                        ErrorCode.USER_NOT_FOUND
-                ));
-
-        existingUser.setEnabled(true);
-
-        return userRepository.save(existingUser);
+        return convertUserToResponse(savedUser);
     }
 
     /**
@@ -155,15 +200,15 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     @Transactional
-    public User changeEmail(ChangeEmailRequest request, UUID id) {
-        User existingUser = userRepository.findById(id)
+    public UserResponse changeEmail(ChangeEmailRequest request, UUID id) {
+        User user = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(
                         "User with ID " + id + " not found.",
                         ErrorCode.USER_NOT_FOUND
                 ));
 
         // Verify current password before allowing sensitive changes
-        if (!passwordEncoder.matches(request.getCurrentPassword(), existingUser.getPassword())) {
+        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
             throw new InvalidPasswordException("The password provided is incorrect.", ErrorCode.USER_INVALID_CREDENTIALS);
         }
         // Check if email is already in use
@@ -175,10 +220,11 @@ public class UserServiceImpl implements UserService {
             );
         }
 
-        existingUser.setEmail(request.getNewEmail());
+        user.setEmail(request.getNewEmail());
 
-        return userRepository.save(existingUser);
+        User savedUser = userRepository.save(user);
 
+        return convertUserToResponse(savedUser);
     }
 
     /**
@@ -186,14 +232,15 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     @Transactional
-    public User changePassword(ChangePasswordRequest request, UUID id) {
-        User existingUser = userRepository.findById(id)
+    public UserResponse changePassword(ChangePasswordRequest request, UUID id) {
+        User user = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(
                         "User with ID " + id + " not found.",
                         ErrorCode.USER_NOT_FOUND
                 ));
 
-        if (!passwordEncoder.matches(request.getCurrentPassword(), existingUser.getPassword())) {
+        // Verify current password before allowing sensitive changes
+        if (!passwordEncoder.matches(request.getCurrentPassword(), user.getPassword())) {
             throw new InvalidPasswordException("The password provided is incorrect.", ErrorCode.USER_INVALID_CREDENTIALS);
         }
         // Verify if new password is different from current password
@@ -201,9 +248,11 @@ public class UserServiceImpl implements UserService {
             throw new ValidationException("New password must differ from current password.", ErrorCode.USER_SAME_PASSWORD);
         }
 
-        existingUser.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
 
-        return userRepository.save(existingUser);
+        User savedUser = userRepository.save(user);
+
+        return convertUserToResponse(savedUser);
     }
 
     /**
@@ -226,8 +275,7 @@ public class UserServiceImpl implements UserService {
     /**
      * Maps domain User entity to API response DTO.
      */
-    @Override
-    public UserResponse convertUserToResponse(User user) {
+    private UserResponse convertUserToResponse(User user) {
         return UserResponse.builder()
                 .id(user.getId())
                 .email(user.getEmail())
@@ -243,8 +291,7 @@ public class UserServiceImpl implements UserService {
     /**
      * Maps domain User entity to authentication security DTO.
      */
-    @Override
-    public UserAuthDetails convertUserToAuthDetails(User user) {
+    private UserAuthDetails convertUserToAuthDetails(User user) {
         return UserAuthDetails.builder()
                 .id(user.getId())
                 .email(user.getEmail())
