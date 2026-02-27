@@ -1,9 +1,9 @@
 package com.notif.api.auth.api.controller;
 
 import com.notif.api.auth.api.dto.*;
+import com.notif.api.auth.application.dto.AuthResult;
 import com.notif.api.auth.application.service.AuthenticationService;
 import com.notif.api.auth.application.service.RefreshTokenService;
-import com.notif.api.auth.domain.model.RefreshToken;
 import com.notif.api.auth.infrastructure.security.CookieUtil;
 import com.notif.api.auth.infrastructure.security.NotifUserDetails;
 import com.notif.api.core.dto.ApiResponse;
@@ -31,13 +31,12 @@ public class AuthenticationController {
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse> login(@RequestBody @Valid LoginRequest request) {
-        LoginResponse response = authenticationService.authenticate(request);
-        RefreshToken refreshToken = refreshTokenService.generateRefreshToken(response.getUser().getId());
-        ResponseCookie cookie = CookieUtil.createRefreshTokenCookie(refreshToken.getToken());
+        AuthResult result = authenticationService.authenticate(request);
+        ResponseCookie cookie = CookieUtil.createRefreshTokenCookie(result.getRefreshToken());
 
         return ResponseEntity.status(HttpStatus.OK)
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .body(new ApiResponse("Login successful", response));
+                .body(new ApiResponse("Login successful", result.getResponse()));
     }
 
     @GetMapping("/me")
