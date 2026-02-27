@@ -17,6 +17,12 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 
+/**
+ * Implementation of AuthenticationService that handles login, registration,
+ * email verification, and token issuance. It authenticates users via Spring Security,
+ * generates JWT access tokens, manages refresh tokens, and delegates user-related
+ * operations to the User service through UserClient.
+ */
 @Service
 @RequiredArgsConstructor
 public class AuthenticationServiceImpl implements AuthenticationService {
@@ -25,6 +31,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenService refreshTokenService;
 
+    /**
+     * Retrieves the currently authenticated user's profile information
+     * from the User service using their email identifier.
+     */
     @Override
     public CurrentlyLoggedInUserInfo getCurrentlyLoggedUser(String email) {
         UserResponse user = userClient.getUserByEmail(email);
@@ -37,8 +47,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .build();
     }
 
+    /**
+     * Authenticates user credentials, generates a JWT access token and
+     * refresh token, and returns both as part of the authentication result.
+     */
     @Override
     public AuthResult authenticate(LoginRequest request) {
+        // Delegate credential validation to Spring Security
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),
@@ -46,15 +61,15 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 )
         );
 
-        // Extract user information
+        // Extract authenticated user information then load full user profile
         NotifUserDetails userDetails = (NotifUserDetails)authentication.getPrincipal();
         CurrentlyLoggedInUserInfo userInfo = getCurrentlyLoggedUser(userDetails.getUsername());
 
-        // Issue access token
+        // Issue short-lived JWT access token
         String jwtToken = jwtTokenProvider.generateToken(userDetails);
         Date expiration = jwtTokenProvider.extractExpiration(jwtToken);
         long expiresIn = (expiration.getTime() - System.currentTimeMillis()) / AppConstants.MILLISECONDS_PER_SECOND;
-        // Issue refresh token
+        // Issue long-lived refresh token
         RefreshToken refreshToken = refreshTokenService.generateRefreshToken(userDetails.getId());
 
         // Map login response
@@ -71,9 +86,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .build();
     }
 
-    // TODO: Add auth-specific fields to RegisterRequest (e.g., agreeToTerms, captchaToken) then validate
+    /**
+     * Registers a new user by delegating user creation to the User service.
+     * Returns registration details and prompts email verification.
+     */
     @Override
     public RegisterResponse register(RegisterRequest request) {
+        // TODO: Add auth-specific fields to RegisterRequest (e.g., agreeToTerms, captchaToken) then validate
         // Map RegisterRequest to CreateUserRequest
         CreateUserRequest createUserRequest = CreateUserRequest.builder()
                 .email(request.getEmail())
@@ -96,6 +115,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .build();
     }
 
+    /**
+     * Confirms user registration by validating the verification token
+     * and enabling the user account.
+     */
     @Override
     public RegisterResponse confirmRegistration(String token, String userEmail) {
         UserResponse activatedUser = userClient.enableUser(token, userEmail);
@@ -111,6 +134,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .build();
     }
 
+    /**
+     * Triggers re-sending of the email verification link
+     * for users who have not yet verified their account.
+     */
     @Override
     public RegisterResponse resendVerificationEmail(String userEmail) {
         UserResponse requestedUser = userClient.requestVerification(userEmail);

@@ -3,6 +3,11 @@ package com.notif.api.auth.application.service;
 import com.notif.api.auth.api.dto.*;
 import com.notif.api.auth.application.dto.AuthResult;
 
+/**
+ * Provides authentication and registration operations, including user login,
+ * new account registration, email verification confirmation, resending
+ * verification emails, and retrieving the currently authenticated user.
+ */
 public interface AuthenticationService {
     CurrentlyLoggedInUserInfo getCurrentlyLoggedUser(String email);
     AuthResult authenticate(LoginRequest request);
