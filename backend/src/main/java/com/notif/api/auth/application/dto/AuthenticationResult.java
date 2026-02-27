@@ -1,11 +1,11 @@
 package com.notif.api.auth.application.dto;
 
 import com.notif.api.auth.api.dto.LoginResponse;
-import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
-@Builder
+@AllArgsConstructor
 public class AuthResult {
     private LoginResponse response;
     private String refreshToken;

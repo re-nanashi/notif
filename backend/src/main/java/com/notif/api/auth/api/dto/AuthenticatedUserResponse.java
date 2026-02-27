@@ -7,13 +7,13 @@ import lombok.Data;
 import java.util.UUID;
 
 /**
- * Data Transfer Object (DTO) for transferring user profile data of currently logged-in user.
+ * Data Transfer Object (DTO) for transferring user profile data of currently authenticated user.
  *
  * Excludes sensitive fields such as passwords.
  */
 @Data
 @Builder
-public class CurrentlyLoggedInUserInfo {
+public class AuthenticatedUserResponse {
     private UUID id;
     private String email;
     private String fullName;
