@@ -20,11 +20,19 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
 
+/**
+ * Global exception handler for AuthenticationController.
+ *
+ * Provides consistent and secure error responses for authentication-related failures.
+ */
 @RestControllerAdvice(assignableTypes = AuthenticationController.class)
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @RequiredArgsConstructor
 public class AuthenticationControllerAdvice {
-    // Handles wrong password or non-existent user
+    /**
+     * Handles authentication failures caused by invalid credentials.
+     * Triggered when the email does not exist or the password is incorrect.
+     */
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ApiError> handleBadCredentials(BadCredentialsException ex) {
         ApiError error = ApiError.builder()
@@ -38,7 +46,11 @@ public class AuthenticationControllerAdvice {
         return ResponseEntity.status(error.getStatus()).body(error);
     }
 
-    // Handles disabled accounts (e.g., email not verified)
+    /**
+     * Handles cases where a user account exists but is disabled,
+     * commonly due to unverified email or administrative action.
+     * Returns HTTP 403 as authentication is valid but access is restricted.
+     */
     @ExceptionHandler(DisabledException.class)
     public ResponseEntity<ApiError> handleDisabled(DisabledException ex) {
         ApiError error = ApiError.builder()
@@ -52,7 +64,10 @@ public class AuthenticationControllerAdvice {
         return ResponseEntity.status(error.getStatus()).body(error);
     }
 
-    // Handles locked accounts (e.g., too many failed attempts)
+    /**
+     * Handles locked accounts, typically triggered by excessive failed
+     * login attempts or security enforcement policies.
+     */
     @ExceptionHandler(LockedException.class)
     public ResponseEntity<ApiError> handleLocked(LockedException ex) {
         ApiError error = ApiError.builder()
@@ -66,7 +81,10 @@ public class AuthenticationControllerAdvice {
         return ResponseEntity.status(error.getStatus()).body(error);
     }
 
-    // Handles expired account
+    /**
+     * Handles expired user accounts.
+     * Indicates that the account lifecycle has ended.
+     */
     @ExceptionHandler(AccountExpiredException.class)
     public ResponseEntity<ApiError> handleAccountExpiredException(AccountExpiredException ex) {
         ApiError error = ApiError.builder()
@@ -80,7 +98,10 @@ public class AuthenticationControllerAdvice {
         return ResponseEntity.status(error.getStatus()).body(error);
     }
 
-    // Handles expired credentials
+    /**
+     * Handles expired user credentials (e.g., forced password reset policy).
+     * Returns HTTP 401 and prompts the user to update credentials.
+     */
     @ExceptionHandler(CredentialsExpiredException.class)
     public ResponseEntity<ApiError> handleCredentialsExpired(CredentialsExpiredException ex) {
         ApiError error = ApiError.builder()
@@ -94,6 +115,11 @@ public class AuthenticationControllerAdvice {
         return ResponseEntity.status(error.getStatus()).body(error);
     }
 
+    /**
+     * Handles refresh token and JWT token-related business exceptions
+     * such as expired, missing, or revoked tokens.
+     * Returns HTTP 401 to force re-authentication.
+     */
     @ExceptionHandler({TokenExpiredException.class, TokenNotFoundException.class, TokenRevokedException.class})
     public ResponseEntity<ApiError> handleTokenExceptions(BusinessException ex) {
         ApiError error = ApiError.builder()
@@ -107,7 +133,11 @@ public class AuthenticationControllerAdvice {
         return ResponseEntity.status(error.getStatus()).body(error);
     }
 
-    // Fallback for all uncaught authentication exceptions
+    /**
+     * Fallback handler for unanticipated authentication-related exceptions
+     * such as JWT parsing failures or generic AuthenticationException.
+     * Returns a generic HTTP 401 response to prevent leaking internal details.
+     */
     @ExceptionHandler({JwtException.class, AuthenticationException.class})
     public ResponseEntity<ApiError> handleAllExceptions(Exception ex) {
         ApiError error = ApiError.builder()
