@@ -13,5 +13,6 @@ public interface RefreshTokenRepository {
     RefreshToken save(RefreshToken token);
     Optional<RefreshToken> findByToken(String token);
     List<RefreshToken> findAllByUserId(UUID userId);
-    void deleteById(Long id);
+    void revokeAllByUserId(UUID userId);
+    void deleteAllByUserId(UUID userId);
 }
