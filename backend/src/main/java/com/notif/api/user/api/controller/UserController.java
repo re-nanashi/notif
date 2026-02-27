@@ -8,6 +8,7 @@ import com.notif.api.user.api.dto.UpdateUserRequest;
 import com.notif.api.user.api.dto.UserResponse;
 import com.notif.api.user.application.service.UserService;
 import com.notif.api.user.domain.model.User;
+import com.notif.api.user.application.service.VerificationTokenService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -31,6 +32,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
+    private final VerificationTokenService tokenService;
 
     /**
      * Creates a new user (admin-only).
@@ -42,6 +44,7 @@ public class UserController {
     public ResponseEntity<ApiResponse> createUser(@RequestBody @Valid CreateUserRequest request) {
         User user = userService.createUser(request);
         UserResponse response = userService.convertUserToResponse(user);
+        tokenService.generateVerificationToken(createdUser.getId());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(new ApiResponse("User created successfully.", response));
     }

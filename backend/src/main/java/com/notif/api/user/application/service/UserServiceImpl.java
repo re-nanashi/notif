@@ -63,9 +63,6 @@ public class UserServiceImpl implements UserService {
 
         User savedUser = userRepository.save(newUser);
 
-        // Trigger verification workflow
-        verificationTokenService.generateVerificationToken(savedUser);
-
         return convertUserToResponse(savedUser);
     }
 
