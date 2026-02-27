@@ -4,7 +4,6 @@ import com.notif.api.core.exception.*;
 import com.notif.api.user.api.dto.UserAuthDetails;
 import com.notif.api.user.api.dto.CreateUserRequest;
 import com.notif.api.user.api.dto.UserResponse;
-import com.notif.api.user.domain.model.User;
 import com.notif.api.user.application.service.UserService;
 import com.notif.api.user.application.service.VerificationTokenService;
 import lombok.AllArgsConstructor;
@@ -30,8 +29,10 @@ public class UserClientImpl implements UserClient {
     @Transactional
     public UserResponse createUser(CreateUserRequest request) {
         try {
-            User user = userService.createUser(request);
-            return userService.convertUserToResponse(user);
+            UserResponse createdUser = userService.createUser(request);
+            tokenService.generateVerificationToken(createdUser.getId());
+
+            return createdUser;
         } catch (BusinessException ex) {
             // Preserve domain-level validation and rule violations, to be caught by global exception handler
             throw ex;
@@ -47,8 +48,7 @@ public class UserClientImpl implements UserClient {
     @Override
     public UserResponse getUserById(UUID id) {
         try {
-            User user = userService.getUserById(id);
-            return userService.convertUserToResponse(user);
+            return userService.getUserById(id);
         } catch (BusinessException ex) {
             throw ex;
         } catch (Exception ex) {
@@ -62,8 +62,23 @@ public class UserClientImpl implements UserClient {
     @Override
     public UserResponse getUserByEmail(String email) {
         try {
-            User user = userService.getUserByEmail(email);
-            return userService.convertUserToResponse(user);
+            return userService.getUserByEmail(email);
+        } catch (BusinessException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            throw new UserClientException("Unexpected error in user service.");
+        }
+    }
+
+    /**
+     * Returns authentication-specific details required by security layer (used for login, JWT generation, and
+     * Spring Security integration).
+     */
+    @Override
+    public UserAuthDetails getUserAuthDetailsById(UUID id) throws UserClientException {
+        try {
+            // Used by authentication layer (e.g., JWT / Spring Security)
+            return userService.getUserAuthDetailsById(id);
         } catch (BusinessException ex) {
             throw ex;
         } catch (Exception ex) {
@@ -79,8 +94,7 @@ public class UserClientImpl implements UserClient {
     public UserAuthDetails getUserAuthDetailsByEmail(String email) {
         try {
             // Used by authentication layer (e.g., JWT / Spring Security)
-            User user = userService.getUserByEmail(email);
-            return userService.convertUserToAuthDetails(user);
+            return userService.getUserAuthDetailsByEmail(email);
         } catch (BusinessException ex) {
             throw ex;
         } catch (Exception ex) {
@@ -96,14 +110,12 @@ public class UserClientImpl implements UserClient {
     @Transactional
     public UserResponse enableUser(String token, String email) {
         try {
-            User user = userService.getUserByEmail(email);
+            UserResponse user = userService.getUserByEmail(email);
 
             // Validate token ownership and state before enabling account
-            tokenService.validateVerificationToken(token, user);
+            tokenService.validateVerificationToken(token, user.getId());
 
-            User enabledUser = userService.enableUser(user.getEmail());
-
-            return userService.convertUserToResponse(enabledUser);
+            return userService.enableUser(user.getEmail());
         } catch (BusinessException ex) {
             throw ex;
         } catch (Exception ex) {
@@ -118,10 +130,10 @@ public class UserClientImpl implements UserClient {
     @Transactional
     public UserResponse requestVerification(String email) {
         try {
-            User user = userService.getUserByEmail(email);
+            UserResponse user = userService.getUserByEmail(email);
 
             // Prevent issuing verification tokens for already verified accounts
-            if (user.isEnabled()) {
+            if (user.isEmailVerified()) {
                 throw new ConflictException(
                         "User is already verified.",
                         ErrorCode.USER_ALREADY_VERIFIED
@@ -129,12 +141,11 @@ public class UserClientImpl implements UserClient {
             }
 
             // Invalidate any existing verification tokens before issuing a new one
-            tokenService.voidExistingTokens(user);
-
+            tokenService.voidPendingTokensByUserId(user.getId());
             // Issue new verification token
-            tokenService.generateVerificationToken(user);
+            tokenService.generateVerificationToken(user.getId());
 
-            return userService.convertUserToResponse(user);
+            return user;
         } catch (BusinessException ex) {
             throw ex;
         } catch (Exception ex) {
