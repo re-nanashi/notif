@@ -1,5 +1,6 @@
 package com.notif.api.auth.application.service;
 
+import com.notif.api.auth.application.dto.RefreshTokenDto;
 import com.notif.api.auth.domain.exception.TokenExpiredException;
 import com.notif.api.auth.domain.exception.TokenNotFoundException;
 import com.notif.api.auth.domain.exception.TokenRevokedException;
@@ -33,7 +34,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
      */
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public RefreshToken generateRefreshToken(UUID userId) {
+    public RefreshTokenDto generateRefreshToken(UUID userId) {
         String tokenString = UUID.randomUUID().toString();
 
         RefreshToken token = RefreshToken.builder()
@@ -43,7 +44,9 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
                 .revoked(false)
                 .build();
 
-        return tokenRepository.save(token);
+        RefreshToken savedToken = tokenRepository.save(token);
+
+        return convertTokenToDto(savedToken);
     }
 
     /**
@@ -51,19 +54,19 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
      */
     @Override
     @Transactional(readOnly = true)
-    public RefreshToken validateRefreshToken(String token) {
-        RefreshToken existingToken = tokenRepository.findByToken(token)
+    public RefreshTokenDto validateRefreshToken(String tokenString) {
+        RefreshToken token = tokenRepository.findByToken(tokenString)
                 .orElseThrow(() -> new TokenNotFoundException("Invalid or expired refresh token. Please log in again."));
 
         // Check refresh token validity
-        if (existingToken.isRevoked()) {
+        if (token.isRevoked()) {
             throw new TokenRevokedException("Invalid refresh token. Please log in again.");
         }
-        if (existingToken.isTokenExpired()) {
+        if (token.isTokenExpired()) {
             throw new TokenExpiredException("Expired refresh token. Please log in again.");
         }
 
-        return existingToken;
+        return convertTokenToDto(token);
     }
 
     /**
@@ -71,13 +74,13 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
      */
     @Override
     @Transactional
-    public void revokeRefreshToken(String token) {
-        RefreshToken existingToken = tokenRepository.findByToken(token)
+    public void revokeRefreshToken(String tokenString) {
+        RefreshToken token = tokenRepository.findByToken(tokenString)
                 .orElseThrow(() -> new TokenNotFoundException("Invalid or expired refresh token. Please log in again."));
 
-        existingToken.setRevoked(true);
+        token.setRevoked(true);
 
-        tokenRepository.save(existingToken);
+        tokenRepository.save(token);
     }
 
     /**
@@ -86,14 +89,8 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     @Override
     @Transactional
     public void revokeAllUserTokens(UUID userId) {
-        List<RefreshToken> userTokens = tokenRepository.findAllByUserId(userId);
-
-        userTokens.forEach(token -> {
-            token.setRevoked(true);
-            tokenRepository.save(token);
-        });
+        tokenRepository.revokeAllByUserId(userId);
     }
-
 
     /**
      * Deletes all refresh tokens belonging to a user.
@@ -101,10 +98,16 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     @Override
     @Transactional
     public void deleteAllUserTokens(UUID userId) {
-        List<RefreshToken> userTokens = tokenRepository.findAllByUserId(userId);
+        tokenRepository.deleteAllByUserId(userId);
+    }
 
-        userTokens.forEach(token -> {
-            tokenRepository.deleteById(token.getId());
-        });
+    /**
+     * Maps domain RefreshToken entity to DTO.
+     */
+    private RefreshTokenDto convertTokenToDto(RefreshToken token) {
+        return RefreshTokenDto.builder()
+                .token(token.getToken())
+                .userId(token.getUserId())
+                .build();
     }
 }
