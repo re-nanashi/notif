@@ -232,7 +232,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     @Transactional
-    public UserResponse changePassword(ChangePasswordRequest request, UUID id) {
+    public void changePassword(ChangePasswordRequest request, UUID id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(
                         "User with ID " + id + " not found.",
@@ -250,9 +250,7 @@ public class UserServiceImpl implements UserService {
 
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
-        User savedUser = userRepository.save(user);
-
-        return convertUserToResponse(savedUser);
+        userRepository.save(user);
     }
 
     /**

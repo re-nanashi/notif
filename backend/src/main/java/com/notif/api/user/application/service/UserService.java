@@ -21,6 +21,6 @@ public interface UserService {
     UserResponse enableUser(String email);
     UserResponse updateUserProfile(UpdateUserProfileRequest request, UUID id);
     UserResponse changeEmail(ChangeEmailRequest request, UUID id);
-    UserResponse changePassword(ChangePasswordRequest request, UUID id);
+    void changePassword(ChangePasswordRequest request, UUID id);
     void deleteUser(UUID id);
 }
