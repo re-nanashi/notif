@@ -218,9 +218,9 @@ public class UserServiceImpl implements UserService {
                         ErrorCode.USER_NOT_FOUND
                 ));
 
-        eventPublisher.publish(new UserDeletedEvent(id));
-
         userRepository.deleteById(id);
+
+        eventPublisher.publish(new UserDeletedEvent(id));
     }
 
     /**
