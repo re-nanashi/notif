@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 /**
  * Event published when a verification request is triggered.
@@ -12,7 +13,7 @@ import java.time.LocalDateTime;
 @Getter
 @AllArgsConstructor
 public class VerificationRequestedEvent implements DomainEvent {
-    private final String userEmail;
+    private final UUID userId;
     private final String token;
     private final LocalDateTime occurredOn = LocalDateTime.now();
 

@@ -1,5 +1,7 @@
 package com.notif.api.user.infrastructure.event;
 
+import com.notif.api.user.api.dto.UserResponse;
+import com.notif.api.user.application.service.UserService;
 import com.notif.api.user.domain.event.VerificationRequestedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,22 +26,27 @@ public class VerificationTokenEventListener {
     @Value("${api.prefix}")
     private String apiPrefix;
 
+    private final UserService userService;
     private final JavaMailSender mailSender;
 
     @EventListener
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Async
     public void handleVerificationRequestedEvent(VerificationRequestedEvent event) {
-        String userEmail = event.getUserEmail();
+        UserResponse user = userService.getUserById(event.getUserId());
         String token = event.getToken();
+
+        // Extract user information
+        String userName = user.getFirstName();
+        String userEmail = user.getEmail();
 
         // Construct the full confirmation URL with token and email
         String confirmationUrl =
                 appUrl + apiPrefix + "/auth/confirm-registration?token=" + token + "&email=" + userEmail;
 
         // Compose email then send
-        String subject = "Confirm Registration";
-        String message = "Click the link to verify your account:";
+        String subject = "Welcome aboard, " + userName + "!";
+        String message = "Click the link below to verify your account:";
 
         SimpleMailMessage email = new SimpleMailMessage();
         email.setTo(userEmail);
