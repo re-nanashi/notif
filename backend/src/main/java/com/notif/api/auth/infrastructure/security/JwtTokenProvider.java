@@ -16,7 +16,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-// TODO: Refresh tokens
 @Service
 public class JwtTokenProvider {
     @Value("${jwt.secret}")
