@@ -44,6 +44,19 @@ public class AuthenticationController {
         AuthenticationResult<LoginResponse> result = authenticationService.refresh(refreshToken);
         return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>("Success", result.getResponse()));
     }
+
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponse<LogoutResponse>> logout(
+            @CookieValue(name = CookieUtil.COOKIE_NAME, required = false) String refreshToken
+    ) {
+        AuthenticationResult<LogoutResponse> logout = authenticationService.logout(refreshToken);
+        ResponseCookie cookie = CookieUtil.clearRefreshTokenCookie();
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .body(new ApiResponse<>("Success", logout.getResponse()));
+    }
+
     @GetMapping("/me")
     public ResponseEntity<ApiResponse<AuthenticatedUserResponse>> getAuthenticatedUser(
             @AuthenticationPrincipal NotifUserDetails user
