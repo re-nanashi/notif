@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.web.bind.MissingRequestCookieException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -127,6 +128,19 @@ public class AuthenticationControllerAdvice {
                 .status(HttpStatus.UNAUTHORIZED.value())
                 .error(ex.getErrorCode().getValue())
                 .detail(ex.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        return ResponseEntity.status(error.getStatus()).body(error);
+    }
+
+    @ExceptionHandler(MissingRequestCookieException.class)
+    public ResponseEntity<ApiError> handleMissingRequestCookieException(MissingRequestCookieException ex) {
+        ApiError error = ApiError.builder()
+                .title(HttpStatus.UNAUTHORIZED.getReasonPhrase())
+                .status(HttpStatus.UNAUTHORIZED.value())
+                .error(ErrorCode.UNAUTHORIZED.getValue())
+                .detail("Refresh token cookie missing.")
                 .timestamp(LocalDateTime.now())
                 .build();
 
