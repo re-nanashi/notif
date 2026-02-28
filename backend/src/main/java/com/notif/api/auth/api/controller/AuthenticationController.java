@@ -37,6 +37,13 @@ public class AuthenticationController {
                 .body(new ApiResponse<>("Login successful", result.getResponse()));
     }
 
+    @PostMapping("/refresh")
+    public ResponseEntity<ApiResponse<LoginResponse>> refresh(
+            @CookieValue(name = CookieUtil.COOKIE_NAME) String refreshToken
+    ) {
+        AuthenticationResult<LoginResponse> result = authenticationService.refresh(refreshToken);
+        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>("Success", result.getResponse()));
+    }
     @GetMapping("/me")
     public ResponseEntity<ApiResponse<AuthenticatedUserResponse>> getAuthenticatedUser(
             @AuthenticationPrincipal NotifUserDetails user
