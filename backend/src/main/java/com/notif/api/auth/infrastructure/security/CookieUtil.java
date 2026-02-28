@@ -21,11 +21,11 @@ import java.util.Arrays;
  */
 public final class CookieUtil {
     // Secure cookie name using __Host- prefix for enhanced browser security enforcement
-    private static final String COOKIE_NAME = "__Host-rt";
+    public static final String COOKIE_NAME = "__Host-rt";
     // SameSite policy to prevent cross-site request forgery attacks
-    private static final String SAME_SITE = "Strict";
+    public static final String SAME_SITE = "Strict";
     // Refresh token validity duration (7 days)
-    private static final long COOKIE_MAX_AGE = 604800;
+    public static final long COOKIE_MAX_AGE = 604800;
 
     private CookieUtil() {};
 
