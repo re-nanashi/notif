@@ -51,15 +51,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         UserResponse createdUser = userClient.createUser(createUserRequest);
 
-        return RegisterResponse.builder()
-                .id(createdUser.getId())
-                .email(createdUser.getEmail())
-                .emailVerified(createdUser.isEmailVerified())
-                .fullName(createdUser.getFullName())
-                .role(createdUser.getRole())
-                .createdAt(createdUser.getCreatedAt())
-                .message("Action Required: Please verify your email to activate your account.")
-                .build();
+        return mapUserToRegisterResponse(
+                createdUser,
+                "Action Required: Please verify your email to activate your account."
+        );
     }
 
     /**
@@ -70,15 +65,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public RegisterResponse confirmRegistration(String token, String userEmail) {
         UserResponse activatedUser = userClient.enableUser(token, userEmail);
 
-        return RegisterResponse.builder()
-                .id(activatedUser.getId())
-                .email(activatedUser.getEmail())
-                .emailVerified(activatedUser.isEmailVerified())
-                .fullName(activatedUser.getFullName())
-                .role(activatedUser.getRole())
-                .createdAt(activatedUser.getCreatedAt())
-                .message("Email verified successfully. You can now log in to your account.")
-                .build();
+        return mapUserToRegisterResponse(
+                activatedUser,
+                "Email verified successfully. You can now log in to your account."
+        );
     }
 
     /**
@@ -89,14 +79,24 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public RegisterResponse resendVerificationEmail(String userEmail) {
         UserResponse requestedUser = userClient.requestVerification(userEmail);
 
+        return mapUserToRegisterResponse(
+                requestedUser,
+                "Action Required: Please verify your email to activate your account."
+        );
+    }
+
+    /**
+     * Helper function for mapping user information into response.
+     */
+    private RegisterResponse mapUserToRegisterResponse(UserResponse user, String message) {
         return RegisterResponse.builder()
-                .id(requestedUser.getId())
-                .email(requestedUser.getEmail())
-                .emailVerified(requestedUser.isEmailVerified())
-                .fullName(requestedUser.getFullName())
-                .role(requestedUser.getRole())
-                .createdAt(requestedUser.getCreatedAt())
-                .message("Action Required: Please verify your email to activate your account.")
+                .id(user.getId())
+                .email(user.getEmail())
+                .emailVerified(user.isEmailVerified())
+                .fullName(user.getFullName())
+                .role(user.getRole())
+                .createdAt(user.getCreatedAt())
+                .message(message)
                 .build();
     }
 
