@@ -179,7 +179,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public AuthenticationResult<LogoutResponse> logout(String refreshToken) {
-        refreshTokenService.revokeRefreshToken(refreshToken);
+        if (refreshToken != null) {
+            refreshTokenService.revokeRefreshToken(refreshToken);
+        }
+
         return new AuthenticationResult<>(
                 new LogoutResponse("Logged out successfully", LocalDateTime.now()),
                 null
