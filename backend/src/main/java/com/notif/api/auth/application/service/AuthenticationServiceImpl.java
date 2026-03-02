@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.UUID;
 
 /**
  * Implementation of AuthenticationService that handles login, registration,
@@ -105,8 +106,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
      * from the User service using their email identifier.
      */
     @Override
-    public AuthenticatedUserResponse getAuthenticatedUser(String email) {
-        UserResponse user = userClient.getUserByEmail(email);
+    public AuthenticatedUserResponse getAuthenticatedUser(UUID id) {
+        UserResponse user = userClient.getUserById(id);
 
         return AuthenticatedUserResponse.builder()
                 .id(user.getId())
@@ -132,7 +133,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         // Extract authenticated user information then load full user profile
         NotifUserDetails userDetails = (NotifUserDetails)authentication.getPrincipal();
-        AuthenticatedUserResponse userInfo = getAuthenticatedUser(userDetails.getUsername());
+        AuthenticatedUserResponse userInfo = getAuthenticatedUser(userDetails.getId());
 
         // Issue short-lived JWT access token
         String jwtToken = jwtTokenProvider.generateToken(userDetails);

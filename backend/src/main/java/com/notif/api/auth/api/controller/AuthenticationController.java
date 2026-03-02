@@ -61,7 +61,7 @@ public class AuthenticationController {
     public ResponseEntity<ApiResponse<AuthenticatedUserResponse>> getAuthenticatedUser(
             @AuthenticationPrincipal NotifUserDetails user
     ) {
-        AuthenticatedUserResponse userInfo = authenticationService.getAuthenticatedUser(user.getUsername());
+        AuthenticatedUserResponse userInfo = authenticationService.getAuthenticatedUser(user.getId());
         return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>("Success", userInfo));
     }
 
