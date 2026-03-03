@@ -7,6 +7,7 @@ import com.notif.api.auth.domain.exception.TokenRevokedException;
 import com.notif.api.auth.domain.model.RefreshToken;
 import com.notif.api.auth.domain.repository.RefreshTokenRepository;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -35,17 +36,18 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public RefreshTokenDto generateRefreshToken(UUID userId) {
         String tokenString = UUID.randomUUID().toString();
+        String hashedToken = DigestUtils.sha256Hex(tokenString);
 
         RefreshToken token = RefreshToken.builder()
-                .token(tokenString)
+                .token(hashedToken)
                 .userId(userId)
                 .expiresAt(LocalDateTime.now().plusSeconds(refreshTokenExpiration))
                 .revoked(false)
                 .build();
 
-        RefreshToken savedToken = tokenRepository.save(token);
+        tokenRepository.save(token);
 
-        return convertTokenToDto(savedToken);
+        return convertTokenToDto(tokenString, userId);
     }
 
     /**
@@ -54,7 +56,8 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     @Override
     @Transactional(readOnly = true)
     public RefreshTokenDto validateRefreshToken(String tokenString) {
-        RefreshToken token = tokenRepository.findByToken(tokenString)
+        String hashedToken = DigestUtils.sha256Hex(tokenString);
+        RefreshToken token = tokenRepository.findByToken(hashedToken)
                 .orElseThrow(() -> new TokenNotFoundException("Invalid or expired refresh token. Please log in again."));
 
         // Check refresh token validity
@@ -65,7 +68,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
             throw new TokenExpiredException("Expired refresh token. Please log in again.");
         }
 
-        return convertTokenToDto(token);
+        return convertTokenToDto(tokenString, token.getUserId());
     }
 
     /**
@@ -74,7 +77,8 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     @Override
     @Transactional
     public void revokeRefreshToken(String tokenString) {
-        RefreshToken token = tokenRepository.findByToken(tokenString)
+        String hashedToken = DigestUtils.sha256Hex(tokenString);
+        RefreshToken token = tokenRepository.findByToken(hashedToken)
                 .orElseThrow(() -> new TokenNotFoundException("Invalid or expired refresh token. Please log in again."));
 
         token.setRevoked(true);
@@ -103,10 +107,10 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     /**
      * Maps domain RefreshToken entity to DTO.
      */
-    private RefreshTokenDto convertTokenToDto(RefreshToken token) {
+    private RefreshTokenDto convertTokenToDto(String tokenString, UUID userId) {
         return RefreshTokenDto.builder()
-                .token(token.getToken())
-                .userId(token.getUserId())
+                .token(tokenString)
+                .userId(userId)
                 .build();
     }
 }

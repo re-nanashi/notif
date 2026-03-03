@@ -22,7 +22,7 @@ public class RefreshToken extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(name = "token_hash", nullable = false, unique = true)
     private String token;
 
     @Column(name = "user_id", nullable = false)
