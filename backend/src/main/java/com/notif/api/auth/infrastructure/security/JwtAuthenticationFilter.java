@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.UUID;
 
 /**
  * JwtAuthenticationFilter is a Spring Security filter that intercepts incoming HTTP requests
@@ -62,10 +63,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
 
             final String jwtToken = authHeader.substring(7);
-            final String username = jwtTokenProvider.extractUsername(jwtToken);
+            final String userId = jwtTokenProvider.extractSubject(jwtToken);
 
-            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                NotifUserDetails userDetails = (NotifUserDetails) userDetailsService.loadUserByUsername(username);
+            if (userId != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                NotifUserDetails userDetails = (NotifUserDetails) userDetailsService.loadUserById(UUID.fromString(userId));
                 // Validate user access
                 userAccessValidator.validateUserAccess(userDetails);
 

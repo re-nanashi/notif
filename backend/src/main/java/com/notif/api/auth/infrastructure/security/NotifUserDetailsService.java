@@ -9,6 +9,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 /**
  * Spring Security UserDetailsService implementation that retrieves
  * authentication details from an external user service via UserClient.
@@ -32,6 +34,15 @@ public class NotifUserDetailsService implements UserDetailsService {
             return new NotifUserDetails(user);
         } catch (BusinessException ex) {
             // Will catch USER_NOT_FOUND exception thrown by UserClient
+            throw new UsernameNotFoundException(ex.getMessage());
+        }
+    }
+
+    public UserDetails loadUserById(UUID userId) throws UsernameNotFoundException {
+        try {
+            UserAuthDetails user = userClient.getUserAuthDetailsById(userId);
+            return new NotifUserDetails(user);
+        } catch (BusinessException ex) {
             throw new UsernameNotFoundException(ex.getMessage());
         }
     }
