@@ -28,6 +28,9 @@ public class RefreshToken extends BaseEntity {
     @Column(name = "user_id", nullable = false)
     private UUID userId;
 
+    @Column(name = "device_id", nullable = false)
+    private UUID deviceId;
+
     @Column(nullable = false)
     private LocalDateTime expiresAt;
 
