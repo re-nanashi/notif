@@ -11,6 +11,10 @@ import java.util.UUID;
  * JPA entity representing a Device in the system.
  */
 @Entity
+@Table(indexes = {
+        @Index(columnList = "device_id"),
+        @Index(columnList = "fingerprint_hash")
+})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -20,6 +24,12 @@ public class Device extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
+
+    @Column(name = "device_id", nullable = false, unique = true)
+    private UUID deviceId = UUID.randomUUID();
+
+    @Column(name = "fingerprint_hash", nullable = false, length = 64)
+    private String fingerprintHash;
 
     @Column(nullable = false)
     private String name;
@@ -37,5 +47,5 @@ public class Device extends BaseEntity {
     private String userAgent;
 
     @Column(name = "last_seen_at", nullable = false)
-    private Instant lastSeenAt;
+    private Instant lastSeenAt = Instant.now();
 }
