@@ -16,9 +16,4 @@ public class LoginRequest {
 
     @NotBlank(message = "Password is required.")
     private String password;
-
-    private String deviceName;      // optional
-
-    @NotBlank(message = "Device fingerprint is required.")
-    private String deviceFingerPrint;
 }
