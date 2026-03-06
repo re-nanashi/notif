@@ -18,7 +18,7 @@ public class UserAgentConfig {
         return UserAgentAnalyzer
                 .newBuilder()
                 .hideMatcherLoadStats()
-                .withField("OperatingSystemClass")
+                .withField("DeviceClass")
                 .withField("OperatingSystemName")
                 .withField("AgentName")
                 .withCache(CACHE_SIZE)
