@@ -35,7 +35,7 @@ public class VerificationToken extends BaseEntity {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
 
-    @Column(nullable = false)
+    @Column(name = "expires_at", nullable = false)
     private LocalDateTime expiresAt;
 
     @Enumerated(EnumType.STRING)
