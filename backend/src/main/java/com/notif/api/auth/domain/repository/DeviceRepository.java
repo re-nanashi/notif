@@ -12,6 +12,7 @@ import java.util.UUID;
 public interface DeviceRepository {
     Device save(Device device);
     Optional<Device> findById(UUID id);
-    List<Device> findAll();
+    Optional<Device> findByDeviceId(UUID deviceId);         // cookie lookup
+    Optional<Device> findByFingerprintHash(String hash);    // fingerprint lookup
     void deleteById(UUID id);
 }
