@@ -33,17 +33,17 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
     @Override
     @Transactional
     public void generateVerificationToken(UUID userId) {
-        String token = UUID.randomUUID().toString();
+        String tokenString = UUID.randomUUID().toString();
         User userProxy = entityManager.getReference(User.class, userId);
 
-        VerificationToken tok = VerificationToken.builder()
-                .token(token)
+        VerificationToken token = VerificationToken.builder()
+                .token(tokenString)
                 .user(userProxy)
                 .expiresAt(LocalDateTime.now().plusMinutes(VerificationToken.EXPIRATION))
                 .status(TokenStatus.PENDING)
                 .build();
 
-        VerificationToken savedToken = tokenRepository.save(tok);
+        VerificationToken savedToken = tokenRepository.save(token);
 
         // Publish event for async email notification
         eventPublisher.publish(new VerificationRequestedEvent(userProxy.getId(), savedToken.getToken()));
@@ -54,36 +54,36 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
      */
     @Override
     @Transactional(noRollbackFor = UnauthorizedException.class)
-    public void validateVerificationToken(String token, UUID userId) {
+    public void validateVerificationToken(String tokenString, UUID userId) {
         // Check if token and user exists
-        VerificationToken tok = tokenRepository.findByToken(token)
+        VerificationToken token = tokenRepository.findByToken(tokenString)
                 .orElseThrow(() -> new NotFoundException(
                         "Verification token is either malformed or invalid.",
                         ErrorCode.USER_VERIFICATION_TOKEN_NOT_FOUND
                 ));
 
         // Check token validity
-        if (!userId.equals(tok.getUser().getId())) {
+        if (!userId.equals(token.getUser().getId())) {
             throw new ValidationException(
                     "Verification token user mismatch.",
                     ErrorCode.USER_VERIFICATION_TOKEN_INVALID
             );
         }
-        if (tok.getStatus() == TokenStatus.VOIDED) {
+        if (token.getStatus() == TokenStatus.VOIDED) {
             throw new ValidationException(
                     "This verification link is no longer valid because a newer one was requested.",
                     ErrorCode.USER_VERIFICATION_TOKEN_INVALID
             );
         }
-        if (tok.getStatus() == TokenStatus.VERIFIED) {
+        if (token.getStatus() == TokenStatus.VERIFIED) {
             throw new ConflictException(
                     "This account has already been verified. Please log in.",
                     ErrorCode.USER_VERIFICATION_TOKEN_ALREADY_USED
             );
         }
-        if (tok.isTokenExpired()) {
-            tok.setStatus(TokenStatus.EXPIRED); // set status to expired; to be deleted by batch
-            tokenRepository.save(tok);          // this will persist
+        if (token.isTokenExpired()) {
+            token.setStatus(TokenStatus.EXPIRED); // set status to expired; to be deleted by batch
+            tokenRepository.save(token);          // this will persist
 
             throw new UnauthorizedException(
                     "The verification link has expired. Please request a new one.",
@@ -91,9 +91,9 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
             );
         }
 
-        tok.setStatus(TokenStatus.VERIFIED);
+        token.setStatus(TokenStatus.VERIFIED);
 
-        tokenRepository.save(tok);
+        tokenRepository.save(token);
     }
 
     /**

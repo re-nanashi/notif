@@ -36,10 +36,10 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public RefreshTokenDto generateRefreshToken(UUID userId) {
         String tokenString = UUID.randomUUID().toString();
-        String hashedToken = DigestUtils.sha256Hex(tokenString);
+        String tokenHash = DigestUtils.sha256Hex(tokenString);
 
         RefreshToken token = RefreshToken.builder()
-                .token(hashedToken)
+                .token(tokenHash)
                 .userId(userId)
                 .expiresAt(LocalDateTime.now().plusSeconds(refreshTokenExpiration))
                 .revoked(false)
@@ -56,8 +56,8 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     @Override
     @Transactional(readOnly = true)
     public RefreshTokenDto validateRefreshToken(String tokenString) {
-        String hashedToken = DigestUtils.sha256Hex(tokenString);
-        RefreshToken token = tokenRepository.findByToken(hashedToken)
+        String tokenHash = DigestUtils.sha256Hex(tokenString);
+        RefreshToken token = tokenRepository.findByToken(tokenHash)
                 .orElseThrow(() -> new TokenNotFoundException("Invalid or expired refresh token. Please log in again."));
 
         // Check refresh token validity
@@ -77,8 +77,8 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     @Override
     @Transactional
     public void revokeRefreshToken(String tokenString) {
-        String hashedToken = DigestUtils.sha256Hex(tokenString);
-        RefreshToken token = tokenRepository.findByToken(hashedToken)
+        String tokenHash = DigestUtils.sha256Hex(tokenString);
+        RefreshToken token = tokenRepository.findByToken(tokenHash)
                 .orElseThrow(() -> new TokenNotFoundException("Invalid or expired refresh token. Please log in again."));
 
         token.setRevoked(true);
