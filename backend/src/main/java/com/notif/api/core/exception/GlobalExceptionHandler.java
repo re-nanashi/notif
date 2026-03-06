@@ -137,7 +137,7 @@ public class GlobalExceptionHandler {
                 .title(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
                 .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
                 .error(ErrorCode.INTERNAL_SERVER_ERROR.getValue())
-                .detail(ex.getMessage())
+                .detail("An unexpected error occurred on our end. We have been notified and are looking into it.")
                 .timestamp(LocalDateTime.now())
                 .build();
 
