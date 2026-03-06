@@ -169,13 +169,17 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         Date expiration = jwtTokenProvider.extractExpiration(jwtToken);
         long expiresIn = (expiration.getTime() - System.currentTimeMillis()) / AppConstants.MILLISECONDS_PER_SECOND;
 
+        // Revoke current refresh token then issue a new one
+        refreshTokenService.revokeRefreshToken(refreshToken);
+        RefreshTokenDto newRefreshToken = refreshTokenService.generateRefreshToken(userDetails.getId());
+
         LoginResponse loginResponse = LoginResponse.builder()
                 .accessToken(jwtToken)
                 .tokenType("Bearer")
                 .expiresIn(expiresIn)
                 .build();
 
-        return new AuthenticationResult<>(loginResponse, validatedToken.getToken());
+        return new AuthenticationResult<>(loginResponse, newRefreshToken.getToken());
     }
 
     @Override

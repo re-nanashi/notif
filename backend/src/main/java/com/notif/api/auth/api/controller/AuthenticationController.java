@@ -42,7 +42,11 @@ public class AuthenticationController {
             @CookieValue(name = CookieUtil.COOKIE_NAME) String refreshToken
     ) {
         AuthenticationResult<LoginResponse> result = authenticationService.refresh(refreshToken);
-        return ResponseEntity.status(HttpStatus.OK).body(new ApiResponse<>("Success", result.getResponse()));
+        ResponseCookie cookie = CookieUtil.createRefreshTokenCookie(result.getRefreshToken());
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .body(new ApiResponse<>("Success", result.getResponse()));
     }
 
     @PostMapping("/logout")
