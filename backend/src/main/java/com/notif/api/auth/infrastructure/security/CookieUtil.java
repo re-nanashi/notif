@@ -7,38 +7,43 @@ import org.springframework.http.ResponseCookie;
 import java.util.Arrays;
 
 /**
- * Utility class for creating, clearing, and extracting refresh token cookies.
+ * Utility class for creating, clearing, and extracting cookies.
  *
  * Uses secure HTTP cookie flags to improve authentication security:
  * - httpOnly prevents JavaScript access (XSS protection)
  * - secure ensures HTTPS-only transmission
  * - SameSite Strict mitigates CSRF attacks
- *
- * The "__Host-" prefix ensures stricter browser security enforcement:
- * - Requires Secure flag
- * - Requires Path=/
- * - Disallows domain attribute
  */
 public final class CookieUtil {
-    // Secure cookie name using __Host- prefix for enhanced browser security enforcement
-    public static final String COOKIE_NAME = "__Host-rt";
-    // SameSite policy to prevent cross-site request forgery attacks
+    public static final String REFRESH_COOKIE_NAME = "refresh_token";
+    public static final String DEVICE_COOKIE_NAME = "device_id";
     public static final String SAME_SITE = "Strict";
     // Refresh token validity duration (7 days)
-    public static final long COOKIE_MAX_AGE = 604800;
+    public static final long REFRESH_COOKIE_MAX_AGE = 604800;
+    // Device cookie validity duration (1 year)
+    public static final long DEVICE_COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
 
     private CookieUtil() {};
 
     /**
      * Creates a secure refresh token cookie for authentication sessions.
      */
-    public static ResponseCookie createRefreshTokenCookie(String token) {
-        return ResponseCookie.from(COOKIE_NAME, token)
+    public static ResponseCookie createRefreshTokenCookie(String tokenString) {
+        return ResponseCookie.from(REFRESH_COOKIE_NAME, tokenString)
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
-                .maxAge(COOKIE_MAX_AGE)
+                .maxAge(REFRESH_COOKIE_MAX_AGE)
                 .sameSite(SAME_SITE)
+                .build();
+    }
+
+    public static ResponseCookie createDeviceIdCookie(String deviceId) {
+        return ResponseCookie.from(DEVICE_COOKIE_NAME, deviceId)
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(DEVICE_COOKIE_MAX_AGE)
                 .build();
     }
 
@@ -46,7 +51,7 @@ public final class CookieUtil {
      * Clears refresh token cookie by setting an empty value and expiration to zero.
      */
     public static ResponseCookie clearRefreshTokenCookie() {
-        return ResponseCookie.from(COOKIE_NAME, "")
+        return ResponseCookie.from(REFRESH_COOKIE_NAME, "")
                 .httpOnly(true)
                 .secure(true)
                 .path("/")
@@ -56,16 +61,16 @@ public final class CookieUtil {
     }
 
     /**
-     * Extracts refresh token value from request cookies.
+     * Extracts cookie value from request cookies.
      *
      * Returns null if cookie is not present.
      */
-    public static String extractRefreshToken(HttpServletRequest request) {
+    public static String getCookieValue(HttpServletRequest request, String cookieName) {
         Cookie[] cookies = request.getCookies();
         if (cookies == null) return null;
 
         return Arrays.stream(cookies)
-                .filter(c -> COOKIE_NAME.equals(c.getName()))
+                .filter(c -> cookieName.equals(c.getName()))
                 .map(Cookie::getValue)
                 .findFirst()
                 .orElse(null);
