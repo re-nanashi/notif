@@ -32,15 +32,10 @@ public class Device extends BaseEntity {
     private String fingerprintHash;
 
     @Column(nullable = false)
-    private String name;
-
-    @Column(nullable = false)
     private String type;
 
-    @Column(nullable = false)
+    private String name;
     private String browser;
-
-    @Column(nullable = false)
     private String os;
 
     @Column(name = "user_agent", nullable = false)
