@@ -13,6 +13,12 @@ public class LoginRequest {
     @NotBlank(message = "Email is required.")
     @ValidEmail
     private String email;
+
     @NotBlank(message = "Password is required.")
     private String password;
+
+    private String deviceName;      // optional
+
+    @NotBlank(message = "Device fingerprint is required.")
+    private String deviceFingerPrint;
 }
