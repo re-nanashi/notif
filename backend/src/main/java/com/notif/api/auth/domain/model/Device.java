@@ -36,9 +36,6 @@ public class Device extends BaseEntity {
     @Column(name = "user_agent", nullable = false)
     private String userAgent;
 
-    @Column(name = "fingerprint_hash", nullable = false)
-    private String fingerprintHash;
-
     @Column(name = "last_seen_at", nullable = false)
     private Instant lastSeenAt;
 }
