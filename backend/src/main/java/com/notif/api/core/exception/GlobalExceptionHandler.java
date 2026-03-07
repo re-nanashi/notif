@@ -141,6 +141,9 @@ public class GlobalExceptionHandler {
                 .timestamp(LocalDateTime.now())
                 .build();
 
+        // WIP: Not implementing logging yet so use this for now
+        System.out.println("--------ERROR----------: " + ex.getMessage());
+
         return ResponseEntity.status(error.getStatus()).body(error);
     }
 }
