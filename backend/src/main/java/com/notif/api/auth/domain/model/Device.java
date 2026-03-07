@@ -11,9 +11,6 @@ import java.util.UUID;
  * JPA entity representing a Device in the system.
  */
 @Entity
-@Table(indexes = {
-        @Index(columnList = "device_id"),
-})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -24,6 +21,7 @@ public class Device extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @Builder.Default
     @Column(name = "device_id", nullable = false, unique = true)
     private UUID deviceId = UUID.randomUUID();
 
@@ -37,6 +35,7 @@ public class Device extends BaseEntity {
     @Column(name = "user_agent", nullable = false)
     private String userAgent;
 
+    @Builder.Default
     @Column(name = "last_seen_at", nullable = false)
     private Instant lastSeenAt = Instant.now();
 }
