@@ -13,7 +13,6 @@ import java.util.UUID;
 @Entity
 @Table(indexes = {
         @Index(columnList = "device_id"),
-        @Index(columnList = "fingerprint_hash")
 })
 @Getter
 @Setter
@@ -27,9 +26,6 @@ public class Device extends BaseEntity {
 
     @Column(name = "device_id", nullable = false, unique = true)
     private UUID deviceId = UUID.randomUUID();
-
-    @Column(name = "fingerprint_hash", nullable = false, length = 64)
-    private String fingerprintHash;
 
     @Column(nullable = false)
     private String type;
