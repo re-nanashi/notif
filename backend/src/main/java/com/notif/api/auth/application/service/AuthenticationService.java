@@ -1,6 +1,7 @@
 package com.notif.api.auth.application.service;
 
 import com.notif.api.auth.api.dto.*;
+import com.notif.api.auth.application.dto.AuthenticationRequestContext;
 import com.notif.api.auth.application.dto.AuthenticationResult;
 
 import java.util.UUID;
@@ -15,7 +16,7 @@ public interface AuthenticationService {
     RegisterResponse confirmRegistration(String token, String userEmail);
     RegisterResponse resendVerificationEmail(String userEmail);
     AuthenticatedUserResponse getAuthenticatedUser(UUID id);
-    AuthenticationResult<LoginResponse> authenticate(LoginRequest request);
+    AuthenticationResult<LoginResponse> authenticate(LoginRequest request, AuthenticationRequestContext context);
     AuthenticationResult<LoginResponse> refresh(String refreshToken);
     AuthenticationResult<LogoutResponse> logout(String refreshToken);
 }
