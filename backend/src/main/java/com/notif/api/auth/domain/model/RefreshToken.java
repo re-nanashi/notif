@@ -19,8 +19,8 @@ import java.util.UUID;
 @Builder
 public class RefreshToken extends BaseEntity {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     @Column(name = "token_hash", nullable = false, unique = true)
     private String token;
