@@ -10,6 +10,7 @@ import com.notif.api.user.domain.repository.VerificationTokenRepository;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -53,9 +54,12 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
      * Validates verification tokens and updates token status accordingly.
      */
     @Override
-    @Transactional(noRollbackFor = UnauthorizedException.class)
+    @Transactional(
+            propagation = Propagation.REQUIRES_NEW,
+            noRollbackFor = UnauthorizedException.class
+    )
     public void validateVerificationToken(String tokenString, UUID userId) {
-        // Check if token and user exists
+        // Check if token exists
         VerificationToken token = tokenRepository.findByToken(tokenString)
                 .orElseThrow(() -> new NotFoundException(
                         "Verification token is either malformed or invalid.",
@@ -89,9 +93,21 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
                     ErrorCode.USER_VERIFICATION_TOKEN_EXPIRED
             );
         }
+    }
+
+    /**
+     * Consumes verification token (set status to TokenStatus.VERIFIED)
+     */
+    @Override
+    @Transactional
+    public void consumeToken(String tokenString) {
+        VerificationToken token = tokenRepository.findByToken(tokenString + "1")
+                .orElseThrow(() -> new NotFoundException(
+                        "Verification token is either malformed or invalid.",
+                        ErrorCode.USER_VERIFICATION_TOKEN_NOT_FOUND
+                ));
 
         token.setStatus(TokenStatus.VERIFIED);
-
     }
 
     /**

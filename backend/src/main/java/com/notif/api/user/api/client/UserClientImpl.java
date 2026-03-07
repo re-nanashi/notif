@@ -115,7 +115,11 @@ public class UserClientImpl implements UserClient {
             // Validate token ownership and state before enabling account
             tokenService.validateVerificationToken(token, user.getId());
 
-            return userService.enableUser(user.getEmail());
+            // Enable user then consume the token (set the token status to verified/used)
+            UserResponse enabledUser = userService.enableUser(email);
+            tokenService.consumeToken(token);
+
+            return enabledUser;
         } catch (BusinessException ex) {
             throw ex;
         } catch (Exception ex) {
