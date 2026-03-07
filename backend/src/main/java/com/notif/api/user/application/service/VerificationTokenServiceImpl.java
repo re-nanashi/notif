@@ -83,7 +83,6 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
         }
         if (token.isTokenExpired()) {
             token.setStatus(TokenStatus.EXPIRED); // set status to expired; to be deleted by batch
-            tokenRepository.save(token);          // this will persist
 
             throw new UnauthorizedException(
                     "The verification link has expired. Please request a new one.",
@@ -93,7 +92,6 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
 
         token.setStatus(TokenStatus.VERIFIED);
 
-        tokenRepository.save(token);
     }
 
     /**

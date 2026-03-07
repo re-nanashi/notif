@@ -159,9 +159,7 @@ public class UserServiceImpl implements UserService {
 
         user.setEnabled(true);
 
-        User savedUser = userRepository.save(user);
-
-        return convertUserToResponse(savedUser);
+        return convertUserToResponse(user);
     }
 
     /**
@@ -187,9 +185,7 @@ public class UserServiceImpl implements UserService {
         if (!Util.isNullOrBlank(firstName)) user.setFirstName(firstName.strip());
         if (!Util.isNullOrBlank(lastName)) user.setLastName(lastName.strip());
 
-        User savedUser = userRepository.save(user);
-
-        return convertUserToResponse(savedUser);
+        return convertUserToResponse(user);
     }
 
     /**
@@ -219,9 +215,7 @@ public class UserServiceImpl implements UserService {
 
         user.setEmail(request.getNewEmail());
 
-        User savedUser = userRepository.save(user);
-
-        return convertUserToResponse(savedUser);
+        return convertUserToResponse(user);
     }
 
     /**
@@ -246,8 +240,6 @@ public class UserServiceImpl implements UserService {
         }
 
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-
-        userRepository.save(user);
     }
 
     /**
