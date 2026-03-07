@@ -13,5 +13,5 @@ import lombok.Data;
 @AllArgsConstructor
 public class AuthenticationResult<T> {
     private T response;
-    private String refreshToken;
+    private CookiePayload cookies;
 }
