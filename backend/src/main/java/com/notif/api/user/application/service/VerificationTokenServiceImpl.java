@@ -101,7 +101,7 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
     @Override
     @Transactional
     public void consumeToken(String tokenString) {
-        VerificationToken token = tokenRepository.findByToken(tokenString + "1")
+        VerificationToken token = tokenRepository.findByToken(tokenString)
                 .orElseThrow(() -> new NotFoundException(
                         "Verification token is either malformed or invalid.",
                         ErrorCode.USER_VERIFICATION_TOKEN_NOT_FOUND
