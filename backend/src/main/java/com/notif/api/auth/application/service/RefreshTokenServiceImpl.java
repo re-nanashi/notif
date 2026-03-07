@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -33,7 +32,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
      * Uses REQUIRES_NEW propagation to ensure token persistence is independent of any existing transaction context.
      */
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public RefreshTokenDto generateRefreshToken(UUID userId) {
         String tokenString = UUID.randomUUID().toString();
         String tokenHash = DigestUtils.sha256Hex(tokenString);
