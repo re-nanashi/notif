@@ -16,6 +16,7 @@ import java.util.UUID;
 public class AuthenticatedUserResponse {
     private UUID id;
     private String email;
+    private String firstName;
     private String fullName;
     private Role role;
 }
