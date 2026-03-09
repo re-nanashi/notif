@@ -29,6 +29,7 @@ public class Device extends BaseEntity {
     private String type;
 
     private String name;
+    private String model;
     private String browser;
     private String os;
 

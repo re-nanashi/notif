@@ -55,6 +55,7 @@ public class DeviceServiceImpl implements DeviceService {
         UserAgent agent = userAgentAnalyzer.parse(userAgent);
 
         String type = agent.getValue(UserAgent.DEVICE_CLASS);
+        String model = agent.getValue(UserAgent.DEVICE_NAME);
         String os = agent.getValue(UserAgent.OPERATING_SYSTEM_NAME);
         String browser = agent.getValue(UserAgent.AGENT_NAME);
 
@@ -64,8 +65,9 @@ public class DeviceServiceImpl implements DeviceService {
                 : browser + " on " + os;
 
         Device newDevice = Device.builder()
-                .name(deviceName)
                 .type(type)
+                .name(deviceName)
+                .model(model)
                 .os(os)
                 .browser(browser)
                 .userAgent(userAgent)

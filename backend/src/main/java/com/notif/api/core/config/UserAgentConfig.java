@@ -20,6 +20,7 @@ public class UserAgentConfig {
                 .newBuilder()
                 .hideMatcherLoadStats()
                 .withField(UserAgent.DEVICE_CLASS)
+                .withField(UserAgent.DEVICE_NAME)
                 .withField(UserAgent.OPERATING_SYSTEM_NAME)
                 .withField(UserAgent.AGENT_NAME)
                 .withCache(CACHE_SIZE)
