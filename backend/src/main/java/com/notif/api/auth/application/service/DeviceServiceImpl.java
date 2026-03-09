@@ -87,6 +87,7 @@ public class DeviceServiceImpl implements DeviceService {
                 .deviceId(device.getDeviceId())
                 .name(device.getName())
                 .model(device.getModel())
+                .userAgent(device.getUserAgent())
                 .lastSeenAt(device.getLastSeenAt())
                 .build();
     }

@@ -16,5 +16,6 @@ public class DeviceDto {
     private UUID deviceId;
     private String name;
     private String model;
+    private String userAgent;
     private Instant lastSeenAt;
 }
