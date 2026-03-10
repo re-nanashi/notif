@@ -1,0 +1,48 @@
+Basic User Management System including Registration
+
+--- 
+# TODO
+- [x] **User Module Basic Implementation**
+	- [x] User Controller
+	- [x] Check if all routes are working properly
+		- [x] GET /api/v1/users; Get all users.
+		- [x] GET /api/v1/users/2; Get user with ID 2 and test exceptions.
+		- [x] POST /api/v1/users; Create new user.
+	- [x] User Service
+		- [x] Just make sure that updateUser works as intended; Check valid/invalid input. Postpone business rules.
+		- [x] Not all variables are empty; there should be 1 or 2 or all variables are going to be changed.
+		- [x] If one variable on the updateRequest is already set, cancel update and throw the exception. 
+	- [x] Implement DTO-level validation
+	- [x] Change branch to feature/user-management; Fix the validation code for the DTOs
+	- [x] Implement validations on different layers. [Reference](https://stackoverflow.com/questions/16394296/in-which-layer-should-validation-be-performed)
+	- [x] CreateUserRequest.java
+	- [x] UpdateUserRequest.java
+	- [x] ChangeEmailRequest.java
+	- [x] ChangePasswordRequest.java
+	- [x] Error mapper
+		- [x] Create an Error mapper feature local and global
+		- [x] Error handling will now be on feature local ExceptionHandlers
+		- [x] How to implement Single errors and multiple errors
+- [x] **User Identity Management**
+	- [x] create users
+	- [x] update profile
+	- [x] delete users
+	- [x] unique identifiers (email/username)
+	- [x] password hashing (bcrypt/argon2)
+	- [x] password policies
+	- [x] fix: When user is already registered, it doesn't say.
+	- [x] token should indicate if used, should it be removed? 
+	- [x] Check for .equals method cause the calling object might be null
+	- [x] Service should have an interface
+	- [x] Implement BaseEntity.java
+	- [x] Remove autowiring. 
+	- [x] What?? It sent a account disabled first even though the password was wrong?
+	- [x] AuthenticatedUser -> LoginResponse
+	- [x] Fix exceptions
+	- [x] Fix User Client should bubble up the error
+	- [x] DTO should indicate if account is active
+	- [x] RegisterResponse
+	- [x] VerificationTokenRepository
+	- [x] Rename: RegistrationListener, CreateUserRequest, client, UserDTO, 
+	- [x] TokenExceptions
+	- [x] Add this to error codes [SERVICE]_[DEPENDENCY]_[PROBLEM]
