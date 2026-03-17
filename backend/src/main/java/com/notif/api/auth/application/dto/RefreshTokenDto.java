@@ -3,6 +3,7 @@ package com.notif.api.auth.application.dto;
 import lombok.Builder;
 import lombok.Data;
 
+import java.time.Instant;
 import java.util.UUID;
 
 /**
@@ -12,5 +13,10 @@ import java.util.UUID;
 @Builder
 public class RefreshTokenDto {
     private String token;
+    private UUID id;
+    private UUID sessionId;
     private UUID userId;
+    private Instant usedAt;
+    private Instant revokedAt;
+    private Instant expiresAt;
 }
