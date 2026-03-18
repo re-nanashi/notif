@@ -1,9 +1,7 @@
 package com.notif.api.auth.api.exception;
 
 import com.notif.api.auth.api.controller.AuthenticationController;
-import com.notif.api.auth.domain.exception.TokenExpiredException;
-import com.notif.api.auth.domain.exception.TokenNotFoundException;
-import com.notif.api.auth.domain.exception.TokenRevokedException;
+import com.notif.api.auth.domain.exception.*;
 import com.notif.api.core.exception.BusinessException;
 import com.notif.api.core.exception.ErrorCode;
 import com.notif.api.core.dto.ApiError;
@@ -123,6 +121,23 @@ public class AuthenticationControllerAdvice {
      */
     @ExceptionHandler({TokenExpiredException.class, TokenNotFoundException.class, TokenRevokedException.class})
     public ResponseEntity<ApiError> handleTokenExceptions(BusinessException ex) {
+        ApiError error = ApiError.builder()
+                .title(HttpStatus.UNAUTHORIZED.getReasonPhrase())
+                .status(HttpStatus.UNAUTHORIZED.value())
+                .error(ex.getErrorCode().getValue())
+                .detail(ex.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        return ResponseEntity.status(error.getStatus()).body(error);
+    }
+
+    /**
+     * Handles session-related business exceptions such as expired, invalid (missing), or revoked sessions.
+     * Returns HTTP 401 to force re-authentication.
+     */
+    @ExceptionHandler({SessionExpiredException.class, SessionNotFoundException.class, SessionRevokedException.class})
+    public ResponseEntity<ApiError> handleSessionExceptions(BusinessException ex) {
         ApiError error = ApiError.builder()
                 .title(HttpStatus.UNAUTHORIZED.getReasonPhrase())
                 .status(HttpStatus.UNAUTHORIZED.value())
