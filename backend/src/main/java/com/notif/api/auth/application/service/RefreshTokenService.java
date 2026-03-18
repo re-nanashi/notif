@@ -11,9 +11,8 @@ import java.util.UUID;
  * used for authentication session management.
  */
 public interface RefreshTokenService {
-    RefreshTokenDto generateRefreshToken(UUID userId);
-    RefreshTokenDto validateRefreshToken(String token);
-    void revokeRefreshToken(String token);
-    void revokeAllUserTokens(UUID userId);
-    void deleteAllUserTokens(UUID userId);
+    RefreshTokenDto generateToken(UUID sessionId);
+    RefreshTokenDto rotate(String tokenString);
+    RefreshTokenDto getToken(String tokenString);
+    void validateToken(RefreshTokenDto tokenDto);
 }

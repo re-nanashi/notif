@@ -2,7 +2,6 @@ package com.notif.api.auth.domain.repository;
 
 import com.notif.api.auth.domain.model.RefreshToken;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -12,7 +11,6 @@ import java.util.UUID;
 public interface RefreshTokenRepository {
     RefreshToken save(RefreshToken token);
     Optional<RefreshToken> findByToken(String token);
-    List<RefreshToken> findAllByUserId(UUID userId);
-    void revokeAllByUserId(UUID userId);
-    void deleteAllByUserId(UUID userId);
+    int revokeTokensByUserId(UUID userId);
+    int revokeTokensBySessionId(UUID sessionId);
 }

@@ -15,7 +15,21 @@ import java.util.UUID;
  */
 @Repository
 public interface JpaRefreshTokenRepository extends JpaRepository<RefreshToken, Long>, RefreshTokenRepository {
-    @Modifying
-    @Query("UPDATE RefreshToken t SET t.revoked = true WHERE t.userId = :userId AND t.revoked = false")
-    void revokeAllByUserId(@Param("userId") UUID userId);
+    @Modifying(clearAutomatically = true)
+    @Query("""
+        UPDATE RefreshToken t
+        SET t.revokedAt = CURRENT_TIMESTAMP
+        WHERE t.session.userId = :userId
+          AND t.revokedAt IS NULL
+    """)
+    int revokeTokensByUserId(@Param("userId") UUID userId);
+
+    @Modifying(clearAutomatically = true)
+    @Query("""
+        UPDATE RefreshToken t
+        SET t.revokedAt = CURRENT_TIMESTAMP
+        WHERE t.session.id = :sessionId
+          AND t.revokedAt IS NULL
+    """)
+    int revokeTokensBySessionId(@Param("sessionId") UUID sessionId);
 }

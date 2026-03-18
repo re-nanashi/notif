@@ -4,7 +4,7 @@ import com.notif.api.core.domain.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 /**
@@ -12,6 +12,11 @@ import java.util.UUID;
  * Stores token lifecycle data including expiration and revocation status.
  */
 @Entity
+@Table(
+        indexes = {
+                @Index(columnList = "session_id, revokedAt"),
+        }
+)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -25,19 +30,16 @@ public class RefreshToken extends BaseEntity {
     @Column(name = "token_hash", nullable = false, unique = true)
     private String token;
 
-    @Column(name = "user_id", nullable = false)
-    private UUID userId;
-
-    @Column(name = "device_id", nullable = false)
-    private UUID deviceId;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "session_id", nullable = false)
+    private Session session;
 
     @Column(nullable = false)
-    private LocalDateTime expiresAt;
+    private Instant expiresAt;
 
-    @Column(nullable = false)
-    private boolean revoked;
+    @Column(name = "used_at")
+    private Instant usedAt;
 
-    public boolean isTokenExpired() {
-        return expiresAt.isBefore(LocalDateTime.now());
-    }
+    @Column(name = "revoked_at")
+    private Instant revokedAt;
 }
