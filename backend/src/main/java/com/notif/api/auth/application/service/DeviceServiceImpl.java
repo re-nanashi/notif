@@ -78,6 +78,23 @@ public class DeviceServiceImpl implements DeviceService {
         return mapDeviceToDto(savedDevice);
     }
 
+    @Override
+    public Optional<DeviceDto> getDevice(String cookieDeviceId) {
+        UUID deviceId = null;
+        if (!Util.isNullOrBlank(cookieDeviceId)) {
+            try {
+                deviceId = UUID.fromString(cookieDeviceId);
+            } catch (IllegalArgumentException ignored) {}
+        }
+
+         return deviceId != null
+                 ? deviceRepository.findByDeviceId(deviceId).map(device -> {
+                     device.setLastSeenAt(Instant.now());
+                     return mapDeviceToDto(device);
+                 })
+                 : Optional.empty();
+    }
+
     /**
      * Converts a Device entity to a DeviceDto for external use.
      */
