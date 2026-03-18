@@ -17,6 +17,6 @@ public interface AuthenticationService {
     RegisterResponse resendVerificationEmail(String userEmail);
     AuthenticatedUserResponse getAuthenticatedUser(UUID id);
     AuthenticationResult<LoginResponse> authenticate(LoginRequest request, AuthenticationRequestContext context);
-    AuthenticationResult<LoginResponse> refresh(String refreshToken);
+    AuthenticationResult<LoginResponse> refresh(String refreshToken, AuthenticationRequestContext context);
     AuthenticationResult<LogoutResponse> logout(String refreshToken);
 }
