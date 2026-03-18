@@ -149,6 +149,10 @@ public class AuthenticationControllerAdvice {
         return ResponseEntity.status(error.getStatus()).body(error);
     }
 
+    /**
+     * Handles requests where the required refresh token cookie is missing.
+     * Returns a 401 Unauthorized response with a standardized API error body.
+     */
     @ExceptionHandler(MissingRequestCookieException.class)
     public ResponseEntity<ApiError> handleMissingRequestCookieException(MissingRequestCookieException ex) {
         ApiError error = ApiError.builder()
