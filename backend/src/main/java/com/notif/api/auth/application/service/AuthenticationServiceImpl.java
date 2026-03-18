@@ -1,11 +1,15 @@
 package com.notif.api.auth.application.service;
 
 import com.notif.api.auth.api.dto.*;
-import com.notif.api.auth.application.dto.AuthenticationResult;
-import com.notif.api.auth.application.dto.RefreshTokenDto;
+import com.notif.api.auth.application.dto.*;
+import com.notif.api.auth.domain.exception.SessionRevokedException;
+import com.notif.api.auth.domain.exception.TokenExpiredException;
+import com.notif.api.auth.domain.exception.TokenRevokedException;
+import com.notif.api.auth.domain.model.SessionRevokedReason;
 import com.notif.api.auth.infrastructure.security.JwtTokenProvider;
 import com.notif.api.auth.infrastructure.security.NotifUserDetails;
 import com.notif.api.core.constants.AppConstants;
+import com.notif.api.core.exception.ErrorCode;
 import com.notif.api.user.api.dto.UserAuthDetails;
 import com.notif.api.user.api.dto.UserResponse;
 import com.notif.api.user.api.dto.CreateUserRequest;
@@ -15,6 +19,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -33,6 +38,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenService refreshTokenService;
+    private final DeviceService deviceService;
+    private final UserDeviceService userDeviceService;
+    private final SessionService sessionService;
+    private final SessionRevocationService sessionRevocationService;
 
     /**
      * Registers a new user by delegating user creation to the User service.
@@ -112,6 +121,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return AuthenticatedUserResponse.builder()
                 .id(user.getId())
                 .email(user.getEmail())
+                .firstName(user.getFirstName())
                 .fullName(user.getFullName())
                 .role(user.getRole())
                 .build();
@@ -122,7 +132,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
      * refresh token, and returns both as part of the authentication result.
      */
     @Override
-    public AuthenticationResult<LoginResponse> authenticate(LoginRequest request) {
+    @Transactional
+    public AuthenticationResult<LoginResponse> authenticate(
+            LoginRequest request,
+            AuthenticationRequestContext context
+    ) {
         // Delegate credential validation to Spring Security
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -135,13 +149,28 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         NotifUserDetails userDetails = (NotifUserDetails)authentication.getPrincipal();
         AuthenticatedUserResponse userInfo = getAuthenticatedUser(userDetails.getId());
 
+        // Register a new device or return an existing device from the DB
+        DeviceDto device = deviceService.registerDevice(context.getDeviceId(), context.getUserAgent());
+        // Link user and device or return an existing user device entry from DB
+        // TODO (future): add MFA if device not trusted
+        UserDeviceDto userDevice = userDeviceService.registerLogin(userInfo, device);
+
+        // Revoke the current active session on the device (if any) before creating a new one
+        revokeExistingDeviceSession(device.getId());
+        // Create new session
+        SessionDto session = sessionService.createSession(
+                userInfo.getId(),
+                device.getId(),
+                context.getClientIp()
+        );
+
+        // Issue long-lived refresh token
+        RefreshTokenDto refreshToken = refreshTokenService.generateToken(session.getId());
+
         // Issue short-lived JWT access token
         String jwtToken = jwtTokenProvider.generateToken(userDetails);
         Date expiration = jwtTokenProvider.extractExpiration(jwtToken);
         long expiresIn = (expiration.getTime() - System.currentTimeMillis()) / AppConstants.MILLISECONDS_PER_SECOND;
-        // Issue long-lived refresh token
-        // TODO: What should we do on existing refresh tokens?
-        RefreshTokenDto refreshToken = refreshTokenService.generateRefreshToken(userDetails.getId());
 
         // Map login response
         LoginResponse loginResponse = LoginResponse.builder()
@@ -151,17 +180,72 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .user(userInfo)
                 .build();
 
-        return new AuthenticationResult<>(loginResponse, refreshToken.getToken());
+        // Map cookie payload
+        CookiePayload cookies = CookiePayload.builder()
+                .refreshToken(refreshToken.getToken())
+                .deviceId(device.getDeviceId().toString())
+                .build();
+
+        System.out.println("Login deviceId: " + device.getDeviceId().toString());
+
+        return new AuthenticationResult<>(loginResponse, cookies);
     }
 
-    // TODO: rotate the refresh token (revoke old, issue new) for extra security; return an AuthenticationResult
-    @Override
-    public AuthenticationResult<LoginResponse> refresh(String refreshToken) {
-        // Validate the refresh token
-        RefreshTokenDto validatedToken = refreshTokenService.validateRefreshToken(refreshToken);
+    private void revokeExistingDeviceSession(UUID deviceId) {
+        sessionService.getActiveSessionOnDevice(deviceId)
+                .map(SessionDto::getId)
+                .ifPresent(id ->
+                        sessionRevocationService.revokeSession(id, SessionRevokedReason.SESSION_REPLACED)
+                );
+    }
 
-        // Extract associated user from token
-        UserAuthDetails associatedUser = userClient.getUserAuthDetailsById(validatedToken.getUserId());
+    @Override
+    @Transactional(
+            noRollbackFor = {
+                    TokenRevokedException.class,
+                    TokenExpiredException.class,
+                    SessionRevokedException.class
+            }
+    )
+    public AuthenticationResult<LoginResponse> refresh(String refreshTokenString, AuthenticationRequestContext context) {
+        RefreshTokenDto refreshToken = refreshTokenService.getToken(refreshTokenString);
+
+        try {
+            refreshTokenService.validateToken(refreshToken);
+        } catch (TokenRevokedException ex) {
+            // If old/used token, revoke all user sessions and all the tokens related to those sessions
+            sessionRevocationService.revokeAllUserSessions(refreshToken.getUserId(), SessionRevokedReason.TOKEN_REUSE);
+            throw ex;
+        } catch (TokenExpiredException ex) {
+            // If expired, revoke session and update status to 'EXPIRED' due to inactivity
+            sessionRevocationService.revokeSession(refreshToken.getSessionId(), SessionRevokedReason.IDLE_TIMEOUT);
+            throw ex;
+        }
+
+        // Fetch active session from token; will throw an exception if session is not valid
+        SessionDto currentSession = sessionService.getActiveSession(refreshToken.getSessionId());
+
+        // Reject if the session's refresh token is being used from an unrecognized or mismatched device
+        // TODO (future): Suspicious login/refresh request (IP/User-Agent/Geo)
+        boolean isDeviceMismatch = deviceService.getDevice(context.getDeviceId())
+                .map(DeviceDto::getId)
+                .filter(id -> id.equals(currentSession.getDeviceId()))
+                .isEmpty();
+        if (isDeviceMismatch) {
+            // Revoke the session and block the request
+            sessionRevocationService.revokeSession(currentSession.getId(), SessionRevokedReason.DEVICE_MISMATCH);
+
+            throw new SessionRevokedException(
+                    "This session is invalid on the current device. Please log in again.",
+                    ErrorCode.AUTH_SESSION_INVALID
+            );
+        }
+
+        // Rotate refresh token; consumes previous token and generates a new one
+        RefreshTokenDto newRefreshToken = refreshTokenService.rotate(refreshTokenString);
+
+        // Extract associated user from the current session
+        UserAuthDetails associatedUser = userClient.getUserAuthDetailsById(currentSession.getUserId());
         NotifUserDetails userDetails = new NotifUserDetails(associatedUser);
 
         // Generate a new short-lived JWT access token via JwtService
@@ -169,17 +253,18 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         Date expiration = jwtTokenProvider.extractExpiration(jwtToken);
         long expiresIn = (expiration.getTime() - System.currentTimeMillis()) / AppConstants.MILLISECONDS_PER_SECOND;
 
-        // Revoke current refresh token then issue a new one
-        refreshTokenService.revokeRefreshToken(refreshToken);
-        RefreshTokenDto newRefreshToken = refreshTokenService.generateRefreshToken(userDetails.getId());
-
         LoginResponse loginResponse = LoginResponse.builder()
                 .accessToken(jwtToken)
                 .tokenType("Bearer")
                 .expiresIn(expiresIn)
                 .build();
 
-        return new AuthenticationResult<>(loginResponse, newRefreshToken.getToken());
+        CookiePayload cookies = CookiePayload.builder()
+                .refreshToken(newRefreshToken.getToken())
+                .deviceId(null)
+                .build();
+
+        return new AuthenticationResult<>(loginResponse, cookies);
     }
 
     @Override
