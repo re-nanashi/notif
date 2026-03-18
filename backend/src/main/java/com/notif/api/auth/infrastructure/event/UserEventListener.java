@@ -1,6 +1,7 @@
 package com.notif.api.auth.infrastructure.event;
 
-import com.notif.api.auth.application.service.RefreshTokenService;
+import com.notif.api.auth.application.service.SessionRevocationService;
+import com.notif.api.auth.domain.model.SessionRevokedReason;
 import com.notif.api.user.domain.event.UserDeletedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
@@ -13,12 +14,11 @@ import java.util.UUID;
 
 /**
  * Listens to user domain events to perform authentication cleanup tasks.
- * Handles user deletion events by removing associated refresh tokens.
  */
 @Component
 @RequiredArgsConstructor
 public class UserEventListener {
-    private final RefreshTokenService tokenService;
+    private SessionRevocationService sessionRevocationService;
 
     /**
      * Handles user deletion events asynchronously to avoid blocking
@@ -30,8 +30,8 @@ public class UserEventListener {
     public void handleUserDeletedEvent(UserDeletedEvent event) {
         UUID userId = event.getUserId();
 
-        // Cleanup authentication tokens for deleted user
-        tokenService.deleteAllUserTokens(userId);
+        // Soft delete; revoke all user sessions and tokens tied the sessions
+        sessionRevocationService.revokeAllUserSessions(userId, SessionRevokedReason.USER_DELETED);
 
         // TODO: Add audit logging
     }
