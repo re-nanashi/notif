@@ -3,7 +3,7 @@ package com.notif.api.auth.api.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 /**
  * Response object returned after a successful logout operation.
@@ -13,5 +13,5 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class LogoutResponse {
     private String message;
-    private LocalDateTime timestamp;
+    private Instant timestamp;
 }
