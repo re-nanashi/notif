@@ -21,7 +21,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.Date;
 import java.util.UUID;
 
@@ -208,38 +208,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             }
     )
     public AuthenticationResult<LoginResponse> refresh(String refreshTokenString, AuthenticationRequestContext context) {
-        RefreshTokenDto refreshToken = refreshTokenService.getToken(refreshTokenString);
-
-        try {
-            refreshTokenService.validateToken(refreshToken);
-        } catch (TokenRevokedException ex) {
-            // If old/used token, revoke all user sessions and all the tokens related to those sessions
-            sessionRevocationService.revokeAllUserSessions(refreshToken.getUserId(), SessionRevokedReason.TOKEN_REUSE);
-            throw ex;
-        } catch (TokenExpiredException ex) {
-            // If expired, revoke session and update status to 'EXPIRED' due to inactivity
-            sessionRevocationService.revokeSession(refreshToken.getSessionId(), SessionRevokedReason.IDLE_TIMEOUT);
-            throw ex;
-        }
-
         // Fetch active session from token; will throw an exception if session is not valid
-        SessionDto currentSession = sessionService.getActiveSession(refreshToken.getSessionId());
-
-        // Reject if the session's refresh token is being used from an unrecognized or mismatched device
-        // TODO (future): Suspicious login/refresh request (IP/User-Agent/Geo)
-        boolean isDeviceMismatch = deviceService.getDevice(context.getDeviceId())
-                .map(DeviceDto::getId)
-                .filter(id -> id.equals(currentSession.getDeviceId()))
-                .isEmpty();
-        if (isDeviceMismatch) {
-            // Revoke the session and block the request
-            sessionRevocationService.revokeSession(currentSession.getId(), SessionRevokedReason.DEVICE_MISMATCH);
-
-            throw new SessionRevokedException(
-                    "This session is invalid on the current device. Please log in again.",
-                    ErrorCode.AUTH_SESSION_INVALID
-            );
-        }
+        SessionDto currentSession = getValidatedSession(refreshTokenString, context.getDeviceId());
 
         // Rotate refresh token; consumes previous token and generates a new one
         RefreshTokenDto newRefreshToken = refreshTokenService.rotate(refreshTokenString);
@@ -258,6 +228,54 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .tokenType("Bearer")
                 .expiresIn(expiresIn)
                 .build();
+
+        CookiePayload cookies = CookiePayload.builder()
+                .refreshToken(newRefreshToken.getToken())
+                .deviceId(null)
+                .build();
+
+        return new AuthenticationResult<>(loginResponse, cookies);
+    }
+
+    private SessionDto getValidatedSession(String refreshTokenString, String cookieDeviceId) {
+        // Fetch refresh token details from DB
+        RefreshTokenDto refreshToken = refreshTokenService.getToken(refreshTokenString);
+
+        // Validate token; revoke sessions if token is misused
+        try {
+            refreshTokenService.validateToken(refreshToken);
+        } catch (TokenRevokedException ex) {
+            // If old/used token, revoke all user sessions and all the tokens related to those sessions
+            sessionRevocationService.revokeAllUserSessions(refreshToken.getUserId(), SessionRevokedReason.TOKEN_REUSE);
+            throw ex;
+        } catch (TokenExpiredException ex) {
+            // If expired, revoke session and update status to 'EXPIRED' due to inactivity
+            sessionRevocationService.revokeSession(refreshToken.getSessionId(), SessionRevokedReason.IDLE_TIMEOUT);
+            throw ex;
+        }
+
+        // Fetch active session from token; will throw an exception if session is not valid
+        SessionDto currentSession = sessionService.getActiveSession(refreshToken.getSessionId());
+
+        // Reject if the session's refresh token is being used from an unrecognized or mismatched device
+        // TODO (future): Suspicious login/refresh request (IP/User-Agent/Geo)
+        boolean isDeviceMismatch = deviceService.getDevice(cookieDeviceId)
+                .map(DeviceDto::getId)
+                .filter(id -> id.equals(currentSession.getDeviceId()))
+                .isEmpty();
+        if (isDeviceMismatch) {
+            // Revoke the session and block the request
+            sessionRevocationService.revokeSession(currentSession.getId(), SessionRevokedReason.DEVICE_MISMATCH);
+
+            throw new SessionRevokedException(
+                    "This session is invalid on the current device. Please log in again.",
+                    ErrorCode.AUTH_SESSION_INVALID
+            );
+        }
+
+        return currentSession;
+    }
+
 
         CookiePayload cookies = CookiePayload.builder()
                 .refreshToken(newRefreshToken.getToken())
