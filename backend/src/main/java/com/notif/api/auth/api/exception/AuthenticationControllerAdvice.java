@@ -159,7 +159,7 @@ public class AuthenticationControllerAdvice {
                 .title(HttpStatus.UNAUTHORIZED.getReasonPhrase())
                 .status(HttpStatus.UNAUTHORIZED.value())
                 .error(ErrorCode.UNAUTHORIZED.getValue())
-                .detail("Refresh token cookie missing.")
+                .detail("Authentication required. Please log in again.")
                 .timestamp(LocalDateTime.now())
                 .build();
 
