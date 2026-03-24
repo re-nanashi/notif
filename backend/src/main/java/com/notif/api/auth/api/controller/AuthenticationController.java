@@ -1,12 +1,15 @@
 package com.notif.api.auth.api.controller;
 
 import com.notif.api.auth.api.dto.*;
+import com.notif.api.auth.application.dto.AuthenticationRequestContext;
 import com.notif.api.auth.application.dto.AuthenticationResult;
 import com.notif.api.auth.application.service.AuthenticationService;
 import com.notif.api.auth.infrastructure.security.CookieUtil;
 import com.notif.api.auth.infrastructure.security.NotifUserDetails;
 import com.notif.api.core.dto.ApiResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -28,37 +31,76 @@ public class AuthenticationController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody @Valid LoginRequest request) {
-        AuthenticationResult<LoginResponse> result = authenticationService.authenticate(request);
-        ResponseCookie cookie = CookieUtil.createRefreshTokenCookie(result.getRefreshToken());
+    public ResponseEntity<ApiResponse<LoginResponse>> login(
+            @NonNull HttpServletRequest servletRequest,
+            @RequestBody @Valid LoginRequest loginRequest
+    ) {
+        // Capture client metadata for authentication and session validation
+        AuthenticationRequestContext context = AuthenticationRequestContext.builder()
+                .userAgent(servletRequest.getHeader("User-Agent"))
+                .clientIp(servletRequest.getRemoteAddr())
+                .deviceId(CookieUtil.getCookieValue(servletRequest, CookieUtil.DEVICE_COOKIE_NAME))
+                .build();
+
+        AuthenticationResult<LoginResponse> result = authenticationService.authenticate(loginRequest, context);
+        ResponseCookie refreshTokenCookie = CookieUtil.createRefreshTokenCookie(result.getCookies().getRefreshToken());
+        ResponseCookie deviceIdCookie = CookieUtil.createDeviceIdCookie(result.getCookies().getDeviceId());
 
         return ResponseEntity.status(HttpStatus.OK)
-                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
+                .header(HttpHeaders.SET_COOKIE, deviceIdCookie.toString())
                 .body(new ApiResponse<>("Login successful", result.getResponse()));
     }
 
     @PostMapping("/refresh")
     public ResponseEntity<ApiResponse<LoginResponse>> refresh(
-            @CookieValue(name = CookieUtil.COOKIE_NAME) String refreshToken
+            @NonNull HttpServletRequest servletRequest,
+            @CookieValue(name = CookieUtil.REFRESH_COOKIE_NAME) String refreshToken
     ) {
-        AuthenticationResult<LoginResponse> result = authenticationService.refresh(refreshToken);
-        ResponseCookie cookie = CookieUtil.createRefreshTokenCookie(result.getRefreshToken());
+        AuthenticationRequestContext context = AuthenticationRequestContext.builder()
+                .deviceId(CookieUtil.getCookieValue(servletRequest, CookieUtil.DEVICE_COOKIE_NAME))
+                .build();
+
+        AuthenticationResult<LoginResponse> result = authenticationService.refresh(refreshToken, context);
+        ResponseCookie refreshTokenCookie = CookieUtil.createRefreshTokenCookie(result.getCookies().getRefreshToken());
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .header(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString())
+                .body(new ApiResponse<>("Success", result.getResponse()));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponse<LogoutResponse>> logout(
+            @NonNull HttpServletRequest servletRequest,
+            @CookieValue(name = CookieUtil.REFRESH_COOKIE_NAME, required = false) String refreshToken
+    ) {
+        AuthenticationRequestContext context = AuthenticationRequestContext.builder()
+                .deviceId(CookieUtil.getCookieValue(servletRequest, CookieUtil.DEVICE_COOKIE_NAME))
+                .build();
+
+        AuthenticationResult<LogoutResponse> result = authenticationService.logout(refreshToken, context);
+        ResponseCookie cookie = CookieUtil.clearRefreshTokenCookie();
 
         return ResponseEntity.status(HttpStatus.OK)
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .body(new ApiResponse<>("Success", result.getResponse()));
     }
 
-    @PostMapping("/logout")
-    public ResponseEntity<ApiResponse<LogoutResponse>> logout(
-            @CookieValue(name = CookieUtil.COOKIE_NAME, required = false) String refreshToken
+    @PostMapping("/logout-all")
+    public ResponseEntity<ApiResponse<LogoutResponse>> logoutAllDevice(
+            @NonNull HttpServletRequest servletRequest,
+            @CookieValue(name = CookieUtil.REFRESH_COOKIE_NAME, required = false) String refreshToken
     ) {
-        AuthenticationResult<LogoutResponse> logout = authenticationService.logout(refreshToken);
+        AuthenticationRequestContext context = AuthenticationRequestContext.builder()
+                .deviceId(CookieUtil.getCookieValue(servletRequest, CookieUtil.DEVICE_COOKIE_NAME))
+                .build();
+
+        AuthenticationResult<LogoutResponse> result = authenticationService.logoutAllDevices(refreshToken, context);
         ResponseCookie cookie = CookieUtil.clearRefreshTokenCookie();
 
         return ResponseEntity.status(HttpStatus.OK)
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .body(new ApiResponse<>("Success", logout.getResponse()));
+                .body(new ApiResponse<>("Success", result.getResponse()));
     }
 
     @GetMapping("/me")

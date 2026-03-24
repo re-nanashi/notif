@@ -235,6 +235,42 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return new AuthenticationResult<>(loginResponse, cookies);
     }
 
+    @Override
+    @Transactional
+    public AuthenticationResult<LogoutResponse> logout(
+            String refreshTokenString,
+            AuthenticationRequestContext context
+    ) {
+        if (refreshTokenString != null) {
+            // Fetch session details from refresh token cookie retrieved device
+            SessionDto validatedSession = getValidatedSession(refreshTokenString, context.getDeviceId());
+            sessionRevocationService.revokeSession(validatedSession.getId(), SessionRevokedReason.LOGOUT);
+        }
+
+        return new AuthenticationResult<>(
+                new LogoutResponse("Logged out successfully", Instant.now()),
+                null
+        );
+    }
+
+    @Override
+    @Transactional
+    public AuthenticationResult<LogoutResponse> logoutAllDevices(
+            String refreshTokenString,
+            AuthenticationRequestContext context
+    ) {
+        if (refreshTokenString != null) {
+            // Fetch session details from refresh token cookie retrieved device
+            SessionDto validatedSession = getValidatedSession(refreshTokenString, context.getDeviceId());
+            sessionRevocationService.revokeAllUserSessions(validatedSession.getUserId(), SessionRevokedReason.LOGOUT);
+        }
+
+        return new AuthenticationResult<>(
+                new LogoutResponse("Logged out out of all devices successfully", Instant.now()),
+                null
+        );
+    }
+
     @Transactional(
             propagation = Propagation.REQUIRES_NEW,
             noRollbackFor = {
@@ -279,26 +315,5 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         }
 
         return currentSession;
-    }
-
-
-        CookiePayload cookies = CookiePayload.builder()
-                .refreshToken(newRefreshToken.getToken())
-                .deviceId(null)
-                .build();
-
-        return new AuthenticationResult<>(loginResponse, cookies);
-    }
-
-    @Override
-    public AuthenticationResult<LogoutResponse> logout(String refreshToken) {
-        if (refreshToken != null) {
-            refreshTokenService.revokeRefreshToken(refreshToken);
-        }
-
-        return new AuthenticationResult<>(
-                new LogoutResponse("Logged out successfully", LocalDateTime.now()),
-                null
-        );
     }
 }

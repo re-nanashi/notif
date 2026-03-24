@@ -18,5 +18,6 @@ public interface AuthenticationService {
     AuthenticatedUserResponse getAuthenticatedUser(UUID id);
     AuthenticationResult<LoginResponse> authenticate(LoginRequest request, AuthenticationRequestContext context);
     AuthenticationResult<LoginResponse> refresh(String refreshToken, AuthenticationRequestContext context);
-    AuthenticationResult<LogoutResponse> logout(String refreshToken);
+    AuthenticationResult<LogoutResponse> logout(String refreshToken, AuthenticationRequestContext context);
+    AuthenticationResult<LogoutResponse> logoutAllDevices(String refreshToken, AuthenticationRequestContext context);
 }
