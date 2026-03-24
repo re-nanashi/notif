@@ -19,6 +19,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
@@ -200,14 +201,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    @Transactional(
-            noRollbackFor = {
-                    TokenRevokedException.class,
-                    TokenExpiredException.class,
-                    SessionRevokedException.class
-            }
-    )
-    public AuthenticationResult<LoginResponse> refresh(String refreshTokenString, AuthenticationRequestContext context) {
+    @Transactional
+    public AuthenticationResult<LoginResponse> refresh(
+            String refreshTokenString,
+            AuthenticationRequestContext context
+    ) {
         // Fetch active session from token; will throw an exception if session is not valid
         SessionDto currentSession = getValidatedSession(refreshTokenString, context.getDeviceId());
 
@@ -237,10 +235,17 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return new AuthenticationResult<>(loginResponse, cookies);
     }
 
+    @Transactional(
+            propagation = Propagation.REQUIRES_NEW,
+            noRollbackFor = {
+                    TokenRevokedException.class,
+                    TokenExpiredException.class,
+                    SessionRevokedException.class
+            }
+    )
     private SessionDto getValidatedSession(String refreshTokenString, String cookieDeviceId) {
         // Fetch refresh token details from DB
         RefreshTokenDto refreshToken = refreshTokenService.getToken(refreshTokenString);
-
         // Validate token; revoke sessions if token is misused
         try {
             refreshTokenService.validateToken(refreshToken);
