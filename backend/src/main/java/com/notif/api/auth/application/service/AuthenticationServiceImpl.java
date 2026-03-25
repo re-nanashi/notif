@@ -187,8 +187,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .deviceId(device.getDeviceId().toString())
                 .build();
 
-        System.out.println("Login deviceId: " + device.getDeviceId().toString());
-
         return new AuthenticationResult<>(loginResponse, cookies);
     }
 
