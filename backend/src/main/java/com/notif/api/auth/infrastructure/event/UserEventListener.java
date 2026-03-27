@@ -21,6 +21,21 @@ public class UserEventListener {
     private SessionRevocationService sessionRevocationService;
 
     /**
+     * Handles user password changed event asynchronously.
+     */
+    @EventListener
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @Async
+    public void handlePasswordChangedEvent(UserDeletedEvent event) {
+        UUID userId = event.getUserId();
+
+        // Revoke all user sessions and tokens tied the sessions
+        sessionRevocationService.revokeAllUserSessions(userId, SessionRevokedReason.PASSWORD_CHANGE);
+
+        // TODO: Add audit logging
+    }
+
+    /**
      * Handles user deletion events asynchronously to avoid blocking
      * the main application thread.
      */

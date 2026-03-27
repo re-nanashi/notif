@@ -6,6 +6,7 @@ import com.notif.api.core.exception.NotFoundException;
 import com.notif.api.core.exception.ValidationException;
 import com.notif.api.user.api.dto.*;
 import com.notif.api.user.api.dto.CreateUserRequest;
+import com.notif.api.user.domain.event.PasswordChangedEvent;
 import com.notif.api.user.domain.event.UserDeletedEvent;
 import com.notif.api.user.domain.model.Role;
 import com.notif.api.user.domain.model.User;
@@ -240,6 +241,8 @@ public class UserServiceImpl implements UserService {
         }
 
         user.setPassword(passwordEncoder.encode(request.getPassword()));
+
+        eventPublisher.publish(new PasswordChangedEvent(user.getId()));
     }
 
     /**
