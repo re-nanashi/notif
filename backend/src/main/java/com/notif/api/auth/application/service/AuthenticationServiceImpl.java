@@ -190,6 +190,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return new AuthenticationResult<>(loginResponse, cookies);
     }
 
+    /**
+     * Revoke any active session on the given device, marking it as replaced.
+     */
     private void revokeExistingDeviceSession(UUID deviceId) {
         sessionService.getActiveSessionOnDevice(deviceId)
                 .map(SessionDto::getId)
@@ -198,6 +201,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 );
     }
 
+    /**
+     * Refreshes authentication using the provided refresh token and context.
+     */
     @Override
     @Transactional
     public AuthenticationResult<LoginResponse> refresh(
@@ -235,6 +241,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return new AuthenticationResult<>(loginResponse, cookies);
     }
 
+    /**
+     *  Logs out the user by invalidating the refresh token and ending the session on the current device.
+     */
     @Override
     @Transactional
     public AuthenticationResult<LogoutResponse> logout(
@@ -253,6 +262,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         );
     }
 
+    /**
+     *  Logs out the user by invalidating the refresh token and ending all user sessions.
+     */
     @Override
     @Transactional
     public AuthenticationResult<LogoutResponse> logoutAllDevices(
@@ -271,6 +283,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         );
     }
 
+    /**
+     * Retrieves the session from the refresh token, validates it, and ensures it matches the current device.
+     */
     @Transactional(
             propagation = Propagation.REQUIRES_NEW,
             noRollbackFor = {
