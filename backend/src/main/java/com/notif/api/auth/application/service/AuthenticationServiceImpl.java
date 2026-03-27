@@ -242,7 +242,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     /**
-     *  Logs out the user by invalidating the refresh token and ending the session on the current device.
+     * Logs out the user by invalidating the refresh token and ending the session on the current device.
      */
     @Override
     @Transactional
@@ -263,7 +263,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     /**
-     *  Logs out the user by invalidating the refresh token and ending all user sessions.
+     * Logs out the user by invalidating the refresh token and ending all user sessions.
      */
     @Override
     @Transactional
