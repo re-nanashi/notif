@@ -210,7 +210,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         // Rotate refresh token; consumes previous token and generates a new one
         // If the token has already been used but is still within the grace period (i.e., 30 seconds),
         // return the existing refresh token from the database
-        RefreshTokenDto newRefreshToken = refreshTokenService.rotate(refreshTokenString);
+        RefreshTokenDto refreshToken = refreshTokenService.rotate(refreshTokenString);
 
         // Extract associated user from the current session
         UserAuthDetails associatedUser = userClient.getUserAuthDetailsById(currentSession.getUserId());
@@ -228,7 +228,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .build();
 
         CookiePayload cookies = CookiePayload.builder()
-                .refreshToken(newRefreshToken.getToken())
+                .refreshToken(refreshToken.getToken())
                 .deviceId(null)
                 .build();
 
