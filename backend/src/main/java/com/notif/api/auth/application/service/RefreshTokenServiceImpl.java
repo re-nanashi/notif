@@ -33,7 +33,6 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 
     /**
      * Generates a new refresh token with fresh expiration timestamp.
-     * Uses REQUIRES_NEW propagation to ensure token persistence is independent of any existing transaction context.
      */
     @Override
     @Transactional
