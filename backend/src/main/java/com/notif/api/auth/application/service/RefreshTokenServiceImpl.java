@@ -60,11 +60,20 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     @Transactional
     public RefreshTokenDto rotate(String tokenString) {
         String tokenHash = DigestUtils.sha256Hex(tokenString);
-        RefreshToken token = tokenRepository.findByToken(tokenHash)
+        RefreshToken token = tokenRepository.findByTokenWithLock(tokenHash)
                 .orElseThrow(() -> new TokenNotFoundException("Invalid or expired refresh token. Please log in again."));
 
+        Instant now = Instant.now();
+        // If a potential race condition occurs, return the same token if within the 30-second grace period.
+        boolean used = token.getUsedAt() != null;
+        boolean withinGracePeriod = used && token.getUsedAt().isAfter(now.minusSeconds(30));
+
+        if (withinGracePeriod) {
+            return convertTokenToDto(tokenString, token);
+        }
+
         // Mark the current refresh token as used to prevent reuse (token rotation)
-        token.setUsedAt(Instant.now());
+        token.setUsedAt(now);
 
         // Generate a new refresh token and hash it before storing
         String newTokenString = UUID.randomUUID().toString();
@@ -73,7 +82,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         RefreshToken newToken = RefreshToken.builder()
                 .token(newTokenHash)
                 .session(token.getSession())
-                .expiresAt(Instant.now().plusSeconds(refreshTokenExpiration))
+                .expiresAt(now.plusSeconds(refreshTokenExpiration))
                 .build();
 
         RefreshToken savedToken = tokenRepository.save(newToken);
@@ -102,15 +111,20 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
      */
     @Override
     public void validateToken(RefreshTokenDto token) {
-        // Reuse detected
-        if (token.getRevokedAt() != null || token.getUsedAt() != null) {
+        Instant now = Instant.now();
+
+        boolean used = token.getUsedAt() != null;
+        boolean withinGracePeriod = used && token.getUsedAt().isAfter(now.minusSeconds(30));
+        boolean tokenIsInvalid = used && !withinGracePeriod;
+        if (token.getRevokedAt() != null || tokenIsInvalid) {
+            // Token reuse detected
             throw new TokenRevokedException(
                     "Your session is no longer valid. Please log in again.",
                     ErrorCode.AUTH_SESSION_INVALID
             );
         }
 
-        if (Instant.now().isAfter(token.getExpiresAt())) {
+        if (now.isAfter(token.getExpiresAt())) {
             throw new TokenExpiredException(
                     "Your session has expired due to inactivity. Please log in again.",
                     ErrorCode.AUTH_SESSION_EXPIRED

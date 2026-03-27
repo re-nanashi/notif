@@ -208,6 +208,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         SessionDto currentSession = getValidatedSession(refreshTokenString, context.getDeviceId());
 
         // Rotate refresh token; consumes previous token and generates a new one
+        // If the token has already been used but is still within the grace period (i.e., 30 seconds),
+        // return the existing refresh token from the database
         RefreshTokenDto newRefreshToken = refreshTokenService.rotate(refreshTokenString);
 
         // Extract associated user from the current session

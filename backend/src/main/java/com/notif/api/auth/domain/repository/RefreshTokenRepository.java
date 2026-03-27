@@ -11,6 +11,7 @@ import java.util.UUID;
 public interface RefreshTokenRepository {
     RefreshToken save(RefreshToken token);
     Optional<RefreshToken> findByToken(String token);
+    Optional<RefreshToken> findByTokenWithLock(String token);
     int revokeTokensByUserId(UUID userId);
     int revokeTokensBySessionId(UUID sessionId);
 }
