@@ -6,7 +6,7 @@ import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 import static com.notif.api.core.constants.AppConstants.*;
 
@@ -17,7 +17,7 @@ import static com.notif.api.core.constants.AppConstants.*;
 @AllArgsConstructor
 @Builder
 public class VerificationToken extends BaseEntity {
-    public static final int EXPIRATION = MINUTES_PER_HOUR * HOURS_PER_DAY; // 24 hours in minutes
+    public static final int EXPIRATION = SECONDS_PER_MINUTE * MINUTES_PER_HOUR * HOURS_PER_DAY; // 24 hours in seconds
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -32,12 +32,8 @@ public class VerificationToken extends BaseEntity {
     private User user;
 
     @Column(name = "expires_at", nullable = false)
-    private LocalDateTime expiresAt;
+    private Instant expiresAt;
 
     @Enumerated(EnumType.STRING)
     private TokenStatus status;
-
-    public boolean isTokenExpired() {
-        return expiresAt.isBefore(LocalDateTime.now());
-    }
 }

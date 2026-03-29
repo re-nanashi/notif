@@ -7,7 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Data
 @NoArgsConstructor
@@ -26,5 +26,5 @@ public class ApiError {
     private Object fieldErrors;                                     // List of detailed error messages
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private LocalDateTime timestamp;                                // Timestamp when error happened
+    private Instant timestamp;                                // Timestamp when error happened
 }

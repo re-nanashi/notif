@@ -16,7 +16,7 @@ import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Component
 @RequiredArgsConstructor
@@ -46,7 +46,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
                 .status(HttpStatus.UNAUTHORIZED.value())
                 .error(errorCode)
                 .detail(errorDetails)
-                .timestamp(LocalDateTime.now())
+                .timestamp(Instant.now())
                 .build();
 
         ObjectMapper mapper = new ObjectMapper();

@@ -4,7 +4,7 @@ import com.notif.api.user.domain.model.Role;
 import lombok.Builder;
 import lombok.Data;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 /**
@@ -27,5 +27,5 @@ public class UserResponse {
     private String lastName;
     private String fullName;
     private Role role;
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 }

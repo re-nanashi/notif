@@ -10,7 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 /**
  * Handles user-related exceptions thrown by {@link UserController}.
@@ -26,7 +26,7 @@ public class UserControllerAdvice {
                 .status(HttpStatus.BAD_REQUEST.value())
                 .error(ex.getErrorCode().getValue())
                 .detail(ex.getMessage())
-                .timestamp(LocalDateTime.now())
+                .timestamp(Instant.now())
                 .build();
 
         return ResponseEntity.status(error.getStatus()).body(error);

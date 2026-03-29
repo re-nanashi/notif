@@ -4,7 +4,7 @@ import com.notif.api.core.domain.event.DomainEvent;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 /**
@@ -14,7 +14,7 @@ import java.util.UUID;
 @AllArgsConstructor
 public class UserDeletedEvent implements DomainEvent {
     private final UUID userId;
-    private final LocalDateTime occurredOn = LocalDateTime.now();
+    private final Instant occurredOn = Instant.now();
 
     @Override
     public String getEventType() {

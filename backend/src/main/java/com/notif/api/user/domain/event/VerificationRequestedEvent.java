@@ -4,7 +4,7 @@ import com.notif.api.core.domain.event.DomainEvent;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 /**
@@ -15,7 +15,7 @@ import java.util.UUID;
 public class VerificationRequestedEvent implements DomainEvent {
     private final UUID userId;
     private final String token;
-    private final LocalDateTime occurredOn = LocalDateTime.now();
+    private final Instant occurredOn = Instant.now();
 
     @Override
     public String getEventType() {

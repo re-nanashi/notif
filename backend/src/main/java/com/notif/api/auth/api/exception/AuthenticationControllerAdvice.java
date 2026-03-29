@@ -17,7 +17,7 @@ import org.springframework.web.bind.MissingRequestCookieException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 /**
  * Global exception handler for AuthenticationController.
@@ -39,7 +39,7 @@ public class AuthenticationControllerAdvice {
                 .status(HttpStatus.UNAUTHORIZED.value())
                 .error(ErrorCode.AUTH_INVALID_CREDENTIALS.getValue())
                 .detail("Invalid email or password. Please try again or reset your password.")
-                .timestamp(LocalDateTime.now())
+                .timestamp(Instant.now())
                 .build();
 
         return ResponseEntity.status(error.getStatus()).body(error);
@@ -57,7 +57,7 @@ public class AuthenticationControllerAdvice {
                 .status(HttpStatus.FORBIDDEN.value())
                 .error(ErrorCode.USER_ACCOUNT_DISABLED.getValue())
                 .detail("User account is disabled. Please verify your email.")
-                .timestamp(LocalDateTime.now())
+                .timestamp(Instant.now())
                 .build();
 
         return ResponseEntity.status(error.getStatus()).body(error);
@@ -74,7 +74,7 @@ public class AuthenticationControllerAdvice {
                 .status(HttpStatus.FORBIDDEN.value())
                 .error(ErrorCode.USER_ACCOUNT_SUSPENDED.getValue())
                 .detail("User account locked. Please contact your system administrator for assistance.")
-                .timestamp(LocalDateTime.now())
+                .timestamp(Instant.now())
                 .build();
 
         return ResponseEntity.status(error.getStatus()).body(error);
@@ -91,7 +91,7 @@ public class AuthenticationControllerAdvice {
                 .status(HttpStatus.UNAUTHORIZED.value())
                 .error(ErrorCode.USER_ACCOUNT_EXPIRED.getValue())
                 .detail("User account has expired. Please contact your system administrator for assistance.")
-                .timestamp(LocalDateTime.now())
+                .timestamp(Instant.now())
                 .build();
 
         return ResponseEntity.status(error.getStatus()).body(error);
@@ -108,7 +108,7 @@ public class AuthenticationControllerAdvice {
                 .status(HttpStatus.UNAUTHORIZED.value())
                 .error(ErrorCode.USER_CREDENTIALS_EXPIRED.getValue())
                 .detail("User credentials have expired. Please reset it immediately.")
-                .timestamp(LocalDateTime.now())
+                .timestamp(Instant.now())
                 .build();
 
         return ResponseEntity.status(error.getStatus()).body(error);
@@ -126,7 +126,7 @@ public class AuthenticationControllerAdvice {
                 .status(HttpStatus.UNAUTHORIZED.value())
                 .error(ex.getErrorCode().getValue())
                 .detail(ex.getMessage())
-                .timestamp(LocalDateTime.now())
+                .timestamp(Instant.now())
                 .build();
 
         return ResponseEntity.status(error.getStatus()).body(error);
@@ -143,7 +143,7 @@ public class AuthenticationControllerAdvice {
                 .status(HttpStatus.UNAUTHORIZED.value())
                 .error(ex.getErrorCode().getValue())
                 .detail(ex.getMessage())
-                .timestamp(LocalDateTime.now())
+                .timestamp(Instant.now())
                 .build();
 
         return ResponseEntity.status(error.getStatus()).body(error);
@@ -160,7 +160,7 @@ public class AuthenticationControllerAdvice {
                 .status(HttpStatus.UNAUTHORIZED.value())
                 .error(ErrorCode.UNAUTHORIZED.getValue())
                 .detail("Authentication required. Please log in again.")
-                .timestamp(LocalDateTime.now())
+                .timestamp(Instant.now())
                 .build();
 
         return ResponseEntity.status(error.getStatus()).body(error);
@@ -178,7 +178,7 @@ public class AuthenticationControllerAdvice {
                 .status(HttpStatus.UNAUTHORIZED.value())
                 .error(ErrorCode.AUTHENTICATION_FAILED.getValue())
                 .detail("Authentication failed. Please log in again or try again later.")
-                .timestamp(LocalDateTime.now())
+                .timestamp(Instant.now())
                 .build();
 
         return ResponseEntity.status(error.getStatus()).body(error);

@@ -8,7 +8,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +22,7 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.BAD_REQUEST.value())
                 .error(ex.getErrorCode().getValue())
                 .detail(ex.getMessage())
-                .timestamp(LocalDateTime.now())
+                .timestamp(Instant.now())
                 .build();
 
         return ResponseEntity.status(error.getStatus()).body(error);
@@ -35,7 +35,7 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.NOT_FOUND.value())
                 .error(ex.getErrorCode().getValue())
                 .detail(ex.getMessage())
-                .timestamp(LocalDateTime.now())
+                .timestamp(Instant.now())
                 .build();
 
         return ResponseEntity.status(error.getStatus()).body(error);
@@ -48,7 +48,7 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.CONFLICT.value())
                 .error(ex.getErrorCode().getValue())
                 .detail(ex.getMessage())
-                .timestamp(LocalDateTime.now())
+                .timestamp(Instant.now())
                 .build();
 
         return ResponseEntity.status(error.getStatus()).body(error);
@@ -61,7 +61,7 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.BAD_REQUEST.value())
                 .error(ex.getErrorCode().getValue())
                 .detail(ex.getMessage())
-                .timestamp(LocalDateTime.now())
+                .timestamp(Instant.now())
                 .build();
 
         return ResponseEntity.status(error.getStatus()).body(error);
@@ -74,7 +74,7 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.UNAUTHORIZED.value())
                 .error(ex.getErrorCode().getValue())
                 .detail(ex.getMessage())
-                .timestamp(LocalDateTime.now())
+                .timestamp(Instant.now())
                 .build();
 
         return ResponseEntity.status(error.getStatus()).body(error);
@@ -87,7 +87,7 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.FORBIDDEN.value())
                 .error(ex.getErrorCode().getValue())
                 .detail(ex.getMessage())
-                .timestamp(LocalDateTime.now())
+                .timestamp(Instant.now())
                 .build();
 
         return ResponseEntity.status(error.getStatus()).body(error);
@@ -100,7 +100,7 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.BAD_GATEWAY.value())
                 .error(ex.getErrorCode().getValue())
                 .detail(ex.getMessage())
-                .timestamp(LocalDateTime.now())
+                .timestamp(Instant.now())
                 .build();
 
         return ResponseEntity.status(error.getStatus()).body(error);
@@ -124,7 +124,7 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.BAD_REQUEST.value())
                 .error(ErrorCode.INVALID_INPUT.getValue())
                 .fieldErrors(fieldErrors)
-                .timestamp(LocalDateTime.now())
+                .timestamp(Instant.now())
                 .build();
 
         return ResponseEntity.status(error.getStatus()).body(error);
@@ -138,7 +138,7 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
                 .error(ErrorCode.INTERNAL_SERVER_ERROR.getValue())
                 .detail("An unexpected error occurred on our end. We have been notified and are looking into it.")
-                .timestamp(LocalDateTime.now())
+                .timestamp(Instant.now())
                 .build();
 
         // WIP: Not implementing logging yet so use this for now

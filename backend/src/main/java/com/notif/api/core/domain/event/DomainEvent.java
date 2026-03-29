@@ -1,8 +1,8 @@
 package com.notif.api.core.domain.event;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 public interface DomainEvent {
-    LocalDateTime getOccurredOn();
+    Instant getOccurredOn();
     String getEventType();
 }

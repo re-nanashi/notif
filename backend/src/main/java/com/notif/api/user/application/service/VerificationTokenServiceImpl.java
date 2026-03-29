@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 /**
@@ -40,7 +40,7 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
         VerificationToken token = VerificationToken.builder()
                 .token(tokenString)
                 .user(userProxy)
-                .expiresAt(LocalDateTime.now().plusMinutes(VerificationToken.EXPIRATION))
+                .expiresAt(Instant.now().plusSeconds(VerificationToken.EXPIRATION))
                 .status(TokenStatus.PENDING)
                 .build();
 
@@ -85,7 +85,7 @@ public class VerificationTokenServiceImpl implements VerificationTokenService {
                     ErrorCode.USER_VERIFICATION_TOKEN_ALREADY_USED
             );
         }
-        if (token.isTokenExpired()) {
+        if (Instant.now().isAfter(token.getExpiresAt())) {
             token.setStatus(TokenStatus.EXPIRED); // set status to expired; to be deleted by batch
 
             throw new UnauthorizedException(
